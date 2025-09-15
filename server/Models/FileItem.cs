@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ChefServe.Models;
 
-public class File
+public class FileItem
 {
 
     public int Id { get; set; }
@@ -32,6 +32,6 @@ public class File
     public bool IsFolder { get; set; }
 
     // Navigation properties
-    public File? ParentFolder { get; set; }
-    public ICollection<File> ChildItems { get; set; } = new List<File>();
+    public FileItem? ParentFolder { get; set; }
+    public ICollection<FileItem> ChildItems { get; set; } = new List<FileItem>();
 }
