@@ -1,4 +1,4 @@
-using ChefServe.Models;
+using ChefServe.Core.Models;
 public interface IFileService
 {
     Task<FileItem> UploadFileAsync(string fileName, Stream fileStream, string contentType, string userId, int? parentFolderId = null);

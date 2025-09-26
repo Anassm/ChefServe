@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using ChefServe.Core.Models;
 using ChefServe.Core.DTOs;
+using System.Security.Cryptography;
 
 namespace ChefServe.API.Controllers;
 
@@ -28,9 +29,19 @@ public class AuthController : ControllerBase
             PasswordHash = _passwordHasher.HashPassword(null, registerDto.Password),
         };
 
+        // Ignore this for now
         var result = await ...;
 
-        var token = ...;
+        byte[] tokenBytes = RandomNumberGenerator.GetBytes(32);
+        string token = Convert.ToBase64String(tokenBytes);
+
+        Session session = new Session
+        {
+            Token = token,
+            UserId = user.ID, // ???
+            CreatedAt = DateTime.UtcNow,
+            ExpiresAt = DateTime.UtcNow.AddHours(24)
+        }
 
         return Ok(new AuthResponseDto
         {
