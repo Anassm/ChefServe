@@ -63,8 +63,7 @@ namespace YourNamespace.Data
                 // Enum als string opslaan
                 entity.Property(fs => fs.Permission)
                       .HasConversion<string>()    // SQLite kan geen echte enums
-                      .HasMaxLength(10)
-                      .HasDefaultValue("Read");   // SQLite default literal
+                      .HasMaxLength(10);
             });
         }
     }
