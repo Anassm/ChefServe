@@ -12,23 +12,21 @@ namespace YourNamespace.Data
         public DbSet<User> Users { get; set; }
         public DbSet<FileItem> FileItems { get; set; }
         public DbSet<SharedFileItem> SharedFileItems { get; set; }
+        public DbSet<Session> Sessions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Users
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasKey(u => u.ID);
                 entity.Property(u => u.Username).IsRequired().HasMaxLength(100);
                 entity.Property(u => u.Email).IsRequired().HasMaxLength(150);
-                // SQLite default current timestamp
                 entity.Property(u => u.CreatedAt)
                       .HasDefaultValueSql("CURRENT_TIMESTAMP");
             });
 
-            // Files
             modelBuilder.Entity<FileItem>(entity =>
             {
                 entity.HasKey(f => f.ID);
@@ -38,6 +36,7 @@ namespace YourNamespace.Data
                       .HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.Property(f => f.UpdatedAt)
                       .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                entity.Property(f => f.IsFolder).HasDefaultValueSql("0");
 
                 entity.HasOne(f => f.Owner)
                       .WithMany(u => u.FileItems)
@@ -45,7 +44,6 @@ namespace YourNamespace.Data
                       .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // FileShares (junction table)
             modelBuilder.Entity<SharedFileItem>(entity =>
             {
                 entity.HasKey(fs => new { fs.FileID, fs.UserID });
@@ -60,10 +58,30 @@ namespace YourNamespace.Data
                       .HasForeignKey(fs => fs.UserID)
                       .OnDelete(DeleteBehavior.Cascade);
 
-                // Enum als string opslaan
                 entity.Property(fs => fs.Permission)
-                      .HasConversion<string>()    // SQLite kan geen echte enums
+                      .HasConversion<string>()  
                       .HasMaxLength(10);
+            });
+            modelBuilder.Entity<Session>(entity =>
+            {
+                entity.HasKey(s => s.ID);
+
+                entity.Property(s => s.Token)
+                    .IsRequired()
+                    .HasMaxLength(255); 
+
+                entity.Property(s => s.UserID)
+                    .IsRequired();
+
+                entity.Property(s => s.CreatedAt)
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                entity.Property(s => s.ExpiresAt);
+
+                entity.HasOne<User>()              
+                    .WithMany(u => u.Sessions)   
+                    .HasForeignKey(s => s.UserID)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }
