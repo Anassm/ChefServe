@@ -1,8 +1,9 @@
 using ChefServe.Core.Models;
+using ChefServe.Core.DTOs;
 
 public interface IFileService
 {
-    Task<FileItem> UploadFileAsync(Guid ownerId, string fileName, Stream content, string destinationPath);
+    Task<UploadFileDTO> UploadFileAsync(Guid ownerId, string fileName, Stream content, string destinationPath);
 
     Task<FileItem> CreateFolderAsync(Guid ownerId, string folderName, string parentPath);
 

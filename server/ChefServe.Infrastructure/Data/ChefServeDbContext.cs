@@ -59,7 +59,7 @@ namespace YourNamespace.Data
                       .OnDelete(DeleteBehavior.Cascade);
 
                 entity.Property(fs => fs.Permission)
-                      .HasConversion<string>()  
+                      .HasConversion<string>()
                       .HasMaxLength(10);
             });
             modelBuilder.Entity<Session>(entity =>
@@ -68,7 +68,7 @@ namespace YourNamespace.Data
 
                 entity.Property(s => s.Token)
                     .IsRequired()
-                    .HasMaxLength(255); 
+                    .HasMaxLength(255);
 
                 entity.Property(s => s.UserID)
                     .IsRequired();
@@ -78,10 +78,11 @@ namespace YourNamespace.Data
 
                 entity.Property(s => s.ExpiresAt);
 
-                entity.HasOne<User>()              
-                    .WithMany(u => u.Sessions)   
-                    .HasForeignKey(s => s.UserID)
+                entity.HasOne(s => s.User)
+                    .WithOne(u => u.Session)
+                    .HasForeignKey<Session>(s => s.UserID)
                     .OnDelete(DeleteBehavior.Cascade);
+
             });
         }
     }

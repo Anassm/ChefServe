@@ -14,5 +14,5 @@ public class User
 
     public ICollection<FileItem> FileItems { get; set; } = new List<FileItem>();
     public ICollection<SharedFileItem> SharedFileItems { get; set; } = new List<SharedFileItem>();
-    public ICollection<Session> Sessions { get; set; } = new List<Session>();
+    public Session? Session { get; set; }
 }
