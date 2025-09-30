@@ -14,7 +14,34 @@ public class FileServices : IFileService
 
     public async Task<FileItem> CreateFolderAsync(Guid ownerId, string folderName, string parentPath)
     {
-        return null;
+        if (ownerId == Guid.Empty)
+            return null;
+        if (folderName == null || folderName.Trim() == string.Empty)
+            return null;
+        if (parentPath == null || parentPath.Trim() == string.Empty)
+            return null;
+
+        var fullPath = Path.Combine(UserHelper.GetRootPathForUser(ownerId), parentPath, folderName);
+        if (Directory.Exists(fullPath))
+        {
+            return null;
+        }
+        Directory.CreateDirectory(fullPath);
+        var dirInfo = new DirectoryInfo(fullPath);
+        var User = _context.Users.Find(ownerId);
+        if (User == null)
+            return null;
+        var fileitem = new FileItem
+        {
+            Name = dirInfo.Name,
+            Path = fullPath,
+            OwnerID = ownerId,
+            IsFolder = true,
+            Owner = User
+        };
+        _context.FileItems.Add(fileitem);
+        await _context.SaveChangesAsync();
+        return fileitem;
     }
 
     public async Task<FileItem> UploadFileAsync(Guid ownerId, string fileName, Stream content, string destinationPath)
@@ -22,29 +49,35 @@ public class FileServices : IFileService
         //checks
         if (ownerId == Guid.Empty)
             return null;
-
         if (fileName == null || fileName.Trim() == string.Empty)
             return null;
-
         if (content == null || content.Length == 0)
             return null;
-
         if (destinationPath == null || destinationPath.Trim() == string.Empty)
             return null;
 
         //create directory
         var fullPath = Path.Combine(UserHelper.GetRootPathForUser(ownerId), destinationPath, fileName);
+        if (!Directory.Exists(fullPath))
+        {
+            return null;
+        }
+        if (File.Exists(fullPath))
+        {
+            return null;
+        }
         using (var fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
         {
             await content.CopyToAsync(fileStream);
         }
 
+        //get file info
         var FileInfo = new FileInfo(fullPath);
         var User = _context.Users.Find(ownerId);
         if (User == null)
             return null;
 
-        return new FileItem
+        var fileitem = new FileItem
         {
             Name = FileInfo.Name,
             Path = fullPath,
@@ -54,6 +87,10 @@ public class FileServices : IFileService
             IsFolder = false,
             Owner = User
         };
+
+        _context.FileItems.Add(fileitem);
+        await _context.SaveChangesAsync();
+        return fileitem;
     }
 
     public async Task<FileItem?> GetFileAsync(Guid fileId, Guid userId)
