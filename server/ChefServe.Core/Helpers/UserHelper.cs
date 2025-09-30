@@ -1,3 +1,5 @@
+using ChefServe.Core.Models;
+using ChefServe.Infrastructure.Data;
 namespace ChefServe.Core.Helper;
 
 public class UserHelper

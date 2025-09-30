@@ -1,42 +1,62 @@
 using ChefServe.Core.DTOs;
 using ChefServe.Core.Models;
+using ChefServe.Core.Helper;
+using ChefServe.Core.Interfaces;
+using ChefServe.Infrastructure.Data;
 
 public class FileServices : IFileService
 {
+    private readonly ChefServeDbContext _context;
+    public FileServices(ChefServeDbContext context)
+    {
+        _context = context;
+    }
+
     public async Task<FileItem> CreateFolderAsync(Guid ownerId, string folderName, string parentPath)
     {
         return null;
     }
 
-    public async Task<UploadFileDTO> UploadFileAsync(Guid ownerId, string fileName, Stream content, string destinationPath)
+    public async Task<FileItem> UploadFileAsync(Guid ownerId, string fileName, Stream content, string destinationPath)
     {
+        //checks
         if (ownerId == Guid.Empty)
-            return new UploadFileDTO();
+            return null;
 
         if (fileName == null || fileName.Trim() == string.Empty)
-            return new UploadFileDTO();
+            return null;
 
         if (content == null || content.Length == 0)
-            return new UploadFileDTO();
+            return null;
 
         if (destinationPath == null || destinationPath.Trim() == string.Empty)
-            return new UploadFileDTO();
+            return null;
 
-
-        var fullPath = Path.Combine(destinationPath, fileName);
+        //create directory
+        var fullPath = Path.Combine(UserHelper.GetRootPathForUser(ownerId), destinationPath, fileName);
         using (var fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
         {
             await content.CopyToAsync(fileStream);
         }
 
-        return new UploadFileDTO
-        {
+        var FileInfo = new FileInfo(fullPath);
+        var User = _context.Users.Find(ownerId);
+        if (User == null)
+            return null;
 
+        return new FileItem
+        {
+            Name = FileInfo.Name,
+            Path = fullPath,
+            OwnerID = ownerId,
+            CreatedAt = FileInfo.CreationTimeUtc,
+            UpdatedAt = FileInfo.LastWriteTimeUtc,
+            IsFolder = false,
+            Owner = User
         };
-        
     }
 
-    public Task<FileItem?> GetFileAsync(Guid fileId, Guid userId)
+    public async Task<FileItem?> GetFileAsync(Guid fileId, Guid userId)
     {
         return null;
     }
