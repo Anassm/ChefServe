@@ -1,26 +1,32 @@
-using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using YourNamespace.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+var connectionString = "Data Source=ChefServe.Infrastructure/Data/database.db";
 
-// Add services to the container
+// Add services to the container.
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connectionString));
 builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUi(options =>
+    {
+        options.DocumentPath = "/openapi/v1.json";
+    });
 }
 
 app.UseHttpsRedirection();
 
-app.MapControllers();
+app.UseAuthorization();
 
-// Identity endpoints (register, login, etc.)
-app.MapIdentityApi<IdentityUser>();
+app.MapControllers();
 
 app.Run();

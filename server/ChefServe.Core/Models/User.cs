@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace ChefServe.Core.Models;
 
-public class User 
+public class User
 {
     public Guid ID { get; set; } = Guid.NewGuid();
     public required string Username { get; set; }
@@ -14,4 +14,5 @@ public class User
 
     public ICollection<FileItem> FileItems { get; set; } = new List<FileItem>();
     public ICollection<SharedFileItem> SharedFileItems { get; set; } = new List<SharedFileItem>();
+    public Session? Session { get; set; }
 }

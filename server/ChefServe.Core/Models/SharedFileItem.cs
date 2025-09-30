@@ -8,11 +8,11 @@ public class SharedFileItem
     public Guid UserID { get; set; }
     public User? User { get; set; }
 
-    public Permission Permission { get; set; } = Permission.Read;
+    public Permission Permission { get; set; }
 }
 
 public enum Permission
 {
     Read,
     Write
-}
+} 
