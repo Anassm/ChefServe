@@ -53,6 +53,27 @@ namespace server.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Sessions",
+                columns: table => new
+                {
+                    ID = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Token = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
+                    UserID = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    ExpiresAt = table.Column<DateTime>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Sessions", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_Sessions_Users_UserID",
+                        column: x => x.UserID,
+                        principalTable: "Users",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SharedFileItems",
                 columns: table => new
                 {
@@ -83,6 +104,12 @@ namespace server.Migrations
                 column: "OwnerID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Sessions_UserID",
+                table: "Sessions",
+                column: "UserID",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SharedFileItems_UserID",
                 table: "SharedFileItems",
                 column: "UserID");
@@ -91,6 +118,9 @@ namespace server.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Sessions");
+
             migrationBuilder.DropTable(
                 name: "SharedFileItems");
 
