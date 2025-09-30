@@ -4,7 +4,7 @@ public class Session
 {
     public required Guid ID { get; set; } = Guid.NewGuid();
     public string Token { get; set; } = null!;
-    public string UserID { get; set; } = null!;
+    public Guid UserID { get; set; } = Guid.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? ExpiresAt { get; set; }
 
