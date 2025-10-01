@@ -1,0 +1,25 @@
+.row {
+  display: flex;
+  height: calc(100vh - 80px);
+}
+
+.header {
+  height: 80px;
+  flex-shrink: 0;
+  background: grey;
+  padding: 1rem;
+}
+
+.sidebar {
+  background: lightblue;
+  width: 250px;
+  height: 100%;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}

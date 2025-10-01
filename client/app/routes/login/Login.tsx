@@ -12,7 +12,7 @@ export function meta({}: Route.MetaArgs) {
 export default function Login() {
   return (
     <div className={styles.container}>
-      <Form className={styles.login} action="/login" method="post">
+      <Form className={styles.login} action="/dashboard" method="post">
         <h2>Login</h2>
         <input name="username" type="text" placeholder="Dikke boktor" />
         <input name="password" type="password" placeholder="password123" />

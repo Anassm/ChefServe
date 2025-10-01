@@ -1,4 +1,4 @@
-import type { Route } from "../../+types/root";
+import type { Route } from "../../../+types/root";
 import styles from "./AdminDashboard.module.css";
 
 export function meta({}: Route.MetaArgs) {
