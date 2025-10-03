@@ -25,7 +25,7 @@ public class AuthController : ControllerBase
         _authService = authService;
         _sessionService = sessionService;
     }
-    
+
     // [HttpPost("register")]
     // public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
     // {
@@ -65,6 +65,8 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
     {
+        Console.WriteLine(_passwordHasher.HashPassword(null, loginDto.Password));
+
         var user = await _authService.AuthenticateUserAsync(loginDto.Username, _passwordHasher.HashPassword(null, loginDto.Password));
 
         if (user == null)
