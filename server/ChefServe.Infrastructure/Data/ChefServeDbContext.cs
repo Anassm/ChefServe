@@ -1,11 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using ChefServe.Core.Models;
 
-namespace YourNamespace.Data
+namespace ChefServe.Infrastructure.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class ChefServeDbContext : DbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        public ChefServeDbContext(DbContextOptions<ChefServeDbContext> options)
             : base(options)
         { }
 
@@ -79,8 +79,8 @@ namespace YourNamespace.Data
                 entity.Property(s => s.ExpiresAt);
 
                 entity.HasOne<User>()              
-                    .WithMany(u => u.Sessions)   
-                    .HasForeignKey(s => s.UserID)
+                    .WithOne(u => u.Session)   
+                    .HasForeignKey<Session>(s => s.UserID)
                     .OnDelete(DeleteBehavior.Cascade);
             });
         }

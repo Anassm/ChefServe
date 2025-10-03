@@ -1,5 +1,8 @@
 using ChefServe.Core.DTOs;
 using ChefServe.Core.Models;
+using ChefServe.Core.Interfaces;
+
+namespace ChefServe.Infrastructure.Services;
 
 public class FileServices : IFileService
 {
@@ -17,7 +20,7 @@ public class FileServices : IFileService
     {
         return null;
     }
-    
+
     public Task<IEnumerable<FileItem>> GetFilesAsync(Guid ownerId, string? parentPath = null)
     {
         return null;
