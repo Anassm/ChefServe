@@ -5,7 +5,7 @@ using ChefServe.Core.Interfaces;
 using ChefServe.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
-
+namespace ChefServe.Infrastructure.Services;
 public class FileServices : IFileService
 {
     private readonly ChefServeDbContext _context;
