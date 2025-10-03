@@ -52,4 +52,18 @@ public class SessionService : ISessionService
         }
         return false;
     }
+
+    public async Task<User?> GetUserBySessionTokenAsync(string token)
+    {
+        var session = await _context.Sessions.FindAsync(token);
+        if (session == null || session.ExpiresAt < DateTime.UtcNow)
+        {
+            return null;
+        }
+
+        var user = await _context.Users.FindAsync(session.UserID);
+        return user;
+    }
+
+
 }
