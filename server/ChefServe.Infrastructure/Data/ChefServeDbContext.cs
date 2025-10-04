@@ -78,11 +78,12 @@ namespace ChefServe.Infrastructure.Data
 
                 entity.Property(s => s.ExpiresAt);
 
-                entity.HasOne<User>()              
-                    .WithOne(u => u.Session)   
+                entity.HasOne(s => s.User)
+                    .WithOne(u => u.Session)
                     .HasForeignKey<Session>(s => s.UserID)
                     .OnDelete(DeleteBehavior.Cascade);
             });
+
         }
     }
 }

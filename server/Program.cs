@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ChefServe.Infrastructure.Data;
+using ChefServe.Core.Interfaces;
+using ChefServe.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = "Data Source=ChefServe.Infrastructure/Data/database.db";
@@ -7,11 +9,21 @@ var connectionString = "Data Source=ChefServe.Infrastructure/Data/database.db";
 // Add services to the container.
 builder.Services.AddDbContext<ChefServeDbContext>(options => options.UseSqlite(connectionString));
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// Run migrations and seed DB
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ChefServeDbContext>();
+    context.Database.Migrate();
+    DatabaseSeeder.Seed(context);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -24,9 +36,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

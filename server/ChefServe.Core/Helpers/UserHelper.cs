@@ -6,6 +6,8 @@ public class UserHelper
 {
     public static string GetRootPathForUser(Guid userId)
     {
-        return Path.Combine("ChefServe", "Users", userId.ToString());
+        var relativePath = $"../Users/{userId}";
+        var fullPath = Path.GetFullPath(relativePath);
+        return fullPath;
     }
 }

@@ -7,10 +7,11 @@ using Microsoft.EntityFrameworkCore;
 
 
 namespace ChefServe.Infrastructure.Services;
-public class FileServices : IFileService
+
+public class FileService : IFileService
 {
     private readonly ChefServeDbContext _context;
-    public FileServices(ChefServeDbContext context)
+    public FileService(ChefServeDbContext context)
     {
         _context = context;
     }
@@ -21,14 +22,22 @@ public class FileServices : IFileService
             return null;
         if (folderName == null || folderName.Trim() == string.Empty)
             return null;
-        if (parentPath == null || parentPath.Trim() == string.Empty)
-            return null;
-        var fullPath = Path.Combine(UserHelper.GetRootPathForUser(ownerId), parentPath, folderName);
+        var fullPath = string.Empty;
+        var cleanParentPath = parentPath.TrimStart('/', '\\');
+        if (cleanParentPath == null || cleanParentPath.Trim() == string.Empty)
+        {
+            fullPath = Path.Combine(UserHelper.GetRootPathForUser(ownerId), folderName);
+        }
+        else
+        {
+            fullPath = Path.Combine(UserHelper.GetRootPathForUser(ownerId), cleanParentPath, folderName);
+        }
+
+        System.Console.WriteLine(fullPath);
         if (Directory.Exists(fullPath))
         {
             return null;
         }
-
 
         Directory.CreateDirectory(fullPath);
         var dirInfo = new DirectoryInfo(fullPath);
