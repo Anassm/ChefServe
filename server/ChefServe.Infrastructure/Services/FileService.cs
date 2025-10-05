@@ -70,15 +70,16 @@ public class FileService : IFileService
             return null;
 
         //create directory
-        var fullPath = Path.Combine(UserHelper.GetRootPathForUser(ownerId), destinationPath, fileName);
-        if (!Directory.Exists(fullPath))
+        var dirPath = Path.Combine(UserHelper.GetRootPathForUser(ownerId), destinationPath);
+        if (!Directory.Exists(dirPath))
         {
             return null;
         }
-        if (File.Exists(fullPath))
+        if (File.Exists(dirPath))
         {
             return null;
         }
+        var fullPath = Path.Combine(dirPath, fileName);
         using (var fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
         {
             await content.CopyToAsync(fileStream);

@@ -27,24 +27,24 @@ public class FileController : ControllerBase
     {
 
         if (createFolderDTO == null)
-            return BadRequest(new { error = "Request body is required." });
+            return StatusCode(StatusCodes.Status400BadRequest, new { error = "Request must contain a body." });
 
         if (string.IsNullOrWhiteSpace(createFolderDTO.Token))
-            return BadRequest(new { error = "Token is required." });
+            return StatusCode(StatusCodes.Status400BadRequest, new { error = "Missing token." });
 
         var user = await _sessionService.GetUserBySessionTokenAsync(createFolderDTO.Token);
         if (user == null)
-            return Unauthorized(new { error = "Invalid or expired token." });
+            return StatusCode(StatusCodes.Status401Unauthorized, new { error = "Invalid token." });
 
         if (string.IsNullOrWhiteSpace(createFolderDTO.FolderName))
-            return BadRequest(new { error = "Folder name is required." });
+            return StatusCode(StatusCodes.Status400BadRequest, new { error = "Missing folder name." });
 
         var folder = await _fileService.CreateFolderAsync(user.ID, createFolderDTO.FolderName, createFolderDTO.ParentPath);
 
         if (folder == null)
-            return Conflict(new { error = "Folder could not be created. It may already exist." });
+            return StatusCode(StatusCodes.Status409Conflict, new { error = "Folder could not be created. It may already exist." });
 
-        return Ok(new FileItemDTO
+        return StatusCode(StatusCodes.Status200OK, new FileItemDTO
         {
             ID = folder.ID,
             Name = folder.Name,
@@ -58,7 +58,7 @@ public class FileController : ControllerBase
     }
     // return BadRequest(new { Error = "" });
     [HttpPost("UploadFile")]
-    public async Task<ActionResult> UploadFile([FromBody] UploadFileBodyDTO uploadFileDTO)
+    public async Task<ActionResult> UploadFile([FromForm] UploadFileFormDTO uploadFileDTO)
     {
         if (uploadFileDTO == null)
             return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Request must contain a body." });
@@ -71,12 +71,29 @@ public class FileController : ControllerBase
             return StatusCode(StatusCodes.Status401Unauthorized, new { Error = "Invalid token." });
 
         if (uploadFileDTO.FileName == null || uploadFileDTO.FileName == string.Empty)
-            return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing filename." });
+            return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing file name." });
 
-        if (uploadFileDTO.Content == Stream.Null)
+        if (uploadFileDTO.Content == Stream.Null || uploadFileDTO.Content == null || uploadFileDTO.Content.Length == 0)
             return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing Content" });
 
         if (uploadFileDTO.DestinationPath == null || uploadFileDTO.DestinationPath == string.Empty)
             return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing destination path" });
+
+        using var stream = uploadFileDTO.Content.OpenReadStream();
+        var file = await _fileService.UploadFileAsync(user.ID, uploadFileDTO.FileName, stream, uploadFileDTO.DestinationPath);
+        if (file == null)
+            return StatusCode(StatusCodes.Status500InternalServerError, new { Error = "File could not be uploaded." });
+
+        return StatusCode(StatusCodes.Status200OK, new FileItemDTO
+        {
+            ID = file.ID,
+            Name = file.Name,
+            Path = file.Path,
+            Summary = file.Summary,
+            CreatedAt = file.CreatedAt,
+            UpdatedAt = file.UpdatedAt,
+            IsFolder = file.IsFolder,
+            OwnerID = file.OwnerID
+        });
     }
 }

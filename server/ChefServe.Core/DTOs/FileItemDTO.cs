@@ -18,10 +18,10 @@ public class CreateFolderBodyDTO
     public required string FolderName { get; set; }
     public required string ParentPath { get; set; }
 }
-public class UploadFileBodyDTO
+public class UploadFileFormDTO
 {
     public required string Token { get; set; }
     public required string FileName { get; set; }
-    public required Stream Content { get; set; }
-    public required string DestinationPath { get; set; }
+    public required IFormFile Content { get; set; }
+    public string? DestinationPath { get; set; }
 }
