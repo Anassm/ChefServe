@@ -5,6 +5,8 @@ using ChefServe.Core.Helper;
 using ChefServe.Infrastructure.Data;
 using ChefServe.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
+using NJsonSchema.Annotations;
+using Microsoft.VisualBasic;
 
 
 
@@ -23,7 +25,7 @@ public class FileController : ControllerBase
     [HttpPost("CreateFolder")]
     public async Task<ActionResult> CreateFolder([FromBody] CreateFolderBodyDTO createFolderDTO)
     {
-        
+
         if (createFolderDTO == null)
             return BadRequest(new { error = "Request body is required." });
 
@@ -32,7 +34,7 @@ public class FileController : ControllerBase
 
         var user = await _sessionService.GetUserBySessionTokenAsync(createFolderDTO.Token);
         if (user == null)
-            return Unauthorized(new {error = "Invalid or expired token."});
+            return Unauthorized(new { error = "Invalid or expired token." });
 
         if (string.IsNullOrWhiteSpace(createFolderDTO.FolderName))
             return BadRequest(new { error = "Folder name is required." });
@@ -53,5 +55,28 @@ public class FileController : ControllerBase
             IsFolder = folder.IsFolder,
             OwnerID = folder.OwnerID
         });
+    }
+    // return BadRequest(new { Error = "" });
+    [HttpPost("UploadFile")]
+    public async Task<ActionResult> UploadFile([FromBody] UploadFileBodyDTO uploadFileDTO)
+    {
+        if (uploadFileDTO == null)
+            return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Request must contain a body." });
+
+        if (uploadFileDTO.Token == null || uploadFileDTO.Token == string.Empty)
+            return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing token." });
+
+        var user = await _sessionService.GetUserBySessionTokenAsync(uploadFileDTO.Token);
+        if (user == null)
+            return StatusCode(StatusCodes.Status401Unauthorized, new { Error = "Invalid token." });
+
+        if (uploadFileDTO.FileName == null || uploadFileDTO.FileName == string.Empty)
+            return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing filename." });
+
+        if (uploadFileDTO.Content == Stream.Null)
+            return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing Content" });
+
+        if (uploadFileDTO.DestinationPath == null || uploadFileDTO.DestinationPath == string.Empty)
+            return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing destination path" });
     }
 }

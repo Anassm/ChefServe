@@ -14,8 +14,14 @@ public class FileItemDTO
 }
 public class CreateFolderBodyDTO
 {
-    public string Token { get; set; } = string.Empty;
-    public string FolderName { get; set; } = string.Empty;
-    public string ParentPath { get; set; } = string.Empty;
-
+    public required string Token { get; set; }
+    public required string FolderName { get; set; }
+    public required string ParentPath { get; set; }
+}
+public class UploadFileBodyDTO
+{
+    public required string Token { get; set; }
+    public required string FileName { get; set; }
+    public required Stream Content { get; set; }
+    public required string DestinationPath { get; set; }
 }
