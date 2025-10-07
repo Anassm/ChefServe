@@ -48,6 +48,8 @@ public class FileService : IFileService
         {
             Name = dirInfo.Name,
             Path = fullPath,
+            ParentPath = dirInfo.Parent?.FullName,
+            Type = null,
             IsFolder = true,
             OwnerID = ownerId,
             Owner = User
@@ -95,6 +97,8 @@ public class FileService : IFileService
         {
             Name = FileInfo.Name,
             Path = fullPath,
+            ParentPath = dirPath,
+            Type = FileInfo.Extension,
             OwnerID = ownerId,
             CreatedAt = FileInfo.CreationTimeUtc,
             UpdatedAt = FileInfo.LastWriteTimeUtc,
@@ -131,8 +135,7 @@ public class FileService : IFileService
             f.Path.StartsWith(UserHelper.GetRootPathForUser(ownerId))).ToList();
         }
 
-        return _context.FileItems.Where(f => f.OwnerID == ownerId &&
-            f.Path.StartsWith(Path.Combine(UserHelper.GetRootPathForUser(ownerId), parentPath))).ToList();
+        return await _context.FileItems.Where(f => f.OwnerID == ownerId && f.ParentPath == parentPath).ToListAsync();
     }
 
     public async Task<Stream?> DownloadFileAsync(Guid fileId, Guid userId)
@@ -140,7 +143,7 @@ public class FileService : IFileService
         if (fileId == Guid.Empty || userId == Guid.Empty)
             return null;
 
-        var fileItem = _context.FileItems.Where(f => f.ID == fileId && f.OwnerID == userId).FirstOrDefault();
+        var fileItem = await _context.FileItems.Where(f => f.ID == fileId && f.OwnerID == userId).FirstOrDefaultAsync();
         if (fileItem == null || fileItem.IsFolder)
             return null;
 

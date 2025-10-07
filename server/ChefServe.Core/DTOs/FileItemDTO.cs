@@ -28,5 +28,10 @@ public class UploadFileFormDTO
 public class FindFileDTO
 {
     public required string Token { get; set; }
-    public required Guid FileID { get; set; } 
+    public required Guid FileID { get; set; }
+}
+public class FindFilesDTO
+{
+    public required string Token { get; set; }
+    public string? PathPart { get; set; }
 }

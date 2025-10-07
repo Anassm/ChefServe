@@ -32,6 +32,8 @@ namespace ChefServe.Infrastructure.Data
                 entity.HasKey(f => f.ID);
                 entity.Property(f => f.Name).IsRequired().HasMaxLength(255);
                 entity.Property(f => f.Path).IsRequired();
+                entity.Property(f => f.Type).HasMaxLength(255);
+                entity.Property(f => f.ParentPath).IsRequired();
                 entity.Property(f => f.CreatedAt)
                       .HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.Property(f => f.UpdatedAt)
