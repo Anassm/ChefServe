@@ -14,7 +14,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const username = loginCreds.get("username") as string;
   const password = loginCreds.get("password") as string;
 
-  const response = await fetch("http://localhost:5175/login", {
+  const response = await fetch("http://localhost:5175/api/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password }),
