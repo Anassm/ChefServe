@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using ChefServe.Core.Models;
 using ChefServe.Core.Interfaces;
 using ChefServe.Infrastructure.Services;
+using ChefServe.Core.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = "Data Source=ChefServe.Infrastructure/Data/database.db";
@@ -16,7 +17,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+builder.Services.AddScoped<IHashService, HashService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISessionService, SessionService>();
 

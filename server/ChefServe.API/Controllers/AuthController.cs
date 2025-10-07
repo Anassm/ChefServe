@@ -64,12 +64,14 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
     {
+        Console.WriteLine(_hashService.ComputeHash(loginDto.Password));
         var user = await _authService.GetUserByUsernameAsync(loginDto.Username);
 
 
         if (user == null || !_hashService.VerifyHash(loginDto.Password, user.PasswordHash))
             return Unauthorized("Invalid username or password.");
 
+        Console.WriteLine(user.ID.ToString());
         var session = await _sessionService.CreateSessionAsync(user.ID.ToString(), TimeSpan.FromHours(24));
 
         Response.Cookies.Append("AuthToken", session.Token, new CookieOptions
