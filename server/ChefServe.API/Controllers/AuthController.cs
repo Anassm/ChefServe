@@ -24,7 +24,7 @@ public class AuthController : ControllerBase
         _authService = authService;
         _sessionService = sessionService;
     }
-    
+
     // [HttpPost("register")]
     // public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
     // {
@@ -65,6 +65,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
     {
         var user = await _authService.GetUserByUsernameAsync(loginDto.Username);
+
 
         if (user == null || !_hashService.VerifyHash(loginDto.Password, user.PasswordHash))
             return Unauthorized("Invalid username or password.");
