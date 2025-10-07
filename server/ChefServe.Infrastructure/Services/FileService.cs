@@ -131,11 +131,13 @@ public class FileService : IFileService
 
         if (parentPath == null || parentPath.Trim() == string.Empty)
         {
-            return _context.FileItems.Where(f => f.OwnerID == ownerId &&
-            f.Path.StartsWith(UserHelper.GetRootPathForUser(ownerId))).ToList();
+            parentPath = UserHelper.GetRootPathForUser(ownerId);
+            return await _context.FileItems.Where(f => f.OwnerID == ownerId &&
+            f.ParentPath == parentPath).OrderByDescending(f => f.IsFolder).ThenBy(f => f.Name).ToListAsync();
         }
 
-        return await _context.FileItems.Where(f => f.OwnerID == ownerId && f.ParentPath == parentPath).ToListAsync();
+        return await _context.FileItems.Where(f => f.OwnerID == ownerId && f.ParentPath == parentPath)
+            .OrderByDescending(f => f.IsFolder).ThenBy(f => f.Name).ToListAsync();
     }
 
     public async Task<Stream?> DownloadFileAsync(Guid fileId, Guid userId)

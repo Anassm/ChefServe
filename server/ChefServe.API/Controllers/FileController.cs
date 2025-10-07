@@ -152,7 +152,7 @@ public class FileController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, new { Error = "Internal server error.", Details = ex.Message });
         }
     }
-    [HttpGet("FindFiles")]
+    [HttpPost("FindFiles")]
     public async Task<ActionResult> FindFiles([FromBody] FindFilesDTO findFilesDTO)
     {
         try
