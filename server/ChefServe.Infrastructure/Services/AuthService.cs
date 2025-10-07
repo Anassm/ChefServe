@@ -34,4 +34,9 @@ public class AuthService : IAuthService
         var user = await Query.FirstOrDefaultAsync();
         return user != null;
     }
+
+    public async Task<User?> GetUserByUsernameAsync(string username)
+    {
+        return await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+    }
 }
