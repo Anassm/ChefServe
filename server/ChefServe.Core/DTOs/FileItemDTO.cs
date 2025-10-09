@@ -14,19 +14,22 @@ public class FileItemDTO
 }
 public class CreateFolderBodyDTO
 {
-    public required string Token { get; set; }
     public required string FolderName { get; set; }
     public string? ParentPath { get; set; }
 }
 public class UploadFileFormDTO
 {
-    public required string Token { get; set; }
     public required string FileName { get; set; }
     public required IFormFile Content { get; set; }
     public string? DestinationPath { get; set; }
 }
-public class FindFileDTO
+public class RenameFileBodyDTO
 {
-    public required string Token { get; set; }
     public required Guid FileID { get; set; }
+    public required string NewName { get; set; }
+}
+public class MoveFileBodyDTO
+{
+    public required Guid FileID { get; set; }
+    public required string NewPath { get; set; }
 }

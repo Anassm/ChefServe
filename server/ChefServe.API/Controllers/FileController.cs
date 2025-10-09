@@ -31,10 +31,11 @@ public class FileController : ControllerBase
             if (createFolderDTO == null)
                 return StatusCode(StatusCodes.Status400BadRequest, new { error = "Request must contain a body." });
 
-            if (createFolderDTO.Token == null || createFolderDTO.Token == string.Empty)
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            if (token == null || token == string.Empty)
                 return StatusCode(StatusCodes.Status400BadRequest, new { error = "Missing token." });
 
-            var user = await _sessionService.GetUserBySessionTokenAsync(createFolderDTO.Token);
+            var user = await _sessionService.GetUserBySessionTokenAsync(token);
             if (user == null)
                 return StatusCode(StatusCodes.Status401Unauthorized, new { error = "Invalid token." });
 
@@ -76,10 +77,11 @@ public class FileController : ControllerBase
             if (uploadFileDTO == null)
                 return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Request must contain a body." });
 
-            if (uploadFileDTO.Token == null || uploadFileDTO.Token == string.Empty)
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            if (token == null || token == string.Empty)
                 return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing token." });
 
-            var user = await _sessionService.GetUserBySessionTokenAsync(uploadFileDTO.Token);
+            var user = await _sessionService.GetUserBySessionTokenAsync(token);
             if (user == null)
                 return StatusCode(StatusCodes.Status401Unauthorized, new { Error = "Invalid token." });
 
@@ -239,6 +241,89 @@ public class FileController : ControllerBase
                 return StatusCode(StatusCodes.Status404NotFound, new { Error = "File not found or could not be deleted." });
 
             return StatusCode(StatusCodes.Status200OK, new { Message = "File deleted successfully." });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { Error = "Internal server error.", Details = ex.Message });
+        }
+    }
+    [HttpPut("RenameFile")]
+    public async Task<ActionResult> RenameFile([FromBody] RenameFileBodyDTO renameFileDTO)
+    {
+        try
+        {
+            if (renameFileDTO == null)
+                return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Request must contain a body." });
+
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            if (token == null || token == string.Empty)
+                return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing token." });
+
+            var user = await _sessionService.GetUserBySessionTokenAsync(token);
+            if (user == null)
+                return StatusCode(StatusCodes.Status401Unauthorized, new { Error = "Invalid token." });
+
+            if (renameFileDTO.FileID == Guid.Empty)
+                return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing file ID" });
+
+            if (renameFileDTO.NewName == null || renameFileDTO.NewName == string.Empty)
+                return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing new name." });
+
+            var file = await _fileService.RenameFileAsync(renameFileDTO.FileID, renameFileDTO.NewName, user.ID);
+            if (file == null)
+                return StatusCode(StatusCodes.Status404NotFound, new { Error = "File not found or could not be renamed." });
+
+            return StatusCode(StatusCodes.Status200OK, new FileItemDTO
+            {
+                ID = file.ID,
+                Name = file.Name,
+                Path = file.Path,
+                Summary = file.Summary,
+                CreatedAt = file.CreatedAt,
+                UpdatedAt = file.UpdatedAt,
+                IsFolder = file.IsFolder,
+                OwnerID = file.OwnerID
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { Error = "Internal server error.", Details = ex.Message });
+        }
+    }
+    [HttpPut("MoveFile")]
+    public async Task<ActionResult> MoveFile([FromBody] MoveFileBodyDTO moveFileDTO)
+    {
+        try
+        {
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            if (token == null || token == string.Empty)
+                return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing token." });
+
+            var user = await _sessionService.GetUserBySessionTokenAsync(token);
+            if (user == null)
+                return StatusCode(StatusCodes.Status401Unauthorized, new { Error = "Invalid token." });
+
+            if (moveFileDTO.FileID == Guid.Empty)
+                return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing file ID" });
+
+            if (moveFileDTO.NewPath == null || moveFileDTO.NewPath == string.Empty)
+                return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing new path." });
+
+            var file = await _fileService.MoveFileAsync(moveFileDTO.FileID, moveFileDTO.NewPath, user.ID);
+            if (file == null)
+                return StatusCode(StatusCodes.Status404NotFound, new { Error = "File not found or could not be moved." });
+
+            return StatusCode(StatusCodes.Status200OK, new FileItemDTO
+            {
+                ID = file.ID,
+                Name = file.Name,
+                Path = file.Path,
+                Summary = file.Summary,
+                CreatedAt = file.CreatedAt,
+                UpdatedAt = file.UpdatedAt,
+                IsFolder = file.IsFolder,
+                OwnerID = file.OwnerID
+            });
         }
         catch (Exception ex)
         {

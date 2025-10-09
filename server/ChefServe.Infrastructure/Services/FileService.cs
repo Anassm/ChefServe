@@ -59,7 +59,7 @@ public class FileService : IFileService
         return fileitem;
     }
 
-    public async Task<FileItem> UploadFileAsync(Guid ownerId, string fileName, Stream content, string destinationPath)
+    public async Task<FileItem> UploadFileAsync(Guid ownerId, string fileName, Stream content, string? destinationPath)
     {
         //checks
         if (ownerId == Guid.Empty)
@@ -68,11 +68,13 @@ public class FileService : IFileService
             return null;
         if (content == null || content.Length == 0)
             return null;
-        if (destinationPath == null || destinationPath.Trim() == string.Empty)
-            return null;
+        string dirPath = string.Empty;
+        if (destinationPath == null || destinationPath.Trim() == string.Empty || destinationPath.TrimEnd('/', '\\') == string.Empty)
+            dirPath = UserHelper.GetRootPathForUser(ownerId);
+            destinationPath = string.Empty;
 
         //create directory
-        var dirPath = Path.Combine(UserHelper.GetRootPathForUser(ownerId), destinationPath);
+        dirPath = Path.Combine(dirPath, destinationPath);
         if (!Directory.Exists(dirPath))
         {
             return null;
@@ -190,7 +192,13 @@ public class FileService : IFileService
         if (fileItem == null)
             return null;
 
-        var destinationFullPath = Path.Combine(UserHelper.GetRootPathForUser(userId), newPath, fileItem.Name);
+        newPath = newPath.Trim().TrimEnd('/', '\\').TrimStart('/', '\\');
+        if (newPath == null || newPath == string.Empty)
+            newPath = UserHelper.GetRootPathForUser(userId);
+        else
+            newPath = Path.Combine(UserHelper.GetRootPathForUser(userId), newPath);
+
+        var destinationFullPath = Path.Combine(newPath, fileItem.Name);
         if (fileItem.IsFolder)
         {
             if (Directory.Exists(destinationFullPath))
@@ -198,13 +206,18 @@ public class FileService : IFileService
                 return null;
             }
             Directory.Move(fileItem.Path, destinationFullPath);
-
-            var movedItems = _context.FileItems.Where(f => f.Path == fileItem.Path ||
-                f.Path.StartsWith(fileItem.Path + Path.DirectorySeparatorChar)).ToList();
+            if (!Directory.Exists(destinationFullPath))
+            {
+                return null;
+            }
+            var movedItems = await _context.FileItems.Where(f => f.Path.StartsWith(fileItem.Path + Path.DirectorySeparatorChar)).ToListAsync();
             foreach (var item in movedItems)
             {
                 item.Path = item.Path.Replace(fileItem.Path, destinationFullPath);
+                item.ParentPath = Path.GetDirectoryName(item.Path);
             }
+            fileItem.Path = destinationFullPath;
+            fileItem.ParentPath = Path.GetDirectoryName(destinationFullPath);
         }
         else
         {
@@ -226,11 +239,11 @@ public class FileService : IFileService
         if (fileId == Guid.Empty || userId == Guid.Empty || newName == null || newName.Trim() == string.Empty)
             return null;
 
-        var fileItem = _context.FileItems.Where(f => f.ID == fileId && f.OwnerID == userId).FirstOrDefault();
+        var fileItem = await _context.FileItems.Where(f => f.ID == fileId && f.OwnerID == userId).FirstOrDefaultAsync();
         if (fileItem == null)
             return null;
 
-        var newFullPath = Path.GetDirectoryName(fileItem.Path) + Path.DirectorySeparatorChar + newName;
+        var newFullPath = fileItem.ParentPath + Path.DirectorySeparatorChar + newName;
         if (fileItem.IsFolder)
         {
             if (Directory.Exists(newFullPath))
@@ -238,14 +251,18 @@ public class FileService : IFileService
                 return null;
             }
             Directory.Move(fileItem.Path, newFullPath);
-
-            var renamedItems = _context.FileItems.Where(f => f.Path == fileItem.Path ||
-                f.Path.StartsWith(fileItem.Path + Path.DirectorySeparatorChar)).ToList();
+            if (!Directory.Exists(newFullPath))
+            {
+                return null;
+            }
+            var renamedItems = await _context.FileItems.Where(f => f.Path.StartsWith(fileItem.Path + Path.DirectorySeparatorChar)).ToListAsync();
             foreach (var item in renamedItems)
             {
                 item.Path = item.Path.Replace(fileItem.Path, newFullPath);
+                item.ParentPath = Path.GetDirectoryName(item.Path);
             }
             fileItem.Name = newName;
+            fileItem.Path = newFullPath;
         }
         else
         {
