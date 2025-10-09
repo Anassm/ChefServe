@@ -7,6 +7,7 @@ using ChefServe.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
 using NJsonSchema.Annotations;
 using Microsoft.VisualBasic;
+using YamlDotNet.Core.Tokens;
 
 
 
@@ -113,25 +114,22 @@ public class FileController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, new { Error = "Internal server error.", Details = ex.Message });
         }
     }
-    [HttpGet("FindFile")]
-    public async Task<ActionResult> FindFile([FromBody] FindFileDTO findFileDTO)
+    [HttpGet("GetFile")]
+    public async Task<ActionResult> GetFile([FromQuery] Guid fileID)
     {
         try
         {
-            if (findFileDTO == null)
-                return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Request must contain a body." });
-            if (findFileDTO.Token == null || findFileDTO.Token == string.Empty)
-            {
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            if (token == null || token == string.Empty)
                 return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing token." });
-            }
-            var user = await _sessionService.GetUserBySessionTokenAsync(findFileDTO.Token);
+            var user = await _sessionService.GetUserBySessionTokenAsync(token);
             if (user == null)
                 return StatusCode(StatusCodes.Status401Unauthorized, new { Error = "Invalid token." });
 
-            if (findFileDTO.FileID == Guid.Empty)
+            if (fileID == Guid.Empty)
                 return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing file ID" });
 
-            var file = await _fileService.GetFileAsync(findFileDTO.FileID, user.ID);
+            var file = await _fileService.GetFileAsync(fileID, user.ID);
             if (file == null)
                 return StatusCode(StatusCodes.Status204NoContent, new { Error = "File not found" });
 
@@ -152,22 +150,23 @@ public class FileController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, new { Error = "Internal server error.", Details = ex.Message });
         }
     }
-    [HttpPost("FindFiles")]
-    public async Task<ActionResult> FindFiles([FromBody] FindFilesDTO findFilesDTO)
+    [HttpGet("GetFiles")]
+    public async Task<ActionResult> GetFiles([FromQuery] string? parentPath)
     {
         try
         {
-            if (findFilesDTO == null)
-                return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Request must contain a body." });
-            if (findFilesDTO.Token == null || findFilesDTO.Token == string.Empty)
-            {
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            if (token == null || token == string.Empty)
                 return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing token." });
-            }
-            var user = await _sessionService.GetUserBySessionTokenAsync(findFilesDTO.Token);
+            
+            if (parentPath == null)
+                parentPath = string.Empty;
+
+            var user = await _sessionService.GetUserBySessionTokenAsync(token);
             if (user == null)
                 return StatusCode(StatusCodes.Status401Unauthorized, new { Error = "Invalid token." });
 
-            var files = await _fileService.GetFilesAsync(user.ID, findFilesDTO.PathPart);
+            var files = await _fileService.GetFilesAsync(user.ID, parentPath);
             if (files == null || files.Count() == 0)
                 return StatusCode(StatusCodes.Status204NoContent, new { Error = "File not found" });
 
@@ -182,6 +181,64 @@ public class FileController : ControllerBase
                 IsFolder = file.IsFolder,
                 OwnerID = file.OwnerID
             }));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { Error = "Internal server error.", Details = ex.Message });
+        }
+    }
+    [HttpGet("DownloadFile")]
+    public async Task<ActionResult> DownloadFile([FromQuery] Guid fileID)
+    {
+        try
+        {
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            if (token == null || token == string.Empty)
+                return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing token." });
+
+            var user = await _sessionService.GetUserBySessionTokenAsync(token);
+            if (user == null)
+                return StatusCode(StatusCodes.Status401Unauthorized, new { Error = "Invalid token." });
+
+            if (fileID == Guid.Empty)
+                return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing file ID" });
+
+            var file = await _fileService.GetFileAsync(fileID, user.ID);
+            if (file == null)
+                return StatusCode(StatusCodes.Status404NotFound, new { Error = "File not found" });
+
+            var stream = await _fileService.DownloadFileAsync(fileID, user.ID);
+            if (stream == null)
+                return StatusCode(StatusCodes.Status404NotFound, new { Error = "File not found" });
+
+            return File(stream, "application/octet-stream", file.Name, enableRangeProcessing: true);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { Error = "Internal server error.", Details = ex.Message });
+        }
+    }
+    [HttpDelete("DeleteFile")]
+    public async Task<ActionResult> DeleteFile([FromQuery] Guid fileID)
+    {
+        try
+        {
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            if (token == null || token == string.Empty)
+                return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing token." });
+
+            var user = await _sessionService.GetUserBySessionTokenAsync(token);
+            if (user == null)
+                return StatusCode(StatusCodes.Status401Unauthorized, new { Error = "Invalid token." });
+
+            if (fileID == Guid.Empty)
+                return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing file ID" });
+
+            var success = await _fileService.DeleteFileAsync(fileID, user.ID);
+            if (!success)
+                return StatusCode(StatusCodes.Status404NotFound, new { Error = "File not found or could not be deleted." });
+
+            return StatusCode(StatusCodes.Status200OK, new { Message = "File deleted successfully." });
         }
         catch (Exception ex)
         {

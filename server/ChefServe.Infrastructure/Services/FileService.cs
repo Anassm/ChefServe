@@ -146,19 +146,10 @@ public class FileService : IFileService
             return null;
 
         var fileItem = await _context.FileItems.Where(f => f.ID == fileId && f.OwnerID == userId).FirstOrDefaultAsync();
-        if (fileItem == null || fileItem.IsFolder)
+        if (fileItem == null || fileItem.IsFolder || !File.Exists(fileItem.Path))
             return null;
 
-        if (!File.Exists(fileItem.Path))
-            return null;
-
-        var memoryStream = new MemoryStream();
-        using (var fileStream = new FileStream(fileItem.Path, FileMode.Open, FileAccess.Read))
-        {
-            await fileStream.CopyToAsync(memoryStream);
-        }
-        memoryStream.Position = 0;
-        return memoryStream;
+        return new FileStream(fileItem.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
     }
 
     public async Task<bool> DeleteFileAsync(Guid fileId, Guid userId)
