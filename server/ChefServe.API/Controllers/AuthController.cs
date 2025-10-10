@@ -13,19 +13,18 @@ namespace ChefServe.API.Controllers;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    // This is only for  hashing password
-    private readonly IPasswordHasher<User> _passwordHasher;
+    private readonly IHashService _hashService;
     private readonly IAuthService _authService;
     private readonly ISessionService _sessionService;
 
-    public AuthController(IPasswordHasher<User> passwordHasher, IAuthService authService, ISessionService sessionService)
+    public AuthController(IHashService hashService, IAuthService authService, ISessionService sessionService)
     {
 
-        _passwordHasher = passwordHasher;
+        _hashService = hashService;
         _authService = authService;
         _sessionService = sessionService;
     }
-    
+
     // [HttpPost("register")]
     // public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
     // {
@@ -65,17 +64,26 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
     {
-        var user = await _authService.AuthenticateUserAsync(loginDto.Username, _passwordHasher.HashPassword(null, loginDto.Password));
+        Console.WriteLine(_hashService.ComputeHash(loginDto.Password));
+        var user = await _authService.GetUserByUsernameAsync(loginDto.Username);
 
-        if (user == null)
-        {
+
+        if (user == null || !_hashService.VerifyHash(loginDto.Password, user.PasswordHash))
             return Unauthorized("Invalid username or password.");
-        }
 
+        Console.WriteLine(user.ID.ToString());
         var session = await _sessionService.CreateSessionAsync(user.ID.ToString(), TimeSpan.FromHours(24));
+
+        Response.Cookies.Append("AuthToken", session.Token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = session.ExpiresAt
+        });
+
         return Ok(new AuthResponseDto
         {
-            Token = session.Token,
             Username = user.Username,
             FirstName = user.FirstName,
             LastName = user.LastName,
