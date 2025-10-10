@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace server.Migrations
 {
     [DbContext(typeof(ChefServeDbContext))]
-    [Migration("20251007120026_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20251010124305_weetikveel")]
+    partial class weetikveel
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -44,12 +44,20 @@ namespace server.Migrations
                     b.Property<Guid>("OwnerID")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("ParentPath")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Path")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Summary")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Type")
+                        .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("UpdatedAt")

@@ -21,9 +21,6 @@ namespace ChefServe.Infrastructure.Data
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasKey(u => u.ID);
-                entity.Property(u => u.ID)
-                    .HasConversion<string>()
-                    .IsRequired();
                 entity.Property(u => u.Username).IsRequired().HasMaxLength(100);
                 entity.Property(u => u.Email).IsRequired().HasMaxLength(150);
                 entity.Property(u => u.CreatedAt)
@@ -35,6 +32,8 @@ namespace ChefServe.Infrastructure.Data
                 entity.HasKey(f => f.ID);
                 entity.Property(f => f.Name).IsRequired().HasMaxLength(255);
                 entity.Property(f => f.Path).IsRequired();
+                entity.Property(f => f.Type).HasMaxLength(255);
+                entity.Property(f => f.ParentPath).IsRequired();
                 entity.Property(f => f.CreatedAt)
                       .HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.Property(f => f.UpdatedAt)
@@ -62,25 +61,18 @@ namespace ChefServe.Infrastructure.Data
                       .OnDelete(DeleteBehavior.Cascade);
 
                 entity.Property(fs => fs.Permission)
-                      .HasConversion<string>()  
+                      .HasConversion<string>()
                       .HasMaxLength(10);
             });
             modelBuilder.Entity<Session>(entity =>
             {
                 entity.HasKey(s => s.ID);
 
-                entity.Property(s => s.ID)
-                    .HasConversion<string>()
-                    .IsRequired();
-
-
                 entity.Property(s => s.Token)
                     .IsRequired()
                     .HasMaxLength(255);
 
-
                 entity.Property(s => s.UserID)
-                    .HasConversion<string>()
                     .IsRequired();
 
                 entity.Property(s => s.CreatedAt)
@@ -93,6 +85,7 @@ namespace ChefServe.Infrastructure.Data
                     .HasForeignKey<Session>(s => s.UserID)
                     .OnDelete(DeleteBehavior.Cascade);
             });
+
         }
     }
 }

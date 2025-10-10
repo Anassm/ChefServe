@@ -38,7 +38,10 @@ namespace server.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("OwnerID")
+                    b.Property<Guid>("OwnerID")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ParentPath")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -48,6 +51,10 @@ namespace server.Migrations
 
                     b.Property<string>("Summary")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Type")
+                        .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -64,7 +71,7 @@ namespace server.Migrations
 
             modelBuilder.Entity("ChefServe.Core.Models.Session", b =>
                 {
-                    b.Property<string>("ID")
+                    b.Property<Guid>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
@@ -81,8 +88,7 @@ namespace server.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("UserID")
-                        .IsRequired()
+                    b.Property<Guid>("UserID")
                         .HasColumnType("TEXT");
 
                     b.HasKey("ID");
@@ -98,7 +104,7 @@ namespace server.Migrations
                     b.Property<Guid>("FileID")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("UserID")
+                    b.Property<Guid>("UserID")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Permission")
@@ -115,7 +121,7 @@ namespace server.Migrations
 
             modelBuilder.Entity("ChefServe.Core.Models.User", b =>
                 {
-                    b.Property<string>("ID")
+                    b.Property<Guid>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
