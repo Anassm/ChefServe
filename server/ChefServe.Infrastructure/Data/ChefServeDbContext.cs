@@ -21,9 +21,6 @@ namespace ChefServe.Infrastructure.Data
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasKey(u => u.ID);
-                entity.Property(u => u.ID)
-                    .HasConversion<string>()
-                    .IsRequired();
                 entity.Property(u => u.Username).IsRequired().HasMaxLength(100);
                 entity.Property(u => u.Email).IsRequired().HasMaxLength(150);
                 entity.Property(u => u.CreatedAt)
@@ -71,17 +68,11 @@ namespace ChefServe.Infrastructure.Data
             {
                 entity.HasKey(s => s.ID);
 
-                entity.Property(s => s.ID)
-                    .HasConversion<string>()
-                    .IsRequired();
-
-
                 entity.Property(s => s.Token)
                     .IsRequired()
                     .HasMaxLength(255);
 
                 entity.Property(s => s.UserID)
-                    .HasConversion<string>()
                     .IsRequired();
 
                 entity.Property(s => s.CreatedAt)

@@ -68,9 +68,8 @@ public class FileService : IFileService
             return null;
         if (content == null || content.Length == 0)
             return null;
-        string dirPath = string.Empty;
-        if (destinationPath == null || destinationPath.Trim() == string.Empty || destinationPath.TrimEnd('/', '\\') == string.Empty)
-            dirPath = UserHelper.GetRootPathForUser(ownerId);
+        string dirPath = UserHelper.GetRootPathForUser(ownerId);
+        if (destinationPath == null || destinationPath.Trim() == string.Empty || destinationPath.TrimEnd('/', '\\').TrimStart('/', '\\') == string.Empty)
             destinationPath = string.Empty;
 
         //create directory
