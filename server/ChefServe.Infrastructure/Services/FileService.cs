@@ -66,13 +66,10 @@ public class FileService : IFileService
         //checks
         if (ownerId == Guid.Empty)
             return null;
-            System.Console.WriteLine(ownerId);
         if (fileName == null || fileName.Trim() == string.Empty)
             return null;
-            System.Console.WriteLine(fileName);
         if (content == null || content.Length == 0)
             return null;
-            System.Console.WriteLine(content.Length);
         string dirPath = string.Empty;
         if (destinationPath == null)
         {
@@ -95,7 +92,6 @@ public class FileService : IFileService
 
         if (!Directory.Exists(dirPath))
         {
-            System.Console.WriteLine(dirPath);
             return null;
         }
         fileName = FileHelper.SanitizeFileName(fileName);
