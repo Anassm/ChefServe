@@ -4,6 +4,8 @@ using ChefServe.Core.Helper;
 using ChefServe.Core.Interfaces;
 using ChefServe.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileSystemGlobbing.Internal.PathSegments;
+using System.Runtime.InteropServices;
 
 
 namespace ChefServe.Infrastructure.Services;
@@ -64,31 +66,51 @@ public class FileService : IFileService
         //checks
         if (ownerId == Guid.Empty)
             return null;
+            System.Console.WriteLine(ownerId);
         if (fileName == null || fileName.Trim() == string.Empty)
             return null;
+            System.Console.WriteLine(fileName);
         if (content == null || content.Length == 0)
             return null;
-        string dirPath = UserHelper.GetRootPathForUser(ownerId);
-        if (destinationPath == null || destinationPath.Trim() == string.Empty || destinationPath.TrimEnd('/', '\\').TrimStart('/', '\\') == string.Empty)
+            System.Console.WriteLine(content.Length);
+        string dirPath = string.Empty;
+        if (destinationPath == null)
+        {
+            dirPath = UserHelper.GetRootPathForUser(ownerId);
             destinationPath = string.Empty;
+        }
+        else
+        {
+            destinationPath = destinationPath.Trim('/', '\\');
+        }
+        if (destinationPath.Trim() == string.Empty)
+        {
+            destinationPath = string.Empty;
+            dirPath = UserHelper.GetRootPathForUser(ownerId);
+        }
 
         //create directory
         dirPath = Path.Combine(dirPath, destinationPath);
+        System.Console.WriteLine(dirPath);
+
         if (!Directory.Exists(dirPath))
         {
+            System.Console.WriteLine(dirPath);
             return null;
         }
-        if (File.Exists(dirPath))
-        {
-            return null;
-        }
+        fileName = FileHelper.SanitizeFileName(fileName);
         var fullPath = Path.Combine(dirPath, fileName);
+        if (File.Exists(fullPath))
+        {
+            var count = await _context.FileItems.Where(f => f.ParentPath == dirPath && f.Name.StartsWith(Path.GetFileNameWithoutExtension(fileName))).Where(f => f.IsFolder == false).CountAsync();
+            fullPath = Path.Combine(dirPath, $"{Path.GetFileNameWithoutExtension(fileName)}({count}){Path.GetExtension(fileName)}");
+        }
+
         using (var fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
         {
             await content.CopyToAsync(fileStream);
         }
 
-        //get file info
         var FileInfo = new FileInfo(fullPath);
         var User = _context.Users.Where(u => u.ID == ownerId).FirstOrDefault();
         if (User == null)
