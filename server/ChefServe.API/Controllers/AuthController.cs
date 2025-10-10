@@ -64,12 +64,36 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
     {
+        Console.WriteLine("Login attempt for user: " + loginDto.Username);
+        Console.WriteLine("Password: " + loginDto.Password);
+        Console.WriteLine("Cookies: " + string.Join(", ", Request.Cookies.Select(c => c.Key + "=" + c.Value)));
+        if (!Request.Cookies.TryGetValue("AuthToken", out var existingToken))
+        {
+            // No existing token, proceed with login
+        }
+        else
+        {
+            Console.WriteLine("Existing AuthToken found: " + existingToken);
+            var existingSession = await _sessionService.GetSessionByTokenAsync(existingToken);
+            if (existingSession != null && existingSession.ExpiresAt > DateTime.UtcNow)
+            {
+                return Unauthorized("Already logged in.");
+            }
+        }
+
+        if (string.IsNullOrEmpty(loginDto.Username) || string.IsNullOrEmpty(loginDto.Password))
+        {
+            return BadRequest("Username and password are required.");
+        }
+
         Console.WriteLine(_hashService.ComputeHash(loginDto.Password));
         var user = await _authService.GetUserByUsernameAsync(loginDto.Username);
 
 
         if (user == null || !_hashService.VerifyHash(loginDto.Password, user.PasswordHash))
             return Unauthorized("Invalid username or password.");
+        
+
 
         Console.WriteLine(user.ID.ToString());
         var session = await _sessionService.CreateSessionAsync(user.ID.ToString(), TimeSpan.FromHours(24));
@@ -77,7 +101,7 @@ public class AuthController : ControllerBase
         Response.Cookies.Append("AuthToken", session.Token, new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
+            Secure = false,
             SameSite = SameSiteMode.Strict,
             Expires = session.ExpiresAt
         });

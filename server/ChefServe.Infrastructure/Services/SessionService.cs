@@ -38,7 +38,11 @@ public class SessionService : ISessionService
 
     public async Task<Session?> GetSessionByTokenAsync(string token)
     {
-        var session = await _context.Sessions.FindAsync(token);
+        var session = await _context.Sessions.Where(s => s.Token == token).FirstOrDefaultAsync();
+        if (session == null || session.ExpiresAt < DateTime.UtcNow)
+        {
+            return null;
+        }
         return session;
     }
 
