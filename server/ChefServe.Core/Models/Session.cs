@@ -7,6 +7,5 @@ public class Session
     public Guid UserID { get; set; } = Guid.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? ExpiresAt { get; set; }
-
     public User User { get; set; } = null!;
 }

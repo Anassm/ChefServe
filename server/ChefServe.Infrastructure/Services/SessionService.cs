@@ -2,6 +2,7 @@ using ChefServe.Core.Models;
 using ChefServe.Core.Interfaces;
 using ChefServe.Infrastructure.Data;
 using System.Security.Cryptography;
+using Microsoft.EntityFrameworkCore;
 
 namespace ChefServe.Infrastructure.Services;
 
@@ -55,7 +56,7 @@ public class SessionService : ISessionService
 
     public async Task<User?> GetUserBySessionTokenAsync(string token)
     {
-        var session = await _context.Sessions.FindAsync(token);
+        var session = await _context.Sessions.Where(s => s.Token == token).FirstOrDefaultAsync();
         if (session == null || session.ExpiresAt < DateTime.UtcNow)
         {
             return null;
@@ -64,6 +65,4 @@ public class SessionService : ISessionService
         var user = await _context.Users.FindAsync(session.UserID);
         return user;
     }
-
-
 }

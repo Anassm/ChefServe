@@ -35,6 +35,8 @@ namespace ChefServe.Infrastructure.Data
                 entity.HasKey(f => f.ID);
                 entity.Property(f => f.Name).IsRequired().HasMaxLength(255);
                 entity.Property(f => f.Path).IsRequired();
+                entity.Property(f => f.Type).HasMaxLength(255);
+                entity.Property(f => f.ParentPath).IsRequired();
                 entity.Property(f => f.CreatedAt)
                       .HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.Property(f => f.UpdatedAt)
@@ -62,7 +64,7 @@ namespace ChefServe.Infrastructure.Data
                       .OnDelete(DeleteBehavior.Cascade);
 
                 entity.Property(fs => fs.Permission)
-                      .HasConversion<string>()  
+                      .HasConversion<string>()
                       .HasMaxLength(10);
             });
             modelBuilder.Entity<Session>(entity =>
@@ -78,7 +80,6 @@ namespace ChefServe.Infrastructure.Data
                     .IsRequired()
                     .HasMaxLength(255);
 
-
                 entity.Property(s => s.UserID)
                     .HasConversion<string>()
                     .IsRequired();
@@ -93,6 +94,7 @@ namespace ChefServe.Infrastructure.Data
                     .HasForeignKey<Session>(s => s.UserID)
                     .OnDelete(DeleteBehavior.Cascade);
             });
+
         }
     }
 }
