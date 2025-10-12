@@ -31,10 +31,35 @@
 //   );
 // }
 
+import { FileItem } from "../../components/FileItem/FileItem";
 export default function Dashboard() {
   return (
     <>
-      <h1>This is a dashboard page for testing</h1>
+      <FileItem
+        id="1"
+        name="example.txt"
+        extension=".txt"
+        isFolder={false}
+      />
+      <FileItem
+        id="1"
+        name="example.txt"
+        extension=".txt"
+        isFolder={false}
+      />
+      <FileItem
+        id="1"
+        name="example.txt"
+        extension=".txt"
+        isFolder={false}
+      />
+      <FileItem
+        id="1"
+        name="example.txt"
+        extension=".txt"
+        isFolder={false}
+      />
+
     </>
   );
 }

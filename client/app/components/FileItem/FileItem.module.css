@@ -1,0 +1,26 @@
+.wrapper {
+    margin-left: 1rem;
+    margin-right: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: clamp(32px, 8vw, 64px);
+    height: clamp(32px, 8vw, 64px);
+}
+
+.button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.image {
+    width: 64px;
+    height: 64px;
+}
+
+.name {
+    text-align: center;
+    font-size: 1rem;
+}

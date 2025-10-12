@@ -51,7 +51,7 @@ public class FileService : IFileService
             Name = dirInfo.Name,
             Path = fullPath,
             ParentPath = dirInfo.Parent?.FullName,
-            Type = null,
+            Extension = null,
             IsFolder = true,
             OwnerID = ownerId,
             Owner = User
@@ -117,7 +117,7 @@ public class FileService : IFileService
             Name = FileInfo.Name,
             Path = fullPath,
             ParentPath = dirPath,
-            Type = FileInfo.Extension,
+            Extension = FileInfo.Extension,
             OwnerID = ownerId,
             CreatedAt = FileInfo.CreationTimeUtc,
             UpdatedAt = FileInfo.LastWriteTimeUtc,
