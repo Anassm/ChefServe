@@ -31,7 +31,6 @@
 //   );
 // }
 
-
 import type { Props } from "../../components/FileItem/FileItem";
 import { FileItem } from "../../components/FileItem/FileItem";
 export default function Dashboard() {
@@ -57,9 +56,7 @@ export default function Dashboard() {
     { id: "19", name: "Backups", extension: "", isFolder: true },
     { id: "20", name: "Presentatie", extension: "pptx", isFolder: false },
   ];
-  const displayItems = exampleData.map(Item => )
+  // const displayItems = exampleData.map(Item => )
 
-  return ({
-
-  });
+  return <img src="../../../public/images/background-meme1.jpg" style={{height: "1auto", width: "100vw"}} />;
 }
