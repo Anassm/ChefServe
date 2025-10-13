@@ -3,9 +3,14 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 80px;
-    inline-size: 80px;
-    
+    width: 8%;
+    inline-size: 8%;
+}
+
+.wrapper:hover{
+    transform: scale(1.05);
+    background-color: rgba(0, 123, 255, 0.1);
+    cursor: pointer;
 }
 
 .button {
@@ -27,7 +32,7 @@
     text-align: center;
     font-size: clamp(0.7rem, 0.5%, 1.5rem);
     height: 1rem;
-    width: 80px;
+    width: 100%;
     overflow: hidden;
 }
 
