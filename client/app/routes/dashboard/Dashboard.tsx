@@ -37,13 +37,13 @@ export default function Dashboard() {
     <>
       <FileItem
         id="1"
-        name="example.txt"
+        name="exaaaaaaaaaaaaaaample.txt"
         extension=".txt"
         isFolder={false}
       />
       <FileItem
         id="1"
-        name="example.txt"
+        name="e.txt"
         extension=".txt"
         isFolder={false}
       />
