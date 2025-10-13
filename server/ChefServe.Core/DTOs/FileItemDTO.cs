@@ -6,6 +6,7 @@ public class FileItemDTO
     public Guid ID { get; set; } = Guid.NewGuid();
     public required string Name { get; set; }
     public required string Path { get; set; }
+    public required string Extension { get; set; }
     public string Summary { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
