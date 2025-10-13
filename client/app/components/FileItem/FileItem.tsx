@@ -12,7 +12,7 @@ export function FileItem({ id, name, extension, isFolder }: Props) {
   return (
     <div className={styles.wrapper}>
       <button className={styles.button}>
-        {isFolder ? "📁" : <img src={imageSource} alt={filetype} className="image" />}
+        <img src={imageSource} alt={filetype} className="image" />
       </button>
       <p className={styles.name}>{name}</p>
     </div>
