@@ -20,6 +20,18 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddScoped<IFileService, FileService>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173", "http://localhost:5175") // your dev frontends
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials(); // required for cookies
+    });
+});
+
 
 var app = builder.Build();
 
@@ -42,6 +54,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors("AllowFrontend");
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
