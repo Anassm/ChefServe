@@ -31,20 +31,12 @@
 //   );
 // }
 
-function handleLogout() {
-  fetch("http://localhost:5175/api/auth/logout", {
-    method: "POST",
-    credentials: "include",
-  }).then(() => {
-    window.location.href = "/login";
-  });
-}
+
 
 export default function Dashboard() {
   return (
     <>
       <h1>This is a dashboard page for testing</h1>
-      <button onClick={handleLogout}>Logout</button>
     </>
   );
 }
