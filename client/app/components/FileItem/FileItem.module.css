@@ -1,0 +1,41 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.wrapper:hover{
+    transform: scale(1.05);
+    background-color: rgba(0, 123, 255, 0.1);
+    cursor: pointer;
+}
+
+.button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    width: 48px;
+    height: 48px;
+}
+
+.image {
+    scale: 200px;
+    display: block;
+    width: 64px;
+    height: 64px;
+}
+
+.name {
+    text-align: center;
+    font-size: clamp(0.7rem, 0.5%, 1.5rem);
+    height: 1rem;
+    width: 100%;
+    overflow: hidden;
+}
+
+.name:has(span:overflowing) {
+    text-align: start;
+    height: 2rem;
+}

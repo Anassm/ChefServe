@@ -6,11 +6,12 @@ public class FileItem
     public required string Name { get; set; }
     public required string Path { get; set; }
     public required string? ParentPath { get; set; }
-    public required string? Type { get; set; } = null;
+    public required string? Extension { get; set; } = null;
     public string Summary { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public bool IsFolder { get; set; } = false;
+    public bool HasContent { get; set; } = false;
     public Guid OwnerID { get; set; }
 
     public required User Owner { get; set; }

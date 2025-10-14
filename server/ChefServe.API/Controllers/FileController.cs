@@ -57,6 +57,7 @@ public class FileController : ControllerBase
                 ID = folder.ID,
                 Name = folder.Name,
                 Path = folder.Path,
+                Extension = folder.Extension,
                 Summary = folder.Summary,
                 CreatedAt = folder.CreatedAt,
                 UpdatedAt = folder.UpdatedAt,
@@ -104,6 +105,7 @@ public class FileController : ControllerBase
                 ID = file.ID,
                 Name = file.Name,
                 Path = file.Path,
+                Extension = file.Extension,
                 Summary = file.Summary,
                 CreatedAt = file.CreatedAt,
                 UpdatedAt = file.UpdatedAt,
@@ -140,6 +142,7 @@ public class FileController : ControllerBase
                 ID = file.ID,
                 Name = file.Name,
                 Path = file.Path,
+                Extension = file.Extension,
                 Summary = file.Summary,
                 CreatedAt = file.CreatedAt,
                 UpdatedAt = file.UpdatedAt,
@@ -172,16 +175,12 @@ public class FileController : ControllerBase
             if (files == null || files.Count() == 0)
                 return StatusCode(StatusCodes.Status204NoContent, new { Error = "File not found" });
 
-            return StatusCode(StatusCodes.Status200OK, files.Select(file => new FileItemDTO
+            return StatusCode(StatusCodes.Status200OK, files.Select(file => new getFilesReturnDTO
             {
-                ID = file.ID,
-                Name = file.Name,
-                Path = file.Path,
-                Summary = file.Summary,
-                CreatedAt = file.CreatedAt,
-                UpdatedAt = file.UpdatedAt,
-                IsFolder = file.IsFolder,
-                OwnerID = file.OwnerID
+                name = file.Name,
+                extension = file.Extension,
+                isFolder = file.IsFolder,
+                hasContent = file.HasContent
             }));
         }
         catch (Exception ex)
@@ -278,6 +277,7 @@ public class FileController : ControllerBase
                 ID = file.ID,
                 Name = file.Name,
                 Path = file.Path,
+                Extension = file.Extension,
                 Summary = file.Summary,
                 CreatedAt = file.CreatedAt,
                 UpdatedAt = file.UpdatedAt,
@@ -318,6 +318,7 @@ public class FileController : ControllerBase
                 ID = file.ID,
                 Name = file.Name,
                 Path = file.Path,
+                Extension = file.Extension,
                 Summary = file.Summary,
                 CreatedAt = file.CreatedAt,
                 UpdatedAt = file.UpdatedAt,

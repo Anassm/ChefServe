@@ -6,6 +6,7 @@ public class FileItemDTO
     public Guid ID { get; set; } = Guid.NewGuid();
     public required string Name { get; set; }
     public required string Path { get; set; }
+    public required string Extension { get; set; }
     public string Summary { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
@@ -32,4 +33,11 @@ public class MoveFileBodyDTO
 {
     public required Guid FileID { get; set; }
     public required string NewPath { get; set; }
+}
+public class getFilesReturnDTO
+{
+    public required string name { get; set; }
+    public required string extension { get; set; }
+    public required bool isFolder { get; set; }
+    public required bool hasContent { get; set; }
 }
