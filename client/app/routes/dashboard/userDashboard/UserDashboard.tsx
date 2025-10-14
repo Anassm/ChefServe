@@ -28,4 +28,5 @@ export async function loader({ params }: { params?: { parentpath: string } }) {
 export default function UserDashboard() {
   const files = useLoaderData<fileItem[]>();
   console.log(files);
+  return null;
 }
