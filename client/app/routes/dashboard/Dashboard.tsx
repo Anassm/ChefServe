@@ -2,6 +2,8 @@
 // import AdminDashboard from "./adminDashboard/AdminDashboard";
 // import UserDashboard from "./userDashboard/UserDashboard";
 
+import UserDashboard from "./userDashboard/UserDashboard";
+
 // export async function loader() {
 //   const user = await functiontogetuserfromsession();
 
@@ -32,9 +34,6 @@
 // }
 
 
-import type { Props } from "../../components/FileItem/FileItem";
-import { FileItem } from "../../components/FileItem/FileItem";
-import FileDisplayer from "~/components/FileItem/FileDisplayer";
 export default function Dashboard() {
-
+    return <UserDashboard />;
 }

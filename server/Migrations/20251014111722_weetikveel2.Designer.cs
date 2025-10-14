@@ -3,6 +3,7 @@ using System;
 using ChefServe.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace server.Migrations
 {
     [DbContext(typeof(ChefServeDbContext))]
-    partial class ChefServeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251014111722_weetikveel2")]
+    partial class weetikveel2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.9");
@@ -31,11 +34,6 @@ namespace server.Migrations
                     b.Property<string>("Extension")
                         .HasMaxLength(255)
                         .HasColumnType("TEXT");
-
-                    b.Property<bool>("HasContent")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValueSql("0");
 
                     b.Property<bool>("IsFolder")
                         .ValueGeneratedOnAdd()

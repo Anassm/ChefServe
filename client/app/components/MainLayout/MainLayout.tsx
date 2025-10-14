@@ -11,7 +11,7 @@ export default function MainLayout() {
       <div className={styles.row}>
         <Sidebar />
         <main className={styles.main}>
-          <FileDisplayer/>
+          <Outlet />
         </main>
       </div>
     </div>

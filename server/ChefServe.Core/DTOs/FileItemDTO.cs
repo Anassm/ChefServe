@@ -34,3 +34,10 @@ public class MoveFileBodyDTO
     public required Guid FileID { get; set; }
     public required string NewPath { get; set; }
 }
+public class getFilesReturnDTO
+{
+    public required string name { get; set; }
+    public required string extension { get; set; }
+    public required bool isFolder { get; set; }
+    public required bool hasContent { get; set; }
+}

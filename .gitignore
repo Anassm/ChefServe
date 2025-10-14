@@ -420,3 +420,4 @@ FodyWeavers.xsd
 # remove db-shm and db-wal files which are used by SQLite
 *.db-shm
 *.db-wal
+*.db

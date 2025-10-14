@@ -11,6 +11,7 @@ public class FileItem
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public bool IsFolder { get; set; } = false;
+    public bool HasContent { get; set; } = false;
     public Guid OwnerID { get; set; }
 
     public required User Owner { get; set; }
