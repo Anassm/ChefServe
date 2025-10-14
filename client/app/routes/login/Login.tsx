@@ -30,6 +30,17 @@ export default function Login() {
     checkLogin();
   }, [navigate, setUser]);
 
+
+  async function attemptLogin(username: any, password: any, invalidateAll = false) {
+    const res = await fetch("http://localhost:5175/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password, invalidateAll }),
+      credentials: "include",
+    });
+    return res;
+  }
+
   async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -37,12 +48,15 @@ export default function Login() {
     const username = formData.get("username");
     const password = formData.get("password");
 
-    const res = await fetch("http://localhost:5175/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-      credentials: "include", // stores cookie if backend sets it
-    });
+    let res = await attemptLogin(username, password);
+    
+    if (res.status === 409) {
+      const confirmLogout = window.confirm(
+        "You are already logged in on another device. Logging in here will log you out everywhere else. Continue?"
+      );
+      if (!confirmLogout) return;
+      res = await attemptLogin(username, password, true);
+    }
 
     if (res.ok) {
       const dto = await res.json();
