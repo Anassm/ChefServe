@@ -46,9 +46,9 @@ public class SessionService : ISessionService
         return session;
     }
 
-    public async Task<bool> InvalidateSessionAsync(string token)
+    public async Task<bool> InvalidateSessionAsync(Guid ID)
     {
-        var session = await _context.Sessions.FindAsync(token);
+        var session = await _context.Sessions.FindAsync(ID);
         if (session != null)
         {
             _context.Sessions.Remove(session);

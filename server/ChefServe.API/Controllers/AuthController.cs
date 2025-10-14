@@ -92,7 +92,7 @@ public class AuthController : ControllerBase
 
         if (user == null || !_hashService.VerifyHash(loginDto.Password, user.PasswordHash))
             return Unauthorized("Invalid username or password.");
-        
+
 
 
         Console.WriteLine(user.ID.ToString());
@@ -105,6 +105,55 @@ public class AuthController : ControllerBase
             SameSite = SameSiteMode.Strict,
             Expires = session.ExpiresAt
         });
+
+        return Ok(new AuthResponseDto
+        {
+            Username = user.Username,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+        });
+    }
+
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        if (!Request.Cookies.TryGetValue("AuthToken", out var token))
+        {
+            return BadRequest("No auth token found.");
+        }
+
+        var session = await _sessionService.GetSessionByTokenAsync(token);
+        if (session == null)
+        {
+            return BadRequest("Invalid auth token.");
+        }
+
+        await _sessionService.InvalidateSessionAsync(session.ID);
+
+        Response.Cookies.Append("AuthToken", "", new CookieOptions
+        {
+            Expires = DateTime.UtcNow.AddDays(-1),
+            HttpOnly = true,
+            Secure = false,
+            SameSite = SameSiteMode.Strict
+        });
+
+        return Ok("Logged out successfully.");
+    }
+
+    [HttpGet("me")]
+    public async Task<IActionResult> Me()
+    {
+        if (!Request.Cookies.TryGetValue("AuthToken", out var token))
+        {
+            return Unauthorized("No auth token found.");
+        }
+
+        var user = await _sessionService.GetUserBySessionTokenAsync(token);
+        if (user == null)
+        {
+            return Unauthorized("Invalid or expired auth token.");
+        }
 
         return Ok(new AuthResponseDto
         {
