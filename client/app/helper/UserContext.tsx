@@ -4,6 +4,7 @@ interface User {
   username: string;
   firstname: string;
   lastname: string;
+  role: "admin" | "user";
 }
 
 interface UserContextType {

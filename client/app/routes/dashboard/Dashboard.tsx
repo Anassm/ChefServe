@@ -1,39 +1,27 @@
-// import { redirect, useLoaderData } from "react-router";
-// import AdminDashboard from "./adminDashboard/AdminDashboard";
-// import UserDashboard from "./userDashboard/UserDashboard";
-
+import { Navigate } from "react-router";
+import { useUser } from "~/helper/UserContext";
+import AdminDashboard from "./adminDashboard/AdminDashboard";
 import UserDashboard from "./userDashboard/UserDashboard";
 
-// export async function loader() {
-//   const user = await functiontogetuserfromsession();
-
-//   if (!user) {
-//     throw redirect("/login");
-//   }
-
-//   return { role: user.role };
-// }
-
-// export default function Dashboard() {
-//   const { role } = useLoaderData<typeof loader>();
-
-//   if (role === "admin") {
-//     return <AdminDashboard />;
-//   }
-
-//   if (role === "user") {
-//     return <UserDashboard />;
-//   }
-
-//   return (
-//     <>
-//       <h2>Something went wrong.</h2>
-//       <p>No user role found for dashboard.</p>
-//     </>
-//   );
-// }
-
-
 export default function Dashboard() {
-    return <UserDashboard />;
+    const { user } = useUser();
+
+    if (!user) {
+        return <Navigate to="/login" replace />;
+    }
+
+    if (user.role === "admin") {
+        return <AdminDashboard />;
+    }
+
+    if (user.role === "user") {
+        return <UserDashboard />;
+    }
+
+    return (
+        <>
+            <h2>Something went wrong.</h2>
+            <p>No user role found for dashboard.</p>
+        </>
+    );
 }
