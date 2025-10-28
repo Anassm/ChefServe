@@ -11,6 +11,7 @@ public class User
     public required string PasswordHash { get; set; }
     public required string Email { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public string Role { get; set; } = "user";
 
     public ICollection<FileItem> FileItems { get; set; } = new List<FileItem>();
     public ICollection<SharedFileItem> SharedFileItems { get; set; } = new List<SharedFileItem>();

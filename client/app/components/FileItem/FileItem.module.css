@@ -3,8 +3,6 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 8%;
-    inline-size: 8%;
 }
 
 .wrapper:hover{
@@ -23,6 +21,7 @@
 }
 
 .image {
+    scale: 200px;
     display: block;
     width: 64px;
     height: 64px;

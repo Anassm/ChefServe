@@ -18,6 +18,42 @@ public class FileService : IFileService
         _context = context;
     }
 
+    private async void HasContentAsync(string folderPath, Guid ownerId)
+    {
+        if (ownerId == Guid.Empty)
+            return;
+
+        if (string.IsNullOrWhiteSpace(folderPath))
+            folderPath = UserHelper.GetRootPathForUser(ownerId);
+
+        var has = await _context.FileItems
+            .AnyAsync(f => f.OwnerID == ownerId && f.ParentPath == folderPath);
+
+        if (has)
+        {
+            var folderItem = await _context.FileItems
+                .Where(f => f.OwnerID == ownerId && f.Path == folderPath && f.IsFolder)
+                .FirstOrDefaultAsync();
+            if (folderItem != null)
+            {
+                folderItem.HasContent = true;
+                await _context.SaveChangesAsync();
+            }
+        }
+        else
+        {
+            var folderItem = await _context.FileItems
+                .Where(f => f.OwnerID == ownerId && f.Path == folderPath && f.IsFolder)
+                .FirstOrDefaultAsync();
+            if (folderItem != null)
+            {
+                folderItem.HasContent = false;
+                await _context.SaveChangesAsync();
+            }
+        }
+    }
+
+
     public async Task<FileItem> CreateFolderAsync(Guid ownerId, string folderName, string parentPath)
     {
         if (ownerId == Guid.Empty)
@@ -124,9 +160,9 @@ public class FileService : IFileService
             IsFolder = false,
             Owner = User
         };
-
         _context.FileItems.Add(fileitem);
         await _context.SaveChangesAsync();
+        HasContentAsync(fileitem.ParentPath, ownerId);
         return fileitem;
     }
 
@@ -185,6 +221,7 @@ public class FileService : IFileService
             if (Directory.Exists(fileItem.Path))
             {
                 Directory.Delete(fileItem.Path, true);
+                HasContentAsync(fileItem.ParentPath!, userId);
             }
         }
         else
@@ -215,6 +252,7 @@ public class FileService : IFileService
         else
             newPath = Path.Combine(UserHelper.GetRootPathForUser(userId), newPath);
 
+        string oldParentPath = fileItem.ParentPath == null ? string.Empty : fileItem.ParentPath.TrimEnd('/', '\\');
         var destinationFullPath = Path.Combine(newPath, fileItem.Name);
         if (fileItem.IsFolder)
         {
@@ -246,8 +284,9 @@ public class FileService : IFileService
 
             fileItem.Path = destinationFullPath;
         }
-
         await _context.SaveChangesAsync();
+        HasContentAsync(oldParentPath, userId);
+        HasContentAsync(fileItem.ParentPath!, userId);
         return fileItem;
     }
 
