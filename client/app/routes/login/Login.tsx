@@ -11,8 +11,8 @@ export default function Login() {
     async function checkLogin() {
       try {
         const res = await fetch("http://localhost:5175/api/auth/me", {
-        method: "GET",
-        credentials: "include", // sends cookie if backend sets it
+          method: "GET",
+          credentials: "include", // sends cookie if backend sets it
         });
         if (res.ok) {
           const dto = await res.json();
@@ -20,6 +20,7 @@ export default function Login() {
             username: dto.username,
             firstname: dto.firstname,
             lastname: dto.lastname,
+            role: dto.role,
           });
           navigate("/");
         }
@@ -49,7 +50,7 @@ export default function Login() {
     const password = formData.get("password");
 
     let res = await attemptLogin(username, password);
-    
+
     if (res.status === 409) {
       const confirmLogout = window.confirm(
         "You are already logged in on another device. Logging in here will log you out everywhere else. Continue?"
@@ -65,6 +66,7 @@ export default function Login() {
         username: dto.username,
         firstname: dto.firstname,
         lastname: dto.lastname,
+        role: dto.role,
       });
 
       navigate("/");
