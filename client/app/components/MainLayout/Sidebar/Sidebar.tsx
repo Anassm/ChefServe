@@ -4,6 +4,15 @@ import { CiLogout, CiSettings } from "react-icons/ci";
 import { IoFileTrayStackedOutline } from "react-icons/io5";
 import { Form } from "react-router";
 
+
+async function handleLogout() {
+  await fetch("http://localhost:5175/api/auth/logout", {
+    method: "POST",
+    credentials: "include",
+  });
+  window.location.href = "/login";
+}
+
 function Navigation() {
   return (
     <>
@@ -46,11 +55,9 @@ export default function Sidebar() {
           {mode === "navigation" ? "Settings" : "Navigation"}
         </button>
 
-        <Form method="POST" action="/logout">
-          <button type="submit" className={styles.button}>
-            <CiLogout size={25} /> Logout
-          </button>
-        </Form>
+        <button type="submit" onClick={handleLogout} className={styles.button}>
+          <CiLogout size={25} /> Logout
+        </button>
 
         <span className={styles.love}>Made with ❤ by team Chef</span>
       </div>
