@@ -118,6 +118,7 @@ public class AuthController : ControllerBase
             Username = user.Username,
             FirstName = user.FirstName,
             LastName = user.LastName,
+            Role = user.Role
         });
     }
 
@@ -126,12 +127,14 @@ public class AuthController : ControllerBase
     {
         if (!Request.Cookies.TryGetValue("AuthToken", out var token))
         {
+            Console.WriteLine("No auth token found.");
             return BadRequest("No auth token found.");
         }
 
         var session = await _sessionService.GetSessionByTokenAsync(token);
         if (session == null)
         {
+            Console.WriteLine("Invalid auth token.");
             return BadRequest("Invalid auth token.");
         }
 
@@ -144,6 +147,8 @@ public class AuthController : ControllerBase
             Secure = false,
             SameSite = SameSiteMode.Strict
         });
+
+        Console.WriteLine("User logged out successfully.");
 
         return Ok("Logged out successfully.");
     }

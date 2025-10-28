@@ -1,12 +1,13 @@
 import { redirect, type ActionFunctionArgs } from "react-router";
 
 export async function action({ request }: ActionFunctionArgs) {
-  await fetch("http://localhost:5175/api/auth/logout", {
+  console.log("Logging out user...");
+  const res = await fetch("http://localhost:5175/api/auth/logout", {
     method: "POST",
     credentials: "include",
   });
-
-  localStorage.removeItem("authToken");
-
+  if (!res.ok) {
+    console.error("Logout failed:", res.statusText);
+  }
   return redirect("/login");
 }
