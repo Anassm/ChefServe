@@ -1,42 +1,67 @@
 import { Navigate } from "react-router";
+import { useLoaderData } from "react-router";
+import type { LoaderFunctionArgs } from "react-router";
 import { useUser } from "~/helper/UserContext";
 import AdminDashboard from "./adminDashboard/AdminDashboard";
 import UserDashboard from "./userDashboard/UserDashboard";
 import type { fileItem } from "~/components/FileItem/FileItem";
-import { useLoaderData } from "react-router";
+import type { Route } from "./+types/Dashboard";
 
 
-export async function loader({ params }: { params?: { parentpath: string } }) {
-    const url: string = params == undefined ? `http://localhost:5175/api/file/getfiles` : `http://localhost:5175/api/file/getfiles?parentPath=${params?.parentpath}`;
-    const data = await fetch(url, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        credentials: 'include'
-    });
-    const files: fileItem[] = await data.json();
+export async function clientLoader({ params }: LoaderFunctionArgs) {
+  const url = params?.parentpath
+    ? `http://localhost:5175/api/file/getfiles?parentPath=${params.parentpath}`
+    : `http://localhost:5175/api/file/getfiles`;
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include'
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch files: ${response.status} ${response.statusText}`);
+  }
+
+  // Safely parse JSON
+  const text = await response.text();
+  if (!text) {
+    console.warn("Empty response from API");
+    return []; // return empty array instead of failing
+  }
+
+  try {
+    const files: fileItem[] = JSON.parse(text);
     console.log("Fetched files:", files);
     return files;
+  } catch (err) {
+    console.error("Failed to parse JSON:", text);
+    throw err;
+  }
 }
 
-export default function Dashboard() {
+
+export function HydrateFallback() {
+  return <div>Serving your files...</div>;
+}
+
+
+export default function Dashboard({
+    loaderData }: Route.ComponentProps) {
     const { user } = useUser();
-    const files = useLoaderData<fileItem[]>();
 
 
-    return <UserDashboard files={files}/>;
-    // if (!user) {
-    //     return <Navigate to="/login" replace />;
-    // }
+    if (!user) {
+        return <Navigate to="/login" replace />;
+    }
 
-    // if (user.role === "admin") {
-    //     return <AdminDashboard />;
-    // }
+    if (user.role === "admin") {
+        return <AdminDashboard />;
+    }
 
-    // if (user.role === "user") {
-    //     return <UserDashboard />;
-    // }
+    if (user.role === "user") {
+        return <UserDashboard files={loaderData} />;
+    }
 
     // return (
     //     <>

@@ -7,6 +7,9 @@ export type fileItem = {
 };
 
 export function FileItem({ name, extension, isFolder, hasContent }: fileItem) {
+    if (!extension) {
+        extension = ".folder";
+    }
     const filetype = extension.substring(1);
     let imageSource: string = "";
     if (isFolder) {
