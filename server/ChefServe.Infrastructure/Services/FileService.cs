@@ -187,8 +187,8 @@ public class FileService : IFileService
         if (parentPath == null || parentPath.Trim() == string.Empty)
         {
             parentPath = UserHelper.GetRootPathForUser(ownerId);
-            return await _context.FileItems.Where(f => f.OwnerID == ownerId &&
-            f.ParentPath == parentPath).OrderByDescending(f => f.IsFolder).ThenBy(f => f.Name).ToListAsync();
+            return await _context.FileItems.Where(f => f.OwnerID.ToString().ToUpper() == ownerId.ToString().ToUpper() &&
+            f.ParentPath.ToUpper() == parentPath.ToUpper()).OrderByDescending(f => f.IsFolder).ThenBy(f => f.Name).ToListAsync();
         }
 
         return await _context.FileItems.Where(f => f.OwnerID == ownerId && f.ParentPath == parentPath)

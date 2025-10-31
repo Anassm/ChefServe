@@ -31,7 +31,7 @@ public class FileController : ControllerBase
             if (createFolderDTO == null)
                 return StatusCode(StatusCodes.Status400BadRequest, new { error = "Request must contain a body." });
 
-            if (!Request.Cookies.TryGetValue("Authorization", out var token))
+            if (!Request.Cookies.TryGetValue("AuthToken", out var token))
                 return StatusCode(StatusCodes.Status400BadRequest, new { error = "Missing token." });
 
             var user = await _sessionService.GetUserBySessionTokenAsync(token);
@@ -77,7 +77,7 @@ public class FileController : ControllerBase
             if (uploadFileDTO == null)
                 return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Request must contain a body." });
 
-            if (!Request.Cookies.TryGetValue("Authorization", out var token))
+            if (!Request.Cookies.TryGetValue("AuthToken", out var token))
                 return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing token." });
 
             var user = await _sessionService.GetUserBySessionTokenAsync(token);
@@ -121,7 +121,7 @@ public class FileController : ControllerBase
     {
         try
         {
-            if (!Request.Cookies.TryGetValue("Authorization", out var token))
+            if (!Request.Cookies.TryGetValue("AuthToken", out var token))
                 return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing token." });
             var user = await _sessionService.GetUserBySessionTokenAsync(token);
             if (user == null)
@@ -157,7 +157,7 @@ public class FileController : ControllerBase
     {
         try
         {
-            if (!Request.Cookies.TryGetValue("Authorization", out var token))
+            if (!Request.Cookies.TryGetValue("AuthToken", out var token))
                 return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing token." });
             
             if (parentPath == null)
@@ -189,7 +189,7 @@ public class FileController : ControllerBase
     {
         try
         {
-            if (!Request.Cookies.TryGetValue("Authorization", out var token))
+            if (!Request.Cookies.TryGetValue("AuthToken", out var token))
                 return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing token." });
 
             var user = await _sessionService.GetUserBySessionTokenAsync(token);
@@ -219,7 +219,7 @@ public class FileController : ControllerBase
     {
         try
         {
-            if (!Request.Cookies.TryGetValue("Authorization", out var token))
+            if (!Request.Cookies.TryGetValue("AuthToken", out var token))
                 return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing token." });
 
             var user = await _sessionService.GetUserBySessionTokenAsync(token);
@@ -248,7 +248,7 @@ public class FileController : ControllerBase
             if (renameFileDTO == null)
                 return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Request must contain a body." });
 
-            if (!Request.Cookies.TryGetValue("Authorization", out var token))
+            if (!Request.Cookies.TryGetValue("AuthToken", out var token))
                 return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing token." });
 
             var user = await _sessionService.GetUserBySessionTokenAsync(token);
@@ -288,7 +288,7 @@ public class FileController : ControllerBase
     {
         try
         {
-            if (!Request.Cookies.TryGetValue("Authorization", out var token))
+            if (!Request.Cookies.TryGetValue("AuthToken", out var token))
                 return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing token." });
 
             var user = await _sessionService.GetUserBySessionTokenAsync(token);
