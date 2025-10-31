@@ -20,14 +20,14 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch files: ${response.status} ${response.statusText}`);
+    console.error("Failed to fetch files:", response.statusText);
+    return [];
   }
 
-  // Safely parse JSON
   const text = await response.text();
   if (!text) {
     console.warn("Empty response from API");
-    return []; // return empty array instead of failing
+    return []; 
   }
 
   try {
@@ -36,7 +36,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     return files;
   } catch (err) {
     console.error("Failed to parse JSON:", text);
-    throw err;
+    return [];
   }
 }
 
@@ -63,10 +63,10 @@ export default function Dashboard({
         return <UserDashboard files={loaderData} />;
     }
 
-    // return (
-    //     <>
-    //         <h2>Something went wrong.</h2>
-    //         <p>No user role found for dashboard.</p>
-    //     </>
-    // );
+    return (
+        <>
+            <h2>Something went wrong.</h2>
+            <p>No user role found for dashboard.</p>
+        </>
+    );
 }
