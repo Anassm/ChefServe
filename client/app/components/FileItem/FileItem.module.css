@@ -1,13 +1,27 @@
-.wrapper {
+.unselected {
+    border-radius: 5px;
+    padding: 5px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    width: 80px;
 }
 
-.wrapper:hover{
+.selected {
+    border-radius: 5px;
+    border: 1px solid red;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+}
+
+.wrapper:hover {
     transform: scale(1.05);
-    background-color: rgba(0, 123, 255, 0.1);
+    background-color: rgba(250, 184, 42, 0.321);
     cursor: pointer;
 }
 
@@ -24,7 +38,6 @@
     scale: 200px;
     display: block;
     width: 64px;
-    height: 64px;
 }
 
 .name {
