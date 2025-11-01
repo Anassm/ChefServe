@@ -36,6 +36,7 @@ public class MoveFileBodyDTO
 }
 public class getFilesReturnDTO
 {
+    public required Guid id { get; set; }
     public required string name { get; set; }
     public required string extension { get; set; }
     public required bool isFolder { get; set; }

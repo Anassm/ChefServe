@@ -173,6 +173,7 @@ public class FileController : ControllerBase
 
             return StatusCode(StatusCodes.Status200OK, files.Select(file => new getFilesReturnDTO
             {
+                id = file.ID,
                 name = file.Name,
                 extension = file.Extension,
                 isFolder = file.IsFolder,

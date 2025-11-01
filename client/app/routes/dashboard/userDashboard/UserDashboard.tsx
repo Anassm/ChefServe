@@ -9,7 +9,6 @@ import type { LoaderFunctionArgs } from "react-router";
 
 export default function UserDashboard({ files } : { files: fileItem[] }) {
   console.log("Fetched files2:", files);
-  console.log(files);
   return (
     <FileDisplayer files={files} />
   )
