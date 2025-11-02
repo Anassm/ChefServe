@@ -46,10 +46,15 @@ using (var scope = app.Services.CreateScope())
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUi(options =>
+    app.UseSwagger(c =>
     {
-        options.DocumentPath = "/openapi/v1.json";
+        c.RouteTemplate = "openapi/{documentName}.json";
+    });
+
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/openapi/v1.json", "ChefServe API v1");
+        options.RoutePrefix = "swagger";
     });
 }
 
