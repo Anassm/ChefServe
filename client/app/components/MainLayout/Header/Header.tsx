@@ -7,7 +7,7 @@ export default function Header() {
   return (
     <header className={styles.header}>
       <span>This is a header</span>
-      <button onClick={() => alert(selectedFile ? JSON.stringify(selectedFile, null, 2) : "No file selected")}>Test</button>
+      <button className={styles.testButton} onClick={() => alert(selectedFile ? JSON.stringify(selectedFile, null, 2) : "No file selected")}>Test</button>
     </header>
   );
 }
