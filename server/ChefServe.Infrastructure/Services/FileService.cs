@@ -4,8 +4,7 @@ using ChefServe.Core.Helper;
 using ChefServe.Core.Interfaces;
 using ChefServe.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.FileSystemGlobbing.Internal.PathSegments;
-using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 
 
 namespace ChefServe.Infrastructure.Services;
@@ -56,42 +55,76 @@ public class FileService : IFileService
 
     public async Task<FileItem> CreateFolderAsync(Guid ownerId, string folderName, string parentPath)
     {
-        if (ownerId == Guid.Empty)
-            return null;
-        if (folderName == null || folderName.Trim() == string.Empty)
-            return null;
-        var fullPath = string.Empty;
+        string fullPath = string.Empty;
+        string dbPath = string.Empty;
         var cleanParentPath = parentPath.TrimStart('/', '\\');
         if (cleanParentPath == null || cleanParentPath.Trim() == string.Empty)
         {
-            fullPath = Path.Combine(UserHelper.GetRootPathForUser(ownerId), folderName);
+            dbPath = Path.Combine(UserHelper.GetRootPathForUser(ownerId), folderName);
+            fullPath = Path.GetFullPath(dbPath);
         }
         else
         {
-            fullPath = Path.Combine(UserHelper.GetRootPathForUser(ownerId), cleanParentPath, folderName);
+            dbPath = Path.Combine(UserHelper.GetRootPathForUser(ownerId), cleanParentPath, folderName);
+            fullPath = Path.GetFullPath(dbPath);
         }
-
-        System.Console.WriteLine(fullPath);
         if (Directory.Exists(fullPath))
         {
-            return null;
+            var parentDir = Path.GetDirectoryName(dbPath) ?? UserHelper.GetRootPathForUser(ownerId);
+
+            var existingFolders = await _context.FileItems
+            .Where(f => f.ParentPath == parentDir && f.Name.StartsWith(folderName))
+            .Select(f => f.Name)
+            .ToListAsync();
+
+            var usedNumbers = new List<int>();
+            foreach (var name in existingFolders)
+            {
+                if (name == folderName)
+                    usedNumbers.Add(0); // base name exists
+                else
+                {
+                    var match = System.Text.RegularExpressions.Regex.Match(
+                        name, $@"^{Regex.Escape(folderName)} \((\d+)\)$"
+                    );
+                    if (match.Success && int.TryParse(match.Groups[1].Value, out int n))
+                        usedNumbers.Add(n);
+                }
+            }
+
+            int suffix = 0;
+            usedNumbers.Sort();
+            foreach (var n in usedNumbers)
+            {
+                if (n == suffix)
+                    suffix++;
+                else
+                    break; // gap found
+            }
+
+            var newFolderName = suffix == 0 ? folderName : $"{folderName} ({suffix})";
+            dbPath = Path.Combine(parentDir, newFolderName);
+            fullPath = Path.GetFullPath(dbPath);
         }
 
         Directory.CreateDirectory(fullPath);
-        var dirInfo = new DirectoryInfo(fullPath);
+
         var User = _context.Users.Where(u => u.ID == ownerId).FirstOrDefault();
         if (User == null)
             return null;
+
+        var dirInfo = new DirectoryInfo(fullPath);
         var fileitem = new FileItem
         {
             Name = dirInfo.Name,
-            Path = fullPath,
-            ParentPath = dirInfo.Parent?.FullName,
+            Path = dbPath,
+            ParentPath = Path.GetDirectoryName(dbPath),
             Extension = null,
             IsFolder = true,
             OwnerID = ownerId,
             Owner = User
         };
+
         _context.FileItems.Add(fileitem);
         await _context.SaveChangesAsync();
         return fileitem;
@@ -99,17 +132,11 @@ public class FileService : IFileService
 
     public async Task<FileItem> UploadFileAsync(Guid ownerId, string fileName, Stream content, string? destinationPath)
     {
-        //checks
-        if (ownerId == Guid.Empty)
-            return null;
-        if (fileName == null || fileName.Trim() == string.Empty)
-            return null;
-        if (content == null || content.Length == 0)
-            return null;
-        string dirPath = string.Empty;
+        string dirPath = UserHelper.GetRootPathForUser(ownerId);
+        if (!Directory.Exists(dirPath))
+            Directory.CreateDirectory(dirPath);
         if (destinationPath == null)
         {
-            dirPath = UserHelper.GetRootPathForUser(ownerId);
             destinationPath = string.Empty;
         }
         else
@@ -119,23 +146,57 @@ public class FileService : IFileService
         if (destinationPath.Trim() == string.Empty)
         {
             destinationPath = string.Empty;
-            dirPath = UserHelper.GetRootPathForUser(ownerId);
         }
-
-        //create directory
+        destinationPath = destinationPath.Replace("/", "\\");
         dirPath = Path.Combine(dirPath, destinationPath);
-        System.Console.WriteLine(dirPath);
 
         if (!Directory.Exists(dirPath))
         {
             return null;
         }
+
+
         fileName = FileHelper.SanitizeFileName(fileName);
-        var fullPath = Path.Combine(dirPath, fileName);
+        var dbPath = Path.Combine(dirPath, fileName);
+        var fullPath = Path.GetFullPath(dbPath);
         if (File.Exists(fullPath))
         {
-            var count = await _context.FileItems.Where(f => f.ParentPath == dirPath && f.Name.StartsWith(Path.GetFileNameWithoutExtension(fileName))).Where(f => f.IsFolder == false).CountAsync();
-            fullPath = Path.Combine(dirPath, $"{Path.GetFileNameWithoutExtension(fileName)}({count}){Path.GetExtension(fileName)}");
+            var existingFiles = await _context.FileItems
+            .Where(f => f.ParentPath == dirPath && f.Name.StartsWith(Path.GetFileNameWithoutExtension(fileName)) && !f.IsFolder)
+            .Select(f => f.Name)
+            .ToListAsync();
+
+            var usedNumbers = new List<int>();
+            string baseName = Path.GetFileNameWithoutExtension(fileName);
+            string extension = Path.GetExtension(fileName);
+
+            foreach (var name in existingFiles)
+            {
+                if (name == baseName + extension)
+                    usedNumbers.Add(0);
+                else
+                {
+                    var match = Regex.Match(name, $@"^{Regex.Escape(baseName)} \((\d+)\){Regex.Escape(extension)}$");
+                    if (match.Success && int.TryParse(match.Groups[1].Value, out int n))
+                        usedNumbers.Add(n);
+                }
+            }
+
+            // Find the lowest unused number
+            int suffix = 0;
+            usedNumbers.Sort();
+            foreach (var n in usedNumbers)
+            {
+                if (n == suffix)
+                    suffix++;
+                else
+                    break; // found a gap
+            }
+
+            // Determine new file name
+            string newFileName = suffix == 0 ? fileName : $"{baseName} ({suffix}){extension}";
+            dbPath = Path.Combine(dirPath, newFileName);
+            fullPath = Path.GetFullPath(dbPath);
         }
 
         using (var fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
@@ -151,8 +212,8 @@ public class FileService : IFileService
         var fileitem = new FileItem
         {
             Name = FileInfo.Name,
-            Path = fullPath,
-            ParentPath = dirPath,
+            Path = dbPath,
+            ParentPath = Path.GetDirectoryName(dbPath),
             Extension = FileInfo.Extension,
             OwnerID = ownerId,
             CreatedAt = FileInfo.CreationTimeUtc,
@@ -181,9 +242,6 @@ public class FileService : IFileService
 
     public async Task<IEnumerable<FileItem>> GetFilesAsync(Guid ownerId, string? parentPath = null)
     {
-        if (ownerId == Guid.Empty)
-            return Enumerable.Empty<FileItem>();
-
         if (parentPath == null || parentPath.Trim() == string.Empty)
         {
             parentPath = UserHelper.GetRootPathForUser(ownerId);
@@ -197,9 +255,6 @@ public class FileService : IFileService
 
     public async Task<Stream?> DownloadFileAsync(Guid fileId, Guid userId)
     {
-        if (fileId == Guid.Empty || userId == Guid.Empty)
-            return null;
-
         var fileItem = await _context.FileItems.Where(f => f.ID == fileId && f.OwnerID == userId).FirstOrDefaultAsync();
         if (fileItem == null || fileItem.IsFolder || !File.Exists(fileItem.Path))
             return null;
@@ -209,9 +264,6 @@ public class FileService : IFileService
 
     public async Task<bool> DeleteFileAsync(Guid fileId, Guid userId)
     {
-        if (fileId == Guid.Empty || userId == Guid.Empty)
-            return false;
-
         var fileItem = _context.FileItems.Where(f => f.ID == fileId && f.OwnerID == userId).FirstOrDefault();
         if (fileItem == null)
             return false;
