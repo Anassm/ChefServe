@@ -7,8 +7,8 @@ export type fileItem = {
     id: string,
     name: string,
     extension: string,
-    isFolder: string,
-    hasContent: string
+    isFolder: boolean,
+    hasContent: boolean,
     isSelected?: boolean,
     onSelect?: () => void,
     onOpen?: () => void
@@ -18,19 +18,18 @@ export function FileItem({ name, extension, isFolder, hasContent, isSelected = f
     const ext = extension || '.folder';
     const filetype = ext.substring(1);
     const timer = useRef<NodeJS.Timeout | null>(null);
-    const delay = 200;
+    const delay = 400;
 
     const handleClick = () => {
+        if (onSelect) onSelect();
         if (timer.current) {
             clearTimeout(timer.current);
             timer.current = null;
             if (onOpen){
-                if (onSelect) onSelect();
                 onOpen();
             }
         } else {
             timer.current = setTimeout(() => {
-                if (onSelect) onSelect();
                 timer.current = null;
             }, delay);
         }
