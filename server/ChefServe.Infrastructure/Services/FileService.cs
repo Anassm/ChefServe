@@ -57,7 +57,7 @@ public class FileService : IFileService
     {
         string fullPath = string.Empty;
         string dbPath = string.Empty;
-        var cleanParentPath = parentPath.TrimStart('/', '\\');
+        var cleanParentPath = parentPath.TrimStart('/', '\\').Replace('/', '\\');
         if (cleanParentPath == null || cleanParentPath.Trim() == string.Empty)
         {
             dbPath = Path.Combine(UserHelper.GetRootPathForUser(ownerId), folderName);
@@ -152,7 +152,7 @@ public class FileService : IFileService
 
         if (!Directory.Exists(dirPath))
         {
-            return null;
+            return null!;
         }
 
 
