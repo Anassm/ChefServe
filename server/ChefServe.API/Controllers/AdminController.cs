@@ -26,25 +26,39 @@ public class AdminController : ControllerBase
     [HttpGet("users")]
     public async Task<IActionResult> GetAllUsers()
     {
-        if (!Request.Headers.TryGetValue("Authorization", out var token))
+        if (!Request.Cookies.TryGetValue("AuthToken", out var token))
         {
+            Console.WriteLine("No authorization token provided.");
             return Unauthorized("No authorization token provided.");
         }
 
         var session = await _sessionService.GetSessionByTokenAsync(token);
         if (session == null)
         {
+            Console.WriteLine("Invalid session token: " + token);
             return Unauthorized("Invalid session token.");
         }
 
         var user = await _sessionService.GetUserBySessionTokenAsync(token);
         if (user == null || !user.IsAdmin)
         {
+            Console.WriteLine("User is not admin: " + (user?.Role ?? "null"));
             return Forbid("User does not have admin privileges.");
         }
-        
+
 
         var users = await _userService.GetAllUsersAsync();
-        return Ok(users);
+        Console.WriteLine("Fetched users: " + string.Join(", ", users.Select(u => u.Email)));
+        var simplifiedUsers = users.Select(u => new
+        {
+            id = u.ID,
+            username = u.Username,
+            firstName = u.FirstName,
+            lastName = u.LastName,
+            email = u.Email,
+            role = u.Role,
+            createdAt = u.CreatedAt
+        });
+        return Ok(simplifiedUsers);
     }
 }

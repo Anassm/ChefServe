@@ -1,0 +1,29 @@
+.userTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    margin-left: 1rem;
+}
+
+.userTable th, .userTable td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.userTable th {
+    background: #f4d29b;
+}
+
+.actionButtons {
+    display: flex;
+    justify-content: space-between;
+}
+
+.userListTitle {
+    margin-left: 1rem;
+    margin-top: 1rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    
+}
