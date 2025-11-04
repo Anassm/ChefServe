@@ -8,7 +8,6 @@
 .row {
   display: flex;
   flex: 1;
-  min-height: 0;
 }
 
 .header {
@@ -23,7 +22,7 @@
   flex-direction: column;
   background: #f4d29b;
   width: 300px;
-  height: calc(100vh - 80px);
+  height: auto;
   padding: 1.5rem 1.5rem 1rem 1.5rem;
   justify-content: space-between;
 }
