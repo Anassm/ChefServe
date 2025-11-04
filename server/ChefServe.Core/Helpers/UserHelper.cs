@@ -6,8 +6,7 @@ public class UserHelper
 {
     public static string GetRootPathForUser(Guid userId)
     {
-        var relativePath = $"../Users/{userId}";
-        var fullPath = Path.GetFullPath(relativePath);
-        return fullPath;
+        var dbPath = $"..\\Users\\{userId}";
+        return dbPath;
     }
 }
