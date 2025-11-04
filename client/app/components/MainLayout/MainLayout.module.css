@@ -12,7 +12,6 @@
 }
 
 .header {
-  height: 80px;
   flex-shrink: 0;
   background: #f4d29b;
   padding: 1rem;
@@ -70,6 +69,8 @@
   margin-top: 2rem;
 }
 
-.testButton{
-    margin-left: 90%;
+.fileActions {
+  display: flex;
+  align-items: center;
+  justify-content: end;
 }
