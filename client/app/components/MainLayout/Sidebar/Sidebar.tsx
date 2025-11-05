@@ -37,6 +37,7 @@ export default function Sidebar() {
 
   const startResizing = React.useCallback((mouseDownEvent) => {
     setIsResizing(true);
+    mouseDownEvent.preventDefault()
   }, []);
 
   const stopResizing = React.useCallback(() => {
@@ -71,7 +72,6 @@ export default function Sidebar() {
         ref={sidebarRef}
         className={styles.sidebar}
         style={{ width: sidebarWidth }}
-        onMouseDown={(e) => e.preventDefault()}
       >
         <div className={styles.sidebarContent}>
           <div className={styles.treeContent}>
