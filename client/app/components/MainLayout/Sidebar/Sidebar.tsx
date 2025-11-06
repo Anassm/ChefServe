@@ -74,8 +74,13 @@ export default function Sidebar() {
         style={{ width: sidebarWidth }}
       >
         <div className={styles.sidebarContent}>
-          <div className={styles.treeContent}>
-            {mode == "navigation" ? <Navigation /> : <Settings />}
+          <div className={styles.contentBody}>
+            <div className={styles.treeContentTop}>
+              {mode == "navigation" ? <Navigation /> : <Settings />}
+            </div>
+            <div className={styles.contentBodyBottom}>
+
+            </div>
           </div>
 
           <div className={styles.bottom}>

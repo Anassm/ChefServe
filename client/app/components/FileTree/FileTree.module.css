@@ -1,0 +1,11 @@
+.fileItem {
+    display: flex;
+    flex-direction: row;
+}
+
+
+
+.selected {
+    display: flex;
+    flex-direction: column;
+}
