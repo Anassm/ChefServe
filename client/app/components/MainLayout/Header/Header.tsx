@@ -4,6 +4,7 @@ import { selectedFileContext } from "~/context/SelectedFileContext";
 import { TiDocumentDelete } from "react-icons/ti";
 import { useRevalidator } from "react-router";
 import { IoMdAdd } from "react-icons/io";
+import Searchbar from "~/components/Searchbar/Searchbar";
 
 export default function Header() {
   const context = useContext(selectedFileContext);
@@ -88,6 +89,7 @@ export default function Header() {
   return (
     <header className={styles.header}>
       <div className={styles.fileActions}>
+        <Searchbar />
         <TiDocumentDelete
           size={40}
           onClick={!selectedFile ? () => {} : onFileDelete}
