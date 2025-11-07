@@ -61,4 +61,81 @@ public class AdminController : ControllerBase
         });
         return Ok(simplifiedUsers);
     }
+
+    [HttpDelete("users/{userId}")]
+    public async Task<IActionResult> DeleteUser(Guid userId)
+    {
+        if (!Request.Headers.TryGetValue("Authorization", out var token))
+        {
+            return Unauthorized("No authorization token provided.");
+        }
+
+        var session = await _sessionService.GetSessionByTokenAsync(token);
+        if (session == null)
+        {
+            return Unauthorized("Invalid session token.");
+        }
+
+        var user = await _sessionService.GetUserBySessionTokenAsync(token);
+        if (user == null || !user.IsAdmin)
+        {
+            return Forbid("User does not have admin privileges.");
+        }
+
+        var result = await _userService.DeleteUserAsync(userId);
+        if (!result)
+        {
+            return NotFound("User not found.");
+        }
+
+        return NoContent();
+    }
+
+    [HttpPost("users/create")]
+    public async Task<IActionResult> CreateUser([FromBody] User newUser)
+    {
+        if (!Request.Headers.TryGetValue("Authorization", out var token))
+        {
+            return Unauthorized("No authorization token provided.");
+        }
+
+        var session = await _sessionService.GetSessionByTokenAsync(token);
+        if (session == null)
+        {
+            return Unauthorized("Invalid session token.");
+        }
+
+        var user = await _sessionService.GetUserBySessionTokenAsync(token);
+        if (user == null || !user.IsAdmin)
+        {
+            return Forbid("User does not have admin privileges.");
+        }
+
+        var createdUser = await _userService.CreateUserAsync(newUser);
+        return CreatedAtAction(nameof(GetAllUsers), new { id = createdUser.ID }, createdUser);
+    }
+
+    [HttpPut("users/update")]
+    public async Task<IActionResult> UpdateUser([FromBody] User updatedUser)
+    {
+        if (!Request.Headers.TryGetValue("Authorization", out var token))
+        {
+            return Unauthorized("No authorization token provided.");
+        }
+
+        var session = await _sessionService.GetSessionByTokenAsync(token);
+        if (session == null)
+        {
+            return Unauthorized("Invalid session token.");
+        }
+
+        var user = await _sessionService.GetUserBySessionTokenAsync(token);
+        if (user == null || !user.IsAdmin)
+        {
+            return Forbid("User does not have admin privileges.");
+        }
+
+        var userToUpdate = await _userService.UpdateUserAsync(updatedUser);
+        return Ok(userToUpdate);
+    }
 }
