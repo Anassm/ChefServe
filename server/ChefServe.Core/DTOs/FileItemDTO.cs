@@ -42,3 +42,12 @@ public class getFilesReturnDTO
     public required bool isFolder { get; set; }
     public required bool hasContent { get; set; }
 }
+
+public class getFileTreeReturnDTO
+{
+    public required Guid id { get; set; }
+    public required string name { get; set; }
+    public required string folderPath { get; set; }
+    public required string parentPath { get; set; }
+    public required List<getFileTreeReturnDTO> children { get; set; }
+}

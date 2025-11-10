@@ -1,6 +1,11 @@
 import FileDisplayer from "~/components/FileItem/FileDisplayer";
-import type { fileItem } from "~/components/FileItem/FileItem";
+import type { LoaderFunctionArgs } from "react-router";
+import { useState } from "react";
+import type { TreeItem } from "~/components/FileTree/FileTree";
 
-export default function UserDashboard({ files }: { files: fileItem[] }) {
+
+
+
+export default function UserDashboard({ files }: { files: fileItem[]}) {
   return <FileDisplayer files={files} />;
 }
