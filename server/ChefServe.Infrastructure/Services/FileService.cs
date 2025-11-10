@@ -248,9 +248,10 @@ public class FileService : IFileService
             return await _context.FileItems.Where(f => f.OwnerID.ToString().ToUpper() == ownerId.ToString().ToUpper() &&
             f.ParentPath.ToUpper() == parentPath.ToUpper()).OrderByDescending(f => f.IsFolder).ThenBy(f => f.Name).ToListAsync();
         }
-
-        return await _context.FileItems.Where(f => f.OwnerID == ownerId && f.ParentPath == parentPath)
-            .OrderByDescending(f => f.IsFolder).ThenBy(f => f.Name).ToListAsync();
+        parentPath = parentPath.TrimStart('/', '\\');
+        parentPath = Path.Combine(UserHelper.GetRootPathForUser(ownerId), parentPath);
+        return await _context.FileItems.Where(f => f.OwnerID.ToString().ToUpper() == ownerId.ToString().ToUpper() &&
+            f.ParentPath.ToUpper() == parentPath.ToUpper()).OrderByDescending(f => f.IsFolder).ThenBy(f => f.Name).ToListAsync();
     }
 
     public async Task<Stream?> DownloadFileAsync(Guid fileId, Guid userId)

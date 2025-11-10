@@ -1,55 +1,67 @@
-import styles from './FileDisplayer.module.css';
-import type { fileItem } from './FileItem';
-import { FileItem } from './FileItem';
-import { useContext } from 'react';
-import { selectedFileContext } from '~/context/SelectedFileContext';
-import { useState } from 'react';
+import { useContext } from "react";
+import { useSearchParams, useNavigate, useParams } from "react-router";
+import { selectedFileContext } from "~/context/SelectedFileContext";
+import styles from "./FileDisplayer.module.css";
+import type { fileItem } from "./FileItem";
+import { FileItem } from "./FileItem";
 
-export default function FileDisplayer({
-    files,
-}: {
-    files: fileItem[],
-}) {
-    const context = useContext(selectedFileContext);
-    if (!context) return null;
-    const { selectedFile, setSelectedFile } = context;
+export default function FileDisplayer({ files }: { files: fileItem[] }) {
+  const context = useContext(selectedFileContext);
+  const [params] = useSearchParams();
+  const searchQuery = (params.get("search") || "").toLowerCase();
 
+  const navigate = useNavigate();
+  const { parentpath } = useParams();
 
-    if (!files || files === undefined || files === null || files.length === 0) {
-        return <div>No files to display</div>;
+  const selectedFile = context?.selectedFile;
+  const setSelectedFile = context?.setSelectedFile;
+
+  if (!files || files === undefined || files === null || files.length === 0) {
+    return <div>No files to display</div>;
+  }
+
+  const filteredFiles = files.filter((file) =>
+    file.name.toLowerCase().includes(searchQuery)
+  );
+
+  function handleSelect(file: fileItem) {
+    if (setSelectedFile) {
+      if (!selectedFile || selectedFile.id !== file.id) {
+        setSelectedFile(file);
+      } else {
+        setSelectedFile(null);
+      }
     }
+  }
 
-    const handleSelect = (file: fileItem) => {
-        if (!selectedFile || selectedFile.id !== file.id) {
-            setSelectedFile(file);
-        } else {
-            setSelectedFile(null);
-        }
-    };
+  function handleOpenFile(file: fileItem) {
+    alert(`Open file: ${file.name}`);
+  }
 
-    const openFile: () => void = () => {
-        alert("Open file!")
-    }
+  function handleOpenFolder(folder: fileItem) {
+    const currentBasePath = parentpath || "";
+    const newPath = [currentBasePath, folder.name].filter(Boolean).join("/");
 
-    const openFolder: () => void = () => {
-        alert("Open folder!")
-    }
+    navigate("/" + newPath);
+  }
 
-    return (
-        <div className={styles.body}>
-            {files.map(file => (
-                <FileItem
-                    id={file.id}
-                    key={file.id}
-                    name={file.name}
-                    extension={file.extension}
-                    isFolder={file.isFolder}
-                    hasContent={file.hasContent}
-                    isSelected={selectedFile?.id === file.id}
-                    onSelect={() => handleSelect(file)}
-                    onOpen={file.isFolder ? openFolder : openFile}
-                />
-            ))}
-        </div>
-    );
+  return (
+    <div className={styles.body}>
+      {filteredFiles.map((file) => (
+        <FileItem
+          id={file.id}
+          key={file.id}
+          name={file.name}
+          extension={file.extension}
+          isFolder={file.isFolder}
+          hasContent={file.hasContent}
+          isSelected={selectedFile?.id === file.id}
+          onSelect={() => handleSelect(file)}
+          onOpen={() =>
+            file.isFolder ? handleOpenFolder(file) : handleOpenFile(file)
+          }
+        />
+      ))}
+    </div>
+  );
 }
