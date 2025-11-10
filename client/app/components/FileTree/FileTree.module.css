@@ -1,11 +1,48 @@
-.fileItem {
+.treeItem {
+    margin-left: auto;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    cursor: pointer;
+}
+
+.row:hover{
+    background-color: lightgrey;
+    width: 100%;
+}
+
+.selected {
+    background-color: lightgrey;
+    border: 1px solid red;
+}
+
+.unselected {
+    background-color: transparent;
+}
+
+.toggle {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    background: none;
+    border: none;
+    line-height: 16px; 
+    vertical-align: middle; 
 }
 
 
+.icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+}
 
-.selected {
-    display: flex;
-    flex-direction: column;
+
+.folderName {
+    flex-grow: 1;
 }

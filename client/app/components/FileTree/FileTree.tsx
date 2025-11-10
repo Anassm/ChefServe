@@ -1,44 +1,63 @@
 import styles from './FileTree.module.css';
-import type { fileItem } from '../FileItem/FileItem';
-import { FileItem } from '../FileItem/FileItem';
-import { useContext } from 'react';
-import { selectedFileContext } from '~/context/SelectedFileContext';
 import { useState } from 'react';
 
 export type TreeItem = {
     id: string,
     name: string,
     isFolder: boolean,
-    isSelected: boolean,
-    onOpen: () => void
+    folderPath: string | null,
+    children?: TreeItem[],
 };
 
-export function TreeFile({ id, name, isFolder, isSelected, onOpen }: TreeItem) {
-    if (!isFolder) return null;
-    const imageSource: string = '/icons/folder.webp';
-    const [button, setButton] = useState('>');
+export function TreeFile({
+    item,
+    level = 0,
+    selectedId,
+    folderPath,
+}: {
+    item: TreeItem;
+    level?: number;
+    selectedId?: string;
+    folderPath: string | null;
+}) {
     const [isOpen, setIsOpen] = useState(false);
+    const imageSource: string = '/icons/folder.webp';
 
-    const handleClick = () => {
-        if (isOpen) {
-            setButton('\u2335');
-            setIsOpen(true);
-        }
-        else {
-            setButton('>');
-            setIsOpen(false);
-        }
-    }
+    const handleToggle = () => {
+        setIsOpen(!isOpen);
+    };
 
-    const wrapperClass = `${styles.wrapper} ${isSelected ? styles.selected : styles.unselected}`;
 
     return (
-        <div className={wrapperClass}>
-            <button onClick={handleClick}>{button}</button>
-            <button onClick={onOpen}>
-                <img src={imageSource} className={styles.folderImage}></img>
-                <span className={styles.folderName}>{name}</span>
-            </button>
+        <div className={styles.treeItem}>
+            <div
+                className={`${styles.row} ${selectedId === item.id ? styles.selected : styles.unselected}`}
+                onClick={() => { alert("Open folder from tree!") }}
+                style={{ paddingLeft: `${level * 16}px` }}
+            >
+                <button className={styles.toggle} onClick={(e) => { e.stopPropagation(); handleToggle(); }}>
+                    {isOpen ? 'v' : '>'}
+                </button>
+                <img
+                    src={imageSource}
+                    className={styles.icon}
+                />
+                <span className={styles.folderName}>{item.name}</span>
+            </div>
+
+            {isOpen && item.children && (
+                <div>
+                    {item.children.map((child) => (
+                        <TreeFile
+                            key={child.id}
+                            item={child}
+                            level={level + 1}
+                            selectedId={selectedId}
+                            folderPath={child.folderPath}
+                        />
+                    ))}
+                </div>
+            )}
         </div>
     );
 }
@@ -46,33 +65,17 @@ export function TreeFile({ id, name, isFolder, isSelected, onOpen }: TreeItem) {
 
 
 
-export function FileTree(files: TreeItem[]) {
-    const [selectedFile, setSelectedFile] = useState<TreeItem | null>(null)
+export function FileTree({ root }: { root: TreeItem | null }) {
+    const [selectedFile, setSelectedFile] = useState<TreeItem | null>(null);
 
-    const handleSelect = (file: TreeItem) => {
-        if (!selectedFile || selectedFile.id !== file.id) {
-            setSelectedFile(file);
-        } else {
-            setSelectedFile(null);
-        }
-    };
-    const openFile: () => void = () => {
-        alert("Open file!")
-    }
-
+    if (!root) return null;
     return (
         <div className={styles.tree}>
-            {files.map(file => (
-                <TreeFile
-                    id={file.id}
-                    name={file.name}
-                    isFolder={file.isFolder}
-                    isSelected={selectedFile?.id === file.id}
-                    onSelect={() => handleSelect(file)}
-                    onOpen={openFile}
-                />
-
-            ))}
+            <TreeFile
+                item={root}
+                selectedId={selectedFile?.id}
+                folderPath={root.folderPath ? root.folderPath : null}
+            />
         </div>
     );
 }

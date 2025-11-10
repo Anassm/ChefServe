@@ -1,8 +1,13 @@
-import React from "react";
+import React, { type JSX } from "react";
 import { useState, useEffect, useRef } from "react"; import styles from "./Sidebar.module.css";
 import { CiLogout, CiSettings } from "react-icons/ci";
 import { IoFileTrayStackedOutline } from "react-icons/io5";
 import { Form } from "react-router";
+import { FileTree } from "~/components/FileTree/FileTree";
+import type { TreeItem } from "~/components/FileTree/FileTree";
+import type { LoaderFunctionArgs } from "react-router";
+import { useLoaderData } from "react-router";
+import type { Route } from "../+types/MainLayout";
 
 
 async function handleLogout() {
@@ -29,11 +34,12 @@ function Settings() {
   );
 }
 
-export default function Sidebar() {
+export default function Sidebar({rootFolder}: {rootFolder: TreeItem | null}) {
   const [mode, setMode] = useState<"navigation" | "settings">("navigation");
   const sidebarRef = useRef(null);
   const [isResizing, setIsResizing] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(268);
+
 
   const startResizing = React.useCallback((mouseDownEvent) => {
     setIsResizing(true);
@@ -79,7 +85,7 @@ export default function Sidebar() {
               {mode == "navigation" ? <Navigation /> : <Settings />}
             </div>
             <div className={styles.contentBodyBottom}>
-
+              <FileTree root={rootFolder} />
             </div>
           </div>
 

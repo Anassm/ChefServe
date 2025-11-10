@@ -324,4 +324,28 @@ public class FileController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, new { Error = "Internal server error.", Details = ex.Message });
         }
     }
+
+    [HttpGet("GetFileTree")]
+    public async Task<ActionResult> GetFileTree()
+    {
+        try
+        {
+            if (!Request.Cookies.TryGetValue("AuthToken", out var token))
+                return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing token." });
+
+            var user = await _sessionService.GetUserBySessionTokenAsync(token);
+            if (user == null)
+                return StatusCode(StatusCodes.Status401Unauthorized, new { Error = "Invalid token." });
+
+            var fileTree = await _fileService.GetFileTreeAsync(user.ID);
+            if (fileTree == null)
+                return StatusCode(StatusCodes.Status404NotFound, new { Error = "File tree not found." });
+
+            return StatusCode(StatusCodes.Status200OK, fileTree);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { Error = "Internal server error.", Details = ex.Message });
+        }
+    }
 }
