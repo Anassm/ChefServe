@@ -11,15 +11,15 @@ export default function Searchbar() {
     const newSearchInput = new URLSearchParams(searchInput);
 
     if (search) {
-      newSearchInput.set("q", search);
+      newSearchInput.set("search", search);
     } else {
-      newSearchInput.delete("q");
+      newSearchInput.delete("search");
     }
 
     setSearchInput(newSearchInput);
   }
 
-  const search = searchInput.get("q") || "";
+  const search = searchInput.get("search") || "";
 
   return (
     <div className={styles.searchbarContainer}>
