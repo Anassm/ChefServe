@@ -9,11 +9,12 @@ export default function UserFormModal({
   onSubmit: (data: any) => void;
 }) {
   const [formData, setFormData] = useState({
+    username: "",
     firstName: "",
     lastName: "",
     email: "",
-    password: "",
-    role: "user",
+    passwordHash: "",
+    role: "user"
   });
 
   const handleChange = (
@@ -36,6 +37,16 @@ export default function UserFormModal({
       <div className={styles.modal}>
         <h2>Add New User</h2>
         <form onSubmit={handleSubmit} className={styles.form}>
+          <label>
+            Username: 
+            <input
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                required
+            /> 
+          </label>
           <label>
             First Name:
             <input
@@ -70,8 +81,8 @@ export default function UserFormModal({
             Password:
             <input
               type="password"
-              name="password"
-              value={formData.password}
+              name="passwordHash"
+              value={formData.passwordHash}
               onChange={handleChange}
               required
             />

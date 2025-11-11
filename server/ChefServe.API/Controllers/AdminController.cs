@@ -15,12 +15,14 @@ public class AdminController : ControllerBase
     private readonly ISessionService _sessionService;
     private readonly IFileService _fileService;
     private readonly IUserService _userService;
+    private readonly IHashService _hashService;
 
-    public AdminController(ISessionService sessionService, IFileService fileService, IUserService userService)
+    public AdminController(ISessionService sessionService, IFileService fileService, IUserService userService, IHashService hashService)
     {
         _sessionService = sessionService;
         _fileService = fileService;
         _userService = userService;
+        _hashService = hashService;
     }
 
     [HttpGet("users")]
@@ -65,7 +67,7 @@ public class AdminController : ControllerBase
     [HttpDelete("users/{userId}")]
     public async Task<IActionResult> DeleteUser(Guid userId)
     {
-        if (!Request.Headers.TryGetValue("Authorization", out var token))
+        if (!Request.Cookies.TryGetValue("AuthToken", out var token))
         {
             return Unauthorized("No authorization token provided.");
         }
@@ -94,10 +96,13 @@ public class AdminController : ControllerBase
     [HttpPost("users")]
     public async Task<IActionResult> CreateUser([FromBody] User newUser)
     {
-        if (!Request.Headers.TryGetValue("Authorization", out var token))
+        if (!Request.Cookies.TryGetValue("AuthToken", out var token))
         {
             return Unauthorized("No authorization token provided.");
         }
+
+        var passwordHash = _hashService.ComputeHash(newUser.PasswordHash);
+        newUser.PasswordHash = passwordHash;
 
         var session = await _sessionService.GetSessionByTokenAsync(token);
         if (session == null)
@@ -118,7 +123,7 @@ public class AdminController : ControllerBase
     [HttpPut("users")]
     public async Task<IActionResult> UpdateUser([FromBody] User updatedUser)
     {
-        if (!Request.Headers.TryGetValue("Authorization", out var token))
+        if (!Request.Cookies.TryGetValue("AuthToken", out var token))
         {
             return Unauthorized("No authorization token provided.");
         }

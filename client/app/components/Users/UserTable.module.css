@@ -1,5 +1,6 @@
 .userTable {
   width: 100%;
+  max-width: fit-content;
   border-collapse: collapse;
   margin-top: 1rem;
   margin-left: 1rem;

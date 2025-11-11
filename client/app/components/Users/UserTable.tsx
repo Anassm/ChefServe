@@ -14,6 +14,7 @@ export default function UserTable({ users }: { users: any[] }) {
         <thead>
             <tr>
                 <th>User ID</th>
+                <th>Username</th>
                 <th>First Name</th>
                 <th>Last Name</th>
                 <th>Email</th>
@@ -33,6 +34,7 @@ export default function UserTable({ users }: { users: any[] }) {
                         }`}
                     >
                         <td>{user.id}</td>
+                        <td>{user.username}</td>
                         <td>{user.firstName}</td>
                         <td>{user.lastName}</td>
                         <td>{user.email}</td>
