@@ -1,8 +1,13 @@
-import { useState } from "react";
-import styles from "../MainLayout.module.css";
+import React, { type JSX } from "react";
+import { useState, useEffect, useRef } from "react"; import styles from "./Sidebar.module.css";
 import { CiLogout, CiSettings } from "react-icons/ci";
 import { IoFileTrayStackedOutline } from "react-icons/io5";
 import { Form } from "react-router";
+import { FileTree } from "~/components/FileTree/FileTree";
+import type { TreeItem } from "~/components/FileTree/FileTree";
+import type { LoaderFunctionArgs } from "react-router";
+import { useLoaderData } from "react-router";
+import type { Route } from "../+types/MainLayout";
 
 
 async function handleLogout() {
@@ -29,38 +34,87 @@ function Settings() {
   );
 }
 
-export default function Sidebar() {
+export default function Sidebar({rootFolder}: {rootFolder: TreeItem | null}) {
   const [mode, setMode] = useState<"navigation" | "settings">("navigation");
+  const sidebarRef = useRef(null);
+  const [isResizing, setIsResizing] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(268);
+
+
+  const startResizing = React.useCallback((mouseDownEvent) => {
+    setIsResizing(true);
+    mouseDownEvent.preventDefault()
+  }, []);
+
+  const stopResizing = React.useCallback(() => {
+    setIsResizing(false);
+  }, []);
+
+  const resize = React.useCallback(
+    (mouseMoveEvent) => {
+      if (isResizing) {
+        setSidebarWidth(
+          mouseMoveEvent.clientX -
+          sidebarRef.current.getBoundingClientRect().left
+        );
+      }
+    },
+    [isResizing]
+  );
+
+  React.useEffect(() => {
+    window.addEventListener("mousemove", resize);
+    window.addEventListener("mouseup", stopResizing);
+    return () => {
+      window.removeEventListener("mousemove", resize);
+      window.removeEventListener("mouseup", stopResizing);
+    };
+  }, [resize, stopResizing]);
+
 
   return (
-    <aside className={styles.sidebar}>
-      <div className={styles.content}>
-        {mode == "navigation" ? <Navigation /> : <Settings />}
+    <div className={styles.sidebarWrapper}>
+      <div
+        ref={sidebarRef}
+        className={styles.sidebar}
+        style={{ width: sidebarWidth }}
+      >
+        <div className={styles.sidebarContent}>
+          <div className={styles.contentBody}>
+            <div className={styles.treeContentTop}>
+              {mode == "navigation" ? <Navigation /> : <Settings />}
+            </div>
+            <div className={styles.contentBodyBottom}>
+              <FileTree root={rootFolder} />
+            </div>
+          </div>
+
+          <div className={styles.bottom}>
+            <button
+              className={styles.button}
+              onClick={() =>
+                setMode((prevMode) =>
+                  prevMode === "navigation" ? "settings" : "navigation"
+                )
+              }
+            >
+              {mode === "navigation" ? (
+                <CiSettings size={25} />
+              ) : (
+                <IoFileTrayStackedOutline />
+              )}
+              {mode === "navigation" ? "Settings" : "Navigation"}
+            </button>
+
+            <button type="submit" onClick={handleLogout} className={styles.button}>
+              <CiLogout size={25} /> Logout
+            </button>
+
+            <span className={styles.love}>Made with ❤ by team Chef</span>
+          </div>
+        </div>
       </div>
-
-      <div className={styles.bottom}>
-        <button
-          className={styles.button}
-          onClick={() =>
-            setMode((prevMode) =>
-              prevMode === "navigation" ? "settings" : "navigation"
-            )
-          }
-        >
-          {mode === "navigation" ? (
-            <CiSettings size={25} />
-          ) : (
-            <IoFileTrayStackedOutline />
-          )}
-          {mode === "navigation" ? "Settings" : "Navigation"}
-        </button>
-
-        <button type="submit" onClick={handleLogout} className={styles.button}>
-          <CiLogout size={25} /> Logout
-        </button>
-
-        <span className={styles.love}>Made with ❤ by team Chef</span>
-      </div>
-    </aside>
+      <div className={styles.sidebarResizer} onMouseDown={startResizing} />
+    </div>
   );
 }

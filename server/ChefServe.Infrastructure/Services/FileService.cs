@@ -57,7 +57,7 @@ public class FileService : IFileService
     {
         string fullPath = string.Empty;
         string dbPath = string.Empty;
-        var cleanParentPath = parentPath.TrimStart('/', '\\');
+        var cleanParentPath = parentPath.TrimStart('/', '\\').Replace('/', '\\');
         if (cleanParentPath == null || cleanParentPath.Trim() == string.Empty)
         {
             dbPath = Path.Combine(UserHelper.GetRootPathForUser(ownerId), folderName);
@@ -152,7 +152,7 @@ public class FileService : IFileService
 
         if (!Directory.Exists(dirPath))
         {
-            return null;
+            return null!;
         }
 
 
@@ -387,5 +387,57 @@ public class FileService : IFileService
 
         await _context.SaveChangesAsync();
         return fileItem;
+    }
+
+    public async Task<getFileTreeReturnDTO> GetFileTreeAsync(Guid userId)
+    {
+        var rootPath = UserHelper.GetRootPathForUser(userId);
+        var fileItems = await _context.FileItems
+            .Where(f => f.OwnerID == userId && f.IsFolder)
+            .ToListAsync();
+
+        var lookup = fileItems.ToDictionary(f => f.ID, f => new getFileTreeReturnDTO
+        {
+            id = f.ID,
+            name = f.Name,
+            folderPath = f.Path,
+            parentPath = f.ParentPath,
+            children = new List<getFileTreeReturnDTO>()
+        });
+
+        var virtualRoot = new getFileTreeReturnDTO
+        {
+            id = Guid.Empty,
+            name = "root",
+            folderPath = rootPath,
+            parentPath = string.Empty,
+            children = new List<getFileTreeReturnDTO>()
+        };
+
+        foreach (var item in lookup.Values)
+        {
+            var parentPath = item.parentPath;
+
+            if (parentPath == rootPath)
+            {
+                virtualRoot.children.Add(item);
+            }
+            else if (parentPath != null)
+            {
+                var parentItem = lookup.Values.FirstOrDefault(x => x.folderPath == parentPath);
+                if (parentItem != null)
+                {
+                    parentItem.children.Add(item);
+                }
+                else
+                {
+                    var toBeRemoved = _context.FileItems.Where(f => f.OwnerID == userId && f.ID == item.id).FirstOrDefault();
+                    if (toBeRemoved != null)
+                        _context.FileItems.Remove(toBeRemoved);
+                }
+            }
+        }
+
+        return virtualRoot;
     }
 }
