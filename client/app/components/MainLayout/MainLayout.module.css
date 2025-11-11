@@ -68,6 +68,15 @@
   margin-top: 2rem;
 } */
 
+.testButton{
+    margin-left: 90%;
+}
+
+.hoverEffect:hover {
+  background-color: #e6b96a;
+  border-radius: 4px;
+}
+
 .fileActions {
   display: flex;
   align-items: center;

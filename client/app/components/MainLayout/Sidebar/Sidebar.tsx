@@ -1,8 +1,10 @@
 import React, { useRef, useState } from "react";
 import { CiLogout, CiSettings } from "react-icons/ci";
 import { IoFileTrayStackedOutline } from "react-icons/io5";
-import type { TreeItem } from "~/components/FileTree/FileTree";
+import { NavLink } from "react-router";
+import { Form } from "react-router";
 import { FileTree } from "~/components/FileTree/FileTree";
+import type { TreeItem } from "~/components/FileTree/FileTree";
 import styles from "./Sidebar.module.css";
 
 async function handleLogout() {
@@ -16,7 +18,33 @@ async function handleLogout() {
 function Navigation() {
   return (
     <>
-      <span>Navigation</span>
+      <ul>
+        <li>
+          <button className={`${styles.button} ${styles.hoverEffect}`}>
+            <NavLink to="/admin">Admin dashboard</NavLink>
+          </button>
+        </li>
+        <li>
+          <button className={`${styles.button} ${styles.hoverEffect}`}>
+            <NavLink to="/admin/overview">Overview</NavLink>
+          </button>
+        </li>
+        <li>
+          <button className={`${styles.button} ${styles.hoverEffect}`}>
+            <NavLink to="/admin/users">Users</NavLink>
+          </button>
+        </li>
+        <li>
+          <button className={`${styles.button} ${styles.hoverEffect}`}>
+            <NavLink to="/admin/files">Files</NavLink>
+          </button>
+        </li>
+        <li>
+          <button className={`${styles.button} ${styles.hoverEffect}`}>
+            <NavLink to="/admin/settings">Settings</NavLink>
+          </button>
+        </li>
+      </ul>
     </>
   );
 }
@@ -40,7 +68,7 @@ export default function Sidebar({
   const [sidebarWidth, setSidebarWidth] = useState(268);
 
   const startResizing = React.useCallback(
-    (mouseDownEvent: React.MouseEvent) => {
+    (mouseDownEvent) => {
       setIsResizing(true);
       mouseDownEvent.preventDefault();
     },
@@ -52,7 +80,7 @@ export default function Sidebar({
   }, []);
 
   const resize = React.useCallback(
-    (mouseMoveEvent: React.MouseEvent) => {
+    (mouseMoveEvent) => {
       if (isResizing) {
         setSidebarWidth(
           mouseMoveEvent.clientX -
