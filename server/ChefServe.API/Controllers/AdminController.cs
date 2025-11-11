@@ -91,7 +91,7 @@ public class AdminController : ControllerBase
         return NoContent();
     }
 
-    [HttpPost("users/create")]
+    [HttpPost("users")]
     public async Task<IActionResult> CreateUser([FromBody] User newUser)
     {
         if (!Request.Headers.TryGetValue("Authorization", out var token))
@@ -115,7 +115,7 @@ public class AdminController : ControllerBase
         return CreatedAtAction(nameof(GetAllUsers), new { id = createdUser.ID }, createdUser);
     }
 
-    [HttpPut("users/update")]
+    [HttpPut("users")]
     public async Task<IActionResult> UpdateUser([FromBody] User updatedUser)
     {
         if (!Request.Headers.TryGetValue("Authorization", out var token))
