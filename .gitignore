@@ -422,3 +422,4 @@ FodyWeavers.xsd
 *.db-wal
 *.db
 server/ChefServe.Infrastructure/Data/database.db
+/Users

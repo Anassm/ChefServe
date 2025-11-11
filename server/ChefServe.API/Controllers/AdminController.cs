@@ -28,27 +28,6 @@ public class AdminController : ControllerBase
     [HttpGet("users")]
     public async Task<IActionResult> GetAllUsers()
     {
-        if (!Request.Cookies.TryGetValue("AuthToken", out var token))
-        {
-            Console.WriteLine("No authorization token provided.");
-            return Unauthorized("No authorization token provided.");
-        }
-
-        var session = await _sessionService.GetSessionByTokenAsync(token);
-        if (session == null)
-        {
-            Console.WriteLine("Invalid session token: " + token);
-            return Unauthorized("Invalid session token.");
-        }
-
-        var user = await _sessionService.GetUserBySessionTokenAsync(token);
-        if (user == null || !user.IsAdmin)
-        {
-            Console.WriteLine("User is not admin: " + (user?.Role ?? "null"));
-            return Forbid("User does not have admin privileges.");
-        }
-
-
         var users = await _userService.GetAllUsersAsync();
         Console.WriteLine("Fetched users: " + string.Join(", ", users.Select(u => u.Email)));
         var simplifiedUsers = users.Select(u => new
@@ -67,23 +46,6 @@ public class AdminController : ControllerBase
     [HttpDelete("users/{userId}")]
     public async Task<IActionResult> DeleteUser(Guid userId)
     {
-        if (!Request.Cookies.TryGetValue("AuthToken", out var token))
-        {
-            return Unauthorized("No authorization token provided.");
-        }
-
-        var session = await _sessionService.GetSessionByTokenAsync(token);
-        if (session == null)
-        {
-            return Unauthorized("Invalid session token.");
-        }
-
-        var user = await _sessionService.GetUserBySessionTokenAsync(token);
-        if (user == null || !user.IsAdmin)
-        {
-            return Forbid("User does not have admin privileges.");
-        }
-
         var result = await _userService.DeleteUserAsync(userId);
         if (!result)
         {
@@ -96,26 +58,6 @@ public class AdminController : ControllerBase
     [HttpPost("users")]
     public async Task<IActionResult> CreateUser([FromBody] User newUser)
     {
-        if (!Request.Cookies.TryGetValue("AuthToken", out var token))
-        {
-            return Unauthorized("No authorization token provided.");
-        }
-
-        var passwordHash = _hashService.ComputeHash(newUser.PasswordHash);
-        newUser.PasswordHash = passwordHash;
-
-        var session = await _sessionService.GetSessionByTokenAsync(token);
-        if (session == null)
-        {
-            return Unauthorized("Invalid session token.");
-        }
-
-        var user = await _sessionService.GetUserBySessionTokenAsync(token);
-        if (user == null || !user.IsAdmin)
-        {
-            return Forbid("User does not have admin privileges.");
-        }
-
         var createdUser = await _userService.CreateUserAsync(newUser);
         return CreatedAtAction(nameof(GetAllUsers), new { id = createdUser.ID }, createdUser);
     }
@@ -123,23 +65,6 @@ public class AdminController : ControllerBase
     [HttpPut("users")]
     public async Task<IActionResult> UpdateUser([FromBody] User updatedUser)
     {
-        if (!Request.Cookies.TryGetValue("AuthToken", out var token))
-        {
-            return Unauthorized("No authorization token provided.");
-        }
-
-        var session = await _sessionService.GetSessionByTokenAsync(token);
-        if (session == null)
-        {
-            return Unauthorized("Invalid session token.");
-        }
-
-        var user = await _sessionService.GetUserBySessionTokenAsync(token);
-        if (user == null || !user.IsAdmin)
-        {
-            return Forbid("User does not have admin privileges.");
-        }
-
         var userToUpdate = await _userService.UpdateUserAsync(updatedUser);
         return Ok(userToUpdate);
     }
