@@ -26,6 +26,22 @@ export function HydrateFallback() {
     return <div>Loading user data...</div>;
 }
 
+const handleAddUser = async (data: any) => {
+    const response = await fetch("http://localhost:5175/api/admin/users", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+        console.error("Failed to add user:", response.statusText);
+        return;
+    }
+    alert("User added successfully!");
+}
+
 export default function Users({ loaderData }: { loaderData?: any[] }) {
     const [users, setUsers] = useState(loaderData || []);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -58,7 +74,7 @@ export default function Users({ loaderData }: { loaderData?: any[] }) {
             {isModalOpen && (
                 <UserFormModal
                 onClose={() => setIsModalOpen(false)}
-                onSubmit={alert}
+                onSubmit={handleAddUser}
                 />
             )}
         </div>
