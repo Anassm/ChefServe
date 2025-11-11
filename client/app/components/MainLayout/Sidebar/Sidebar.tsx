@@ -2,6 +2,7 @@ import React, { type JSX } from "react";
 import { useState, useEffect, useRef } from "react"; import styles from "./Sidebar.module.css";
 import { CiLogout, CiSettings } from "react-icons/ci";
 import { IoFileTrayStackedOutline } from "react-icons/io5";
+import { NavLink } from "react-router";
 import { Form } from "react-router";
 import { FileTree } from "~/components/FileTree/FileTree";
 import type { TreeItem } from "~/components/FileTree/FileTree";
@@ -21,7 +22,33 @@ async function handleLogout() {
 function Navigation() {
   return (
     <>
-      <span>Navigation</span>
+      <ul>
+        <li>
+          <button className={`${styles.button} ${styles.hoverEffect}`}>
+            <NavLink to="/admin">Admin dashboard</NavLink>
+          </button>
+        </li>
+        <li>
+          <button className={`${styles.button} ${styles.hoverEffect}`}>
+            <NavLink to="/admin/overview">Overview</NavLink>
+          </button>
+        </li>
+        <li>
+          <button className={`${styles.button} ${styles.hoverEffect}`}>
+            <NavLink to="/admin/users">Users</NavLink>
+          </button>
+        </li>
+        <li>
+          <button className={`${styles.button} ${styles.hoverEffect}`}>
+            <NavLink to="/admin/files">Files</NavLink>
+          </button>
+        </li>
+        <li>
+          <button className={`${styles.button} ${styles.hoverEffect}`}>
+            <NavLink to="/admin/settings">Settings</NavLink>
+          </button>
+        </li>
+      </ul>
     </>
   );
 }

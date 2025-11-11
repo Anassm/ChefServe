@@ -1,3 +1,4 @@
+import { NavLink, Outlet } from "react-router";
 import type { Route } from "../../../+types/root";
 import styles from "./AdminDashboard.module.css";
 
@@ -9,5 +10,9 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function AdminDashboard() {
-  return <div>This is a admin dashboard block</div>;
+  return (
+    <div>
+      <div>This is an admin dashboard block</div>
+    </div>
+  );
 }
