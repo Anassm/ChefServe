@@ -3,6 +3,7 @@ using ChefServe.Infrastructure.Data;
 using ChefServe.Core.Interfaces;
 using ChefServe.Infrastructure.Services;
 using ChefServe.Core.Services;
+using ChefServe.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = "Data Source=ChefServe.Infrastructure/Data/database.db";
@@ -62,5 +63,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
 app.UseAuthorization();
+app.UseAdminAuth();
 app.MapControllers();
 app.Run();
