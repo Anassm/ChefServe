@@ -1,14 +1,9 @@
-import React, { type JSX } from "react";
-import { useState, useEffect, useRef } from "react"; import styles from "./Sidebar.module.css";
+import React, { useRef, useState } from "react";
 import { CiLogout, CiSettings } from "react-icons/ci";
 import { IoFileTrayStackedOutline } from "react-icons/io5";
-import { Form } from "react-router";
-import { FileTree } from "~/components/FileTree/FileTree";
 import type { TreeItem } from "~/components/FileTree/FileTree";
-import type { LoaderFunctionArgs } from "react-router";
-import { useLoaderData } from "react-router";
-import type { Route } from "../+types/MainLayout";
-
+import { FileTree } from "~/components/FileTree/FileTree";
+import styles from "./Sidebar.module.css";
 
 async function handleLogout() {
   await fetch("http://localhost:5175/api/auth/logout", {
@@ -34,28 +29,34 @@ function Settings() {
   );
 }
 
-export default function Sidebar({rootFolder}: {rootFolder: TreeItem | null}) {
+export default function Sidebar({
+  rootFolder,
+}: {
+  rootFolder: TreeItem | null;
+}) {
   const [mode, setMode] = useState<"navigation" | "settings">("navigation");
   const sidebarRef = useRef(null);
   const [isResizing, setIsResizing] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(268);
 
-
-  const startResizing = React.useCallback((mouseDownEvent) => {
-    setIsResizing(true);
-    mouseDownEvent.preventDefault()
-  }, []);
+  const startResizing = React.useCallback(
+    (mouseDownEvent: React.MouseEvent) => {
+      setIsResizing(true);
+      mouseDownEvent.preventDefault();
+    },
+    []
+  );
 
   const stopResizing = React.useCallback(() => {
     setIsResizing(false);
   }, []);
 
   const resize = React.useCallback(
-    (mouseMoveEvent) => {
+    (mouseMoveEvent: React.MouseEvent) => {
       if (isResizing) {
         setSidebarWidth(
           mouseMoveEvent.clientX -
-          sidebarRef.current.getBoundingClientRect().left
+            sidebarRef.current.getBoundingClientRect().left
         );
       }
     },
@@ -70,7 +71,6 @@ export default function Sidebar({rootFolder}: {rootFolder: TreeItem | null}) {
       window.removeEventListener("mouseup", stopResizing);
     };
   }, [resize, stopResizing]);
-
 
   return (
     <div className={styles.sidebarWrapper}>
@@ -106,7 +106,11 @@ export default function Sidebar({rootFolder}: {rootFolder: TreeItem | null}) {
               {mode === "navigation" ? "Settings" : "Navigation"}
             </button>
 
-            <button type="submit" onClick={handleLogout} className={styles.button}>
+            <button
+              type="submit"
+              onClick={handleLogout}
+              className={styles.button}
+            >
               <CiLogout size={25} /> Logout
             </button>
 

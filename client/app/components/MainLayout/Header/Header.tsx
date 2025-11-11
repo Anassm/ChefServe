@@ -86,6 +86,10 @@ export default function Header() {
     }
   }
 
+  async function onCreateFolder() {
+    
+  }
+
   return (
     <header className={styles.header}>
       <div className={styles.fileActions}>
