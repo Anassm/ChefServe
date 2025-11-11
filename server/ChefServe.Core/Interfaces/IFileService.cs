@@ -20,4 +20,5 @@ public interface IFileService
     Task<FileItem?> MoveFileAsync(Guid fileId, string newPath, Guid userId);
 
     Task<FileItem?> RenameFileAsync(Guid fileId, string newName, Guid userId);
+    Task<getFileTreeReturnDTO> GetFileTreeAsync(Guid ownerId);
 }
