@@ -424,7 +424,7 @@ public class FileService : IFileService
                 return new FileServiceResponseDTO
                 {
                     Success = true,
-                    StatusCode = 200,
+                    StatusCode = 201,
                     Message = "File uploaded successfully.",
                     Data = fileitem
                 };

@@ -88,10 +88,26 @@ public class FileController : ControllerBase
 
             using var stream = uploadFileDTO.Content.OpenReadStream();
             var result = await _fileService.UploadFileAsync(user.ID, uploadFileDTO.FileName, stream, uploadFileDTO.DestinationPath, uploadFileDTO.ConflictMode!);
-
+            dynamic fileData = result.Data;
+            FileItemDTO? returnData = null;
+            if (fileData != null)
+            {
+                returnData = new FileItemDTO
+                {
+                    ID = fileData.ID,
+                    Name = fileData.Name,
+                    Path = fileData.Path,
+                    Extension = fileData.Extension,
+                    Summary = fileData.Summary,
+                    CreatedAt = fileData.CreatedAt,
+                    UpdatedAt = fileData.UpdatedAt,
+                    IsFolder = fileData.IsFolder,
+                    OwnerID = fileData.OwnerID
+                };
+            }
             return result.StatusCode switch
             {
-                201 => StatusCode(StatusCodes.Status200OK, new { result.Success, result.Message, result.Data }),
+                201 => StatusCode(StatusCodes.Status201Created, new { result.Success, result.Message, returnData }),
                 204 => StatusCode(StatusCodes.Status204NoContent, new { result.Success, result.Message }),
                 400 => StatusCode(StatusCodes.Status400BadRequest, new { result.Success, result.Message }),
                 404 => StatusCode(StatusCodes.Status404NotFound, new { result.Success, result.Message }),
