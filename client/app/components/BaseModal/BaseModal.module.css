@@ -9,6 +9,9 @@
 }
 
 .modal {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   background: #fffaf2;
   border: 1px solid #e0c68d;
   border-radius: 12px;
