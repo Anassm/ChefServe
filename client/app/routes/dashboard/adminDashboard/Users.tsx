@@ -83,10 +83,11 @@
                     </div>
                 </div>
                 <UserTable users={loaderData} />
+                
                 {isModalOpen && (
                     <UserFormModal
-                    onClose={() => setIsModalOpen(false)}
-                    onSubmit={handleAddUser}
+                      onClose={() => setIsModalOpen(false)}
+                      onSubmit={handleAddUser}
                     />
                 )}
             </div>
