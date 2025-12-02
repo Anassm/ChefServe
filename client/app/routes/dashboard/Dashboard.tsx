@@ -21,6 +21,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include'
   });
+  console.log(response)
 
   const response2 = await fetch(url2, {
     method: 'GET',
@@ -30,8 +31,12 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 
   try {
     const textFiles = await response.text()
+    console.log(textFiles)
     const textTree = await response2.text();
-    const files: fileItem[] = textFiles ? JSON.parse(textFiles) : [];
+    const jsonFiles = textFiles ? JSON.parse(textFiles) : null;
+    console.log(jsonFiles)
+    const files: fileItem[] = jsonFiles?.returnData ?? [];
+    console.log(files)
     const rootFolder: TreeItem | null = textTree ? JSON.parse(textTree) : null;
 
     console.log("Fetched files:", files);
