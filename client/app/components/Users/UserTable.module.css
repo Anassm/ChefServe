@@ -42,7 +42,7 @@
 
 
 .actionButtons {
-  display: flex;
+  display: table-cell;
   gap: 0.5rem;
   justify-content: flex-start;
   align-items: center;

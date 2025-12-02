@@ -26,3 +26,17 @@
   transform: scale(1.1);
   opacity: 0.8;
 }
+
+.addUserButton,
+.refreshButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.addUserButton:hover,
+.refreshButton:hover {
+  transform: scale(1.1);
+  opacity: 0.8;
+}

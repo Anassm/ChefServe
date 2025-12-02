@@ -1,9 +1,13 @@
 import React, { useState } from "react";
-import styles from "./UserFormModal.module.css";
+import BaseModal from "~/components/BaseModal/BaseModal";
 
-export default function UserFormModal({
-  onClose,
-  onSubmit,
+import styles from './UserFormModal.module.css';
+
+
+
+export default function UserFormModal({ 
+  onClose, 
+  onSubmit 
 }: {
   onClose: () => void;
   onSubmit: (data: any) => void;
@@ -17,102 +21,43 @@ export default function UserFormModal({
     role: "user"
   });
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  const handleChange = (e: any) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: any) => {
     e.preventDefault();
     onSubmit(formData);
   };
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.modal}>
-        <h2>Add New User</h2>
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <label>
-            Username: 
-            <input
-                type="text"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                required
-            /> 
-          </label>
-          <label>
-            First Name:
-            <input
-              type="text"
-              name="firstName"
-              value={formData.firstName}
-              onChange={handleChange}
-              required
-            />
-          </label>
-          <label>
-            Last Name:
-            <input
-              type="text"
-              name="lastName"
-              value={formData.lastName}
-              onChange={handleChange}
-              required
-            />
-          </label>
-          <label>
-            Email:
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </label>
-          <label>
-            Password:
-            <input
-              type="password"
-              name="passwordHash"
-              value={formData.passwordHash}
-              onChange={handleChange}
-              required
-            />
-          </label>
-          <label>
-            Role:
-            <select
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              required
-            >
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-            </select>
-          </label>
-          <div className={styles.buttons}>
-            <button type="submit" className={styles.submitButton}>
-              Create
-            </button>
-            <button
-              type="button"
-              className={styles.cancelButton}
-              onClick={onClose}
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <BaseModal title="Add New User" onClose={onClose}>
+      <form onSubmit={handleSubmit} className={styles.form}>
+        <label>Username</label>
+        <input type="text" name="username" value={formData.username} onChange={handleChange} required />
+
+        <label>First Name</label>
+        <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} />
+
+        <label>Last Name</label>
+        <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} />
+
+        <label>Email</label>
+        <input type="email" name="email" value={formData.email} onChange={handleChange} required />
+
+        <label>Password</label>
+        <input name="passwordHash" type="password" value={formData.passwordHash} onChange={handleChange} required />
+
+        <label>Role</label>
+        <select name="role" value={formData.role} onChange={handleChange}>
+          <option value="user">User</option>
+          <option value="admin">Admin</option>
+        </select>
+
+        <div className={styles.buttons}>
+          <button type="submit" className={styles.submitButton}>Create</button>
+          <button type="button" className={styles.cancelButton} onClick={onClose}>Cancel</button>
+        </div>
+      </form>
+    </BaseModal>
   );
 }
