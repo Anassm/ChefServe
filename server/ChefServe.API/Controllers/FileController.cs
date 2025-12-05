@@ -46,15 +46,32 @@ public class FileController : ControllerBase
                 createFolderDTO.ParentPath = "";
             }
 
-            FileServiceResponseDTO folder = await _fileService.CreateFolderAsync(user.ID, createFolderDTO.FolderName, createFolderDTO.ParentPath);
-
-            return folder.StatusCode switch
+            FileServiceResponseDTO result = await _fileService.CreateFolderAsync(user.ID, createFolderDTO.FolderName, createFolderDTO.ParentPath);
+            dynamic fileData = result.Data;
+            FileItemDTO? returnData = null;
+            if (fileData != null)
             {
-                201 => StatusCode(StatusCodes.Status200OK, new { folder.Success, folder.Message, folder.Data }),
-                404 => StatusCode(StatusCodes.Status404NotFound, new { folder.Success, folder.Message }),
-                409 => StatusCode(StatusCodes.Status409Conflict, new { folder.Success, folder.Message }),
-                500 => StatusCode(StatusCodes.Status500InternalServerError, new { folder.Success, folder.Message }),
-                _ => StatusCode(StatusCodes.Status501NotImplemented, new { folder.Success, Message = "Not implemented status code." })
+                returnData = new FileItemDTO
+                {
+                    ID = fileData.ID,
+                    Name = fileData.Name,
+                    Path = fileData.Path,
+                    Extension = fileData.Extension,
+                    Summary = fileData.Summary,
+                    CreatedAt = fileData.CreatedAt,
+                    UpdatedAt = fileData.UpdatedAt,
+                    IsFolder = fileData.IsFolder,
+                    OwnerID = fileData.OwnerID
+                };
+            }
+
+            return result.StatusCode switch
+            {
+                201 => StatusCode(StatusCodes.Status200OK, new { result.Success, result.Message, returnData }),
+                404 => StatusCode(StatusCodes.Status404NotFound, new { result.Success, result.Message }),
+                409 => StatusCode(StatusCodes.Status409Conflict, new { result.Success, result.Message }),
+                500 => StatusCode(StatusCodes.Status500InternalServerError, new { result.Success, result.Message }),
+                _ => StatusCode(StatusCodes.Status501NotImplemented, new { result.Success, Message = "Not implemented status code." })
             };
         }
         catch (Exception ex)

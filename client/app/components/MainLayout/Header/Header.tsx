@@ -57,13 +57,14 @@ export default function Header() {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
+    const file = files[0];
+
+    const confirmUpload = confirm(`Upload file "${file.name}"?`);
+    if (!confirmUpload) return;
+
     const formData = new FormData();
-
-    for (const file of Array.from(files)) {
-      formData.append("files", file);
-      formData.append("paths", file.webkitRelativePath || file.name);
-    }
-
+    formData.append("FileName", file.name);
+    formData.append("Content", file);
     formData.append("DestinationPath", "/"); // Voor nu even "/"
 
     try {
@@ -79,14 +80,14 @@ export default function Header() {
         }
       );
 
-      if (response.status != 201) {
+      if (!response.ok) {
         throw new Error((await response.text()) || "Failed to upload file");
       }
 
       revalidator.revalidate();
     } catch (err) {
       console.error(err);
-      alert("Failed to upload file(s)");
+      alert("Failed to upload file");
     }
   }
 
@@ -157,8 +158,7 @@ export default function Header() {
           ref={uploadRef}
           type="file"
           multiple
-          webkitdirectory="true"
-          directory="true"
+          // directory="true"
           style={{ display: "none" }}
           onChange={onUpload}
         />

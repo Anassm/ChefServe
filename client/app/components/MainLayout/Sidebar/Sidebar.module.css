@@ -36,12 +36,12 @@
   background: transparent;
   transition: background 0.2s ease;
   transform: translate(-6px);
-  z-index: 999;
+  z-index: 998;
 }
 
 .sidebarResizer:hover {
   background: rgba(0, 0, 0, 0.2);
-  z-index: 999;
+  z-index: 998;
 }
 
 .bottom {
