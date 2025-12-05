@@ -447,6 +447,7 @@ public class FileService : IFileService
                     Data = fileitem
                 };
             }
+
         }
         catch (Exception ex)
         {
@@ -808,6 +809,18 @@ public class FileService : IFileService
                     }
                 }
             }
+            void UpdateDisplayPaths(GetFileTreeReturnDTO node)
+            {
+                if (!string.IsNullOrEmpty(node.folderPath) && node.folderPath.StartsWith(rootPath))
+                    node.folderPath = node.folderPath.Substring(rootPath.Length).TrimStart('/', '\\');
+
+                if (!string.IsNullOrEmpty(node.parentPath) && node.parentPath.StartsWith(rootPath))
+                    node.parentPath = node.parentPath.Substring(rootPath.Length).TrimStart('/', '\\');
+
+                foreach (var child in node.children)
+                    UpdateDisplayPaths(child);
+            }
+            UpdateDisplayPaths(virtualRoot);
 
             return virtualRoot;
         }

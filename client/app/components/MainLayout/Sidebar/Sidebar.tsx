@@ -41,7 +41,7 @@ function Navigation() {
         </li>
         <li>
           <button className={`${styles.button} ${styles.hoverEffect}`}>
-            <NavLink to="/admin/settings">Settings</NavLink>
+            <NavLink to="/admin/settings">Navigation</NavLink>
           </button>
         </li>
       </ul>
@@ -52,7 +52,7 @@ function Navigation() {
 function Settings() {
   return (
     <>
-      <span>Settings</span>
+      <span>Navigation</span>
     </>
   );
 }
@@ -84,7 +84,7 @@ export default function Sidebar({
       if (isResizing) {
         setSidebarWidth(
           mouseMoveEvent.clientX -
-            sidebarRef.current.getBoundingClientRect().left
+          sidebarRef.current.getBoundingClientRect().left
         );
       }
     },
@@ -127,11 +127,12 @@ export default function Sidebar({
               }
             >
               {mode === "navigation" ? (
-                <CiSettings size={25} />
-              ) : (
                 <IoFileTrayStackedOutline />
+
+              ) : (
+                <CiSettings size={25} />
               )}
-              {mode === "navigation" ? "Settings" : "Navigation"}
+              {mode === "navigation" ? "Navigation" : "Settings"}
             </button>
 
             <button
