@@ -7,11 +7,12 @@ import UserDashboard from "./userDashboard/UserDashboard";
 import type { fileItem } from "~/components/FileItem/FileItem";
 import type { Route } from "./+types/Dashboard";
 import type { TreeItem } from "~/components/FileTree/FileTree";
-
+import { useContext } from "react";
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const url = params?.parentpath
-    ? `http://localhost:5175/api/file/getfiles?parentPath=${params.parentpath}`
+  const fullPath = params["*"] ?? "";
+  const url = fullPath
+    ? `http://localhost:5175/api/file/getfiles?parentPath=${fullPath}`
     : `http://localhost:5175/api/file/getfiles`;
   const url2 = `http://localhost:5175/api/file/GetFileTree`
 
@@ -21,6 +22,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include'
   });
+  console.log(response)
 
   const response2 = await fetch(url2, {
     method: 'GET',
@@ -30,8 +32,12 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 
   try {
     const textFiles = await response.text()
+    console.log(textFiles)
     const textTree = await response2.text();
-    const files: fileItem[] = textFiles ? JSON.parse(textFiles) : [];
+    const jsonFiles = textFiles ? JSON.parse(textFiles) : null;
+    console.log(jsonFiles)
+    const files: fileItem[] = jsonFiles?.returnData ?? [];
+    console.log(files)
     const rootFolder: TreeItem | null = textTree ? JSON.parse(textTree) : null;
 
     console.log("Fetched files:", files);

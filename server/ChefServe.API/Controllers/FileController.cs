@@ -46,27 +46,20 @@ public class FileController : ControllerBase
                 createFolderDTO.ParentPath = "";
             }
 
-            var folder = await _fileService.CreateFolderAsync(user.ID, createFolderDTO.FolderName, createFolderDTO.ParentPath);
+            FileServiceResponseDTO folder = await _fileService.CreateFolderAsync(user.ID, createFolderDTO.FolderName, createFolderDTO.ParentPath);
 
-            if (folder == null)
-                return StatusCode(StatusCodes.Status409Conflict, new { error = "Folder could not be created. It may already exist." });
-
-            return StatusCode(StatusCodes.Status200OK, new FileItemDTO
+            return folder.StatusCode switch
             {
-                ID = folder.ID,
-                Name = folder.Name,
-                Path = folder.Path,
-                Extension = folder.Extension,
-                Summary = folder.Summary,
-                CreatedAt = folder.CreatedAt,
-                UpdatedAt = folder.UpdatedAt,
-                IsFolder = folder.IsFolder,
-                OwnerID = folder.OwnerID
-            });
+                201 => StatusCode(StatusCodes.Status200OK, new { folder.Success, folder.Message, folder.Data }),
+                404 => StatusCode(StatusCodes.Status404NotFound, new { folder.Success, folder.Message }),
+                409 => StatusCode(StatusCodes.Status409Conflict, new { folder.Success, folder.Message }),
+                500 => StatusCode(StatusCodes.Status500InternalServerError, new { folder.Success, folder.Message }),
+                _ => StatusCode(StatusCodes.Status501NotImplemented, new { folder.Success, Message = "Not implemented status code." })
+            };
         }
         catch (Exception ex)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Internal server error.", details = ex.Message });
+            return StatusCode(StatusCodes.Status500InternalServerError, new { Success = false, error = "Internal server error.", details = ex.Message });
         }
     }
     [HttpPost("UploadFile")]
@@ -94,22 +87,34 @@ public class FileController : ControllerBase
                 return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing destination path" });
 
             using var stream = uploadFileDTO.Content.OpenReadStream();
-            var file = await _fileService.UploadFileAsync(user.ID, uploadFileDTO.FileName, stream, uploadFileDTO.DestinationPath);
-            if (file == null)
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Error = "File could not be uploaded." });
-
-            return StatusCode(StatusCodes.Status200OK, new FileItemDTO
+            var result = await _fileService.UploadFileAsync(user.ID, uploadFileDTO.FileName, stream, uploadFileDTO.DestinationPath, uploadFileDTO.ConflictMode!);
+            dynamic fileData = result.Data;
+            FileItemDTO? returnData = null;
+            if (fileData != null)
             {
-                ID = file.ID,
-                Name = file.Name,
-                Path = file.Path,
-                Extension = file.Extension,
-                Summary = file.Summary,
-                CreatedAt = file.CreatedAt,
-                UpdatedAt = file.UpdatedAt,
-                IsFolder = file.IsFolder,
-                OwnerID = file.OwnerID
-            });
+                returnData = new FileItemDTO
+                {
+                    ID = fileData.ID,
+                    Name = fileData.Name,
+                    Path = fileData.Path,
+                    Extension = fileData.Extension,
+                    Summary = fileData.Summary,
+                    CreatedAt = fileData.CreatedAt,
+                    UpdatedAt = fileData.UpdatedAt,
+                    IsFolder = fileData.IsFolder,
+                    OwnerID = fileData.OwnerID
+                };
+            }
+            return result.StatusCode switch
+            {
+                201 => StatusCode(StatusCodes.Status201Created, new { result.Success, result.Message, returnData }),
+                204 => StatusCode(StatusCodes.Status204NoContent, new { result.Success, result.Message }),
+                400 => StatusCode(StatusCodes.Status400BadRequest, new { result.Success, result.Message }),
+                404 => StatusCode(StatusCodes.Status404NotFound, new { result.Success, result.Message }),
+                409 => StatusCode(StatusCodes.Status409Conflict, new { result.Success, result.Message }),
+                500 => StatusCode(StatusCodes.Status500InternalServerError, new { result.Success, result.Message }),
+                _ => StatusCode(StatusCodes.Status501NotImplemented, new { result.Success, Message = "Not implemented status code." })
+            };
         }
         catch (Exception ex)
         {
@@ -130,22 +135,32 @@ public class FileController : ControllerBase
             if (fileID == Guid.Empty)
                 return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing file ID" });
 
-            var file = await _fileService.GetFileAsync(fileID, user.ID);
-            if (file == null)
-                return StatusCode(StatusCodes.Status204NoContent, new { Error = "File not found" });
-
-            return StatusCode(StatusCodes.Status200OK, new FileItemDTO
+            var result = await _fileService.GetFileAsync(fileID, user.ID);
+            dynamic fileData = result.Data;
+            FileItemDTO? returnData = null;
+            if (fileData != null)
             {
-                ID = file.ID,
-                Name = file.Name,
-                Path = file.Path,
-                Extension = file.Extension,
-                Summary = file.Summary,
-                CreatedAt = file.CreatedAt,
-                UpdatedAt = file.UpdatedAt,
-                IsFolder = file.IsFolder,
-                OwnerID = file.OwnerID
-            });
+                returnData = new FileItemDTO
+                {
+                    ID = fileData.ID,
+                    Name = fileData.Name,
+                    Path = fileData.Path,
+                    Extension = fileData.Extension,
+                    Summary = fileData.Summary,
+                    CreatedAt = fileData.CreatedAt,
+                    UpdatedAt = fileData.UpdatedAt,
+                    IsFolder = fileData.IsFolder,
+                    OwnerID = fileData.OwnerID
+                };
+            }
+            return result.StatusCode switch
+            {
+                200 => StatusCode(StatusCodes.Status200OK, new { result.Success, result.Message, returnData }),
+                400 => StatusCode(StatusCodes.Status400BadRequest, new { result.Success, result.Message }),
+                404 => StatusCode(StatusCodes.Status404NotFound, new { result.Success, result.Message }),
+                500 => StatusCode(StatusCodes.Status500InternalServerError, new { result.Success, result.Message }),
+                _ => StatusCode(StatusCodes.Status501NotImplemented, new { result.Success, Message = "Not implemented status code." })
+            };
         }
         catch (Exception ex)
         {
@@ -159,7 +174,7 @@ public class FileController : ControllerBase
         {
             if (!Request.Cookies.TryGetValue("AuthToken", out var token))
                 return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing token." });
-            
+
             if (parentPath == null)
                 parentPath = string.Empty;
 
@@ -167,18 +182,33 @@ public class FileController : ControllerBase
             if (user == null)
                 return StatusCode(StatusCodes.Status401Unauthorized, new { Error = "Invalid token." });
 
-            var files = await _fileService.GetFilesAsync(user.ID, parentPath);
-            if (files == null || files.Count() == 0)
-                return StatusCode(StatusCodes.Status204NoContent, new { Error = "File not found" });
-
-            return StatusCode(StatusCodes.Status200OK, files.Select(file => new getFilesReturnDTO
+            var result = await _fileService.GetFilesAsync(user.ID, parentPath);
+            dynamic filesData = result.Data;
+            List<getFilesReturnDTO> returnData = new List<getFilesReturnDTO>();
+            if (filesData != null)
             {
-                id = file.ID,
-                name = file.Name,
-                extension = file.Extension,
-                isFolder = file.IsFolder,
-                hasContent = file.HasContent
-            }));
+                foreach (var file in filesData)
+                {
+                    // string[] parts = file.Path.Split('/');
+                    // string result1 = string.Join("/", parts[2..]);
+                    returnData.Add(new getFilesReturnDTO
+                    {
+                        id = file.ID,
+                        name = file.Name,
+                        extension = file.Extension,
+                        isFolder = file.IsFolder,
+                        path = file.Path.Substring(46),
+                        hasContent = file.HasContent
+                    });
+                }
+            }
+            return result.StatusCode switch
+            {
+                200 => StatusCode(StatusCodes.Status200OK, new { result.Success, result.Message, returnData }),
+                204 => StatusCode(StatusCodes.Status204NoContent, new { result.Success, result.Message }),
+                500 => StatusCode(StatusCodes.Status500InternalServerError, new { result.Success, result.Message }),
+                _ => StatusCode(StatusCodes.Status501NotImplemented, new { result.Success, Message = "Not implemented status code." })
+            };
         }
         catch (Exception ex)
         {
@@ -201,14 +231,15 @@ public class FileController : ControllerBase
                 return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing file ID" });
 
             var file = await _fileService.GetFileAsync(fileID, user.ID);
-            if (file == null)
-                return StatusCode(StatusCodes.Status404NotFound, new { Error = "File not found" });
+            if (file.Data == null)
+                return StatusCode(StatusCodes.Status404NotFound, new { Error = "File not found in database" });
+            dynamic fileData = file.Data;
 
             var stream = await _fileService.DownloadFileAsync(fileID, user.ID);
             if (stream == null)
-                return StatusCode(StatusCodes.Status404NotFound, new { Error = "File not found" });
+                return StatusCode(StatusCodes.Status404NotFound, new { Error = "File not found on drive" });
 
-            return File(stream, "application/octet-stream", file.Name, enableRangeProcessing: true);
+            return File(stream, "application/octet-stream", fileData.Name, enableRangeProcessing: true);
         }
         catch (Exception ex)
         {
@@ -230,11 +261,15 @@ public class FileController : ControllerBase
             if (fileID == Guid.Empty)
                 return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing file ID" });
 
-            var success = await _fileService.DeleteFileAsync(fileID, user.ID);
-            if (!success)
-                return StatusCode(StatusCodes.Status404NotFound, new { Error = "File not found or could not be deleted." });
+            var result = await _fileService.DeleteFileAsync(fileID, user.ID);
 
-            return StatusCode(StatusCodes.Status200OK, new { Message = "File deleted successfully." });
+            return result.StatusCode switch
+            {
+                200 => StatusCode(StatusCodes.Status200OK, new { result.Success, result.Message }),
+                404 => StatusCode(StatusCodes.Status404NotFound, new { result.Success, result.Message }),
+                500 => StatusCode(StatusCodes.Status500InternalServerError, new { result.Success, result.Message }),
+                _ => StatusCode(StatusCodes.Status501NotImplemented, new { result.Success, Message = "Not implemented status code." })
+            };
         }
         catch (Exception ex)
         {
@@ -262,68 +297,63 @@ public class FileController : ControllerBase
             if (renameFileDTO.NewName == null || renameFileDTO.NewName == string.Empty)
                 return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing new name." });
 
-            var file = await _fileService.RenameFileAsync(renameFileDTO.FileID, renameFileDTO.NewName, user.ID);
-            if (file == null)
-                return StatusCode(StatusCodes.Status404NotFound, new { Error = "File not found or could not be renamed." });
+            var result = await _fileService.RenameFileAsync(renameFileDTO.FileID, renameFileDTO.NewName, user.ID);
 
-            return StatusCode(StatusCodes.Status200OK, new FileItemDTO
+            return result.StatusCode switch
             {
-                ID = file.ID,
-                Name = file.Name,
-                Path = file.Path,
-                Extension = file.Extension,
-                Summary = file.Summary,
-                CreatedAt = file.CreatedAt,
-                UpdatedAt = file.UpdatedAt,
-                IsFolder = file.IsFolder,
-                OwnerID = file.OwnerID
-            });
+                200 => StatusCode(StatusCodes.Status200OK, new { result.Success, result.Message, result.Data }),
+                400 => StatusCode(StatusCodes.Status400BadRequest, new { result.Success, result.Message }),
+                404 => StatusCode(StatusCodes.Status404NotFound, new { result.Success, result.Message }),
+                409 => StatusCode(StatusCodes.Status409Conflict, new { result.Success, result.Message }),
+                500 => StatusCode(StatusCodes.Status500InternalServerError, new { result.Success, result.Message }),
+                _ => StatusCode(StatusCodes.Status501NotImplemented, new { result.Success, Message = "Not implemented status code." })
+            };
         }
         catch (Exception ex)
         {
             return StatusCode(StatusCodes.Status500InternalServerError, new { Error = "Internal server error.", Details = ex.Message });
         }
     }
-    [HttpPut("MoveFile")]
-    public async Task<ActionResult> MoveFile([FromBody] MoveFileBodyDTO moveFileDTO)
-    {
-        try
-        {
-            if (!Request.Cookies.TryGetValue("AuthToken", out var token))
-                return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing token." });
+    // [HttpPut("MoveFile")]
+    // public async Task<ActionResult> MoveFile([FromBody] MoveFileBodyDTO moveFileDTO)
+    // {
+    //     try
+    //     {
+    //         if (!Request.Cookies.TryGetValue("AuthToken", out var token))
+    //             return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing token." });
 
-            var user = await _sessionService.GetUserBySessionTokenAsync(token);
-            if (user == null)
-                return StatusCode(StatusCodes.Status401Unauthorized, new { Error = "Invalid token." });
+    //         var user = await _sessionService.GetUserBySessionTokenAsync(token);
+    //         if (user == null)
+    //             return StatusCode(StatusCodes.Status401Unauthorized, new { Error = "Invalid token." });
 
-            if (moveFileDTO.FileID == Guid.Empty)
-                return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing file ID" });
+    //         if (moveFileDTO.FileID == Guid.Empty)
+    //             return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing file ID" });
 
-            if (moveFileDTO.NewPath == null || moveFileDTO.NewPath == string.Empty)
-                return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing new path." });
+    //         if (moveFileDTO.NewPath == null || moveFileDTO.NewPath == string.Empty)
+    //             return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing new path." });
 
-            var file = await _fileService.MoveFileAsync(moveFileDTO.FileID, moveFileDTO.NewPath, user.ID);
-            if (file == null)
-                return StatusCode(StatusCodes.Status404NotFound, new { Error = "File not found or could not be moved." });
+    //         var file = await _fileService.MoveFileAsync(moveFileDTO.FileID, moveFileDTO.NewPath, user.ID);
+    //         if (file == null)
+    //             return StatusCode(StatusCodes.Status404NotFound, new { Error = "File not found or could not be moved." });
 
-            return StatusCode(StatusCodes.Status200OK, new FileItemDTO
-            {
-                ID = file.ID,
-                Name = file.Name,
-                Path = file.Path,
-                Extension = file.Extension,
-                Summary = file.Summary,
-                CreatedAt = file.CreatedAt,
-                UpdatedAt = file.UpdatedAt,
-                IsFolder = file.IsFolder,
-                OwnerID = file.OwnerID
-            });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, new { Error = "Internal server error.", Details = ex.Message });
-        }
-    }
+    //         return StatusCode(StatusCodes.Status200OK, new FileItemDTO
+    //         {
+    //             ID = file.ID,
+    //             Name = file.Name,
+    //             Path = file.Path,
+    //             Extension = file.Extension,
+    //             Summary = file.Summary,
+    //             CreatedAt = file.CreatedAt,
+    //             UpdatedAt = file.UpdatedAt,
+    //             IsFolder = file.IsFolder,
+    //             OwnerID = file.OwnerID
+    //         });
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         return StatusCode(StatusCodes.Status500InternalServerError, new { Error = "Internal server error.", Details = ex.Message });
+    //     }
+    // }
 
     [HttpGet("GetFileTree")]
     public async Task<ActionResult> GetFileTree()

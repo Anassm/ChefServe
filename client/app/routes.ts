@@ -14,7 +14,7 @@ export default [
     route("admin/files", "routes/dashboard/adminDashboard/Files.tsx"),
     route("admin/settings", "routes/dashboard/adminDashboard/Settings.tsx"),
     //route("/files/:parentpath*", "routes/dashboard/userDashboard/UserDashboard.tsx")
-    route("/:parentpath/*", "routes/dashboard/Dashboard.tsx", {
+    route("*", "routes/dashboard/Dashboard.tsx", {
       id: "dashboard-with-parentpath",
     }),
   ]),

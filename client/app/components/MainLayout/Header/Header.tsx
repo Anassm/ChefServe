@@ -79,8 +79,8 @@ export default function Header() {
         }
       );
 
-      if (!response.ok) {
-        throw new Error((await response.text()) || "Failed to upload file(s)");
+      if (response.status != 201) {
+        throw new Error((await response.text()) || "Failed to upload file");
       }
 
       revalidator.revalidate();
