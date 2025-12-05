@@ -3,6 +3,7 @@ using ChefServe.Infrastructure.Data;
 using ChefServe.Core.Interfaces;
 using ChefServe.Infrastructure.Services;
 using ChefServe.Core.Services;
+using Microsoft.AspNetCore.Http.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = "Data Source=ChefServe.Infrastructure/Data/database.db";
@@ -30,6 +31,16 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod()
             .AllowCredentials(); // required for cookies
     });
+});
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = long.MaxValue; // ~100 MB
+});
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = null; // ~100 MB
 });
 
 
