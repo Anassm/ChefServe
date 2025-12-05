@@ -54,6 +54,7 @@ public class getFilesReturnDTO
     public required string name { get; set; }
     public required string extension { get; set; }
     public required bool isFolder { get; set; }
+    public required string path { get; set; }
     public required bool hasContent { get; set; }
 }
 

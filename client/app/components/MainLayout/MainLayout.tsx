@@ -23,16 +23,16 @@ export default function MainLayout() {
   }, []);
 
   return (
-    <selectedFileContext.Provider value={{ selectedFile, setSelectedFile }}>
-      <div>
-        <Header />
-        <div className={styles.row}>
-          <Sidebar rootFolder={rootFolder}/>
-          <main className={styles.main}>
-            <Outlet />
-          </main>
+      <selectedFileContext.Provider value={{ selectedFile, setSelectedFile }}>
+        <div>
+          <Header />
+          <div className={styles.row}>
+            <Sidebar rootFolder={rootFolder} />
+            <main className={styles.main}>
+              <Outlet />
+            </main>
+          </div>
         </div>
-      </div>
-    </selectedFileContext.Provider>
+      </selectedFileContext.Provider>
   );
 }

@@ -238,7 +238,13 @@ public class FileService : IFileService
                                 await _context.SaveChangesAsync();
                                 await transaction.CommitAsync();
                             }
-                            using (var fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
+                            using (var fileStream = new FileStream(
+                                fullPath,
+                                FileMode.Create,
+                                FileAccess.Write,
+                                FileShare.None,
+                                81920,
+                                useAsync: true))
                             {
                                 await content.CopyToAsync(fileStream);
                             }
@@ -307,7 +313,13 @@ public class FileService : IFileService
                             fullPath = Path.GetFullPath(dbPath);
 
                             // Save file record with new name
-                            using (var fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
+                            using (var fileStream = new FileStream(
+                                fullPath,
+                                FileMode.Create,
+                                FileAccess.Write,
+                                FileShare.None,
+                                81920,
+                                useAsync: true))
                             {
                                 await content.CopyToAsync(fileStream);
                             }
@@ -391,7 +403,13 @@ public class FileService : IFileService
             }
             else
             {
-                using (var fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
+                using (var fileStream = new FileStream(
+                    fullPath,
+                    FileMode.Create,
+                    FileAccess.Write,
+                    FileShare.None,
+                    81920,
+                    useAsync: true))
                 {
                     await content.CopyToAsync(fileStream);
                 }
@@ -499,6 +517,7 @@ public class FileService : IFileService
             else
             {
                 parentPath = parentPath.TrimStart('/', '\\');
+                parentPath = parentPath.Replace('/', '\\');
                 parentPath = Path.Combine(UserHelper.GetRootPathForUser(ownerId), parentPath);
                 files = await _context.FileItems.Where(f => f.OwnerID.ToString().ToUpper() == ownerId.ToString().ToUpper() &&
                     f.ParentPath.ToUpper() == parentPath.ToUpper()).OrderByDescending(f => f.IsFolder).ThenBy(f => f.Name).ToListAsync();

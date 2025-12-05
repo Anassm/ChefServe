@@ -7,11 +7,12 @@ import UserDashboard from "./userDashboard/UserDashboard";
 import type { fileItem } from "~/components/FileItem/FileItem";
 import type { Route } from "./+types/Dashboard";
 import type { TreeItem } from "~/components/FileTree/FileTree";
-
+import { useContext } from "react";
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const url = params?.parentpath
-    ? `http://localhost:5175/api/file/getfiles?parentPath=${params.parentpath}`
+  const fullPath = params["*"] ?? "";
+  const url = fullPath
+    ? `http://localhost:5175/api/file/getfiles?parentPath=${fullPath}`
     : `http://localhost:5175/api/file/getfiles`;
   const url2 = `http://localhost:5175/api/file/GetFileTree`
 

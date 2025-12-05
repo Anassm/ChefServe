@@ -8,7 +8,7 @@ import {
 export default [
   layout("components/MainLayout/MainLayout.tsx", [
     index("routes/dashboard/Dashboard.tsx"),
-    route("/:parentpath/*", "routes/dashboard/Dashboard.tsx", {
+    route("*", "routes/dashboard/Dashboard.tsx", {
       id: "dashboard-with-parentpath",
     }),
   ]),
