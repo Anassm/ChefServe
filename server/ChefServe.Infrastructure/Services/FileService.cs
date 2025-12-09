@@ -817,6 +817,8 @@ public class FileService : IFileService
                 if (!string.IsNullOrEmpty(node.parentPath) && node.parentPath.StartsWith(rootPath))
                     node.parentPath = node.parentPath.Substring(rootPath.Length).TrimStart('/', '\\');
 
+                node.children = node.children.OrderBy(c => c.name).ToList();
+
                 foreach (var child in node.children)
                     UpdateDisplayPaths(child);
             }
