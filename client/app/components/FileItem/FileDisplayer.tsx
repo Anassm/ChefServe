@@ -38,11 +38,10 @@ export default function FileDisplayer({ files }: { files: fileItem[] }) {
     alert(`Open file: ${file.name}`);
   }
 
-  function handleOpenFolder(folder: fileItem) {
-    const currentBasePath = parentpath || "";
-    const newPath = [currentBasePath, folder.name].filter(Boolean).join("/");
-
-    navigate("/" + newPath);
+  function handleOpenFolder(file: fileItem) {
+    console.log("FILE:", file);
+    console.log("FILE.PATH:", file.path);
+    navigate("/" + file.path);
   }
 
   return (
@@ -54,6 +53,7 @@ export default function FileDisplayer({ files }: { files: fileItem[] }) {
           name={file.name}
           extension={file.extension}
           isFolder={file.isFolder}
+          path={file.path}
           hasContent={file.hasContent}
           isSelected={selectedFile?.id === file.id}
           onSelect={() => handleSelect(file)}

@@ -8,13 +8,14 @@ export type fileItem = {
     name: string,
     extension: string,
     isFolder: boolean,
+    path :string,
     hasContent: boolean,
     isSelected?: boolean,
     onSelect?: () => void,
     onOpen?: () => void
 };
 
-export function FileItem({ name, extension, isFolder, hasContent, isSelected = false, onSelect, onOpen, }: fileItem) {
+export function FileItem({ id, name, extension, isFolder, path, hasContent, isSelected = false, onSelect, onOpen, }: fileItem) {
     const ext = extension || '.folder';
     const filetype = ext.substring(1);
     const timer = useRef<NodeJS.Timeout | null>(null);

@@ -68,8 +68,8 @@
   margin-top: 2rem;
 } */
 
-.testButton{
-    margin-left: 90%;
+.testButton {
+  margin-left: 90%;
 }
 
 .hoverEffect:hover {
@@ -81,4 +81,42 @@
   display: flex;
   align-items: center;
   justify-content: end;
+}
+
+.createFolderModal {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.submitButton {
+  background-color: #f4d29b;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.submitButton:hover {
+  background-color: #e9be77;
+}
+
+.modalButtons {
+  display: flex;
+  gap: 4px;
+  float: right;
+}
+
+.cancelButton {
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.cancelButton:hover {
+  background-color: #f5f5f5;
 }
