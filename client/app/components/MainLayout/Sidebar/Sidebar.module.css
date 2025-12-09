@@ -63,11 +63,15 @@
   overflow-y: auto;
 }
 
+.contentBodyBottom {
+  overflow-y: auto;
+}
+
 .treeContentTop {
   display: flex;
   align-items: start;
-  justify-content: start;
-  border-bottom: 2px solid black;
+  justify-content: center;
+  border-bottom: #272727 solid 2px;
 }
 
 .button {

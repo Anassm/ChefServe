@@ -1,11 +1,15 @@
-import React, { useRef, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { CiLogout, CiSettings } from "react-icons/ci";
 import { IoFileTrayStackedOutline } from "react-icons/io5";
 import { NavLink } from "react-router";
-import { Form } from "react-router";
 import { FileTree } from "~/components/FileTree/FileTree";
 import type { TreeItem } from "~/components/FileTree/FileTree";
 import styles from "./Sidebar.module.css";
+import { useUser } from "~/helper/UserContext";
+import { TbUserShield } from "react-icons/tb";
+import { TbUser } from "react-icons/tb";
+
+
 
 async function handleLogout() {
   await fetch("http://localhost:5175/api/auth/logout", {
@@ -17,42 +21,43 @@ async function handleLogout() {
 
 function Navigation() {
   return (
-    <>
-      <ul>
-        <li>
-          <button className={`${styles.button} ${styles.hoverEffect}`}>
-            <NavLink to="/admin">Admin dashboard</NavLink>
-          </button>
-        </li>
-        <li>
-          <button className={`${styles.button} ${styles.hoverEffect}`}>
-            <NavLink to="/admin/overview">Overview</NavLink>
-          </button>
-        </li>
-        <li>
-          <button className={`${styles.button} ${styles.hoverEffect}`}>
-            <NavLink to="/admin/users">Users</NavLink>
-          </button>
-        </li>
-        <li>
-          <button className={`${styles.button} ${styles.hoverEffect}`}>
-            <NavLink to="/admin/files">Files</NavLink>
-          </button>
-        </li>
-        <li>
-          <button className={`${styles.button} ${styles.hoverEffect}`}>
-            <NavLink to="/admin/settings">Navigation</NavLink>
-          </button>
-        </li>
-      </ul>
-    </>
+    <span>Navigation</span>
+    // <>
+    //   <ul>
+    //     <li>
+    //       <button className={`${styles.button} ${styles.hoverEffect}`}>
+    //         <NavLink to="/admin">Admin dashboard</NavLink>
+    //       </button>
+    //     </li>
+    //     <li>
+    //       <button className={`${styles.button} ${styles.hoverEffect}`}>
+    //         <NavLink to="/admin/overview">Overview</NavLink>
+    //       </button>
+    //     </li>
+    //     <li>
+    //       <button className={`${styles.button} ${styles.hoverEffect}`}>
+    //         <NavLink to="/admin/users">Users</NavLink>
+    //       </button>
+    //     </li>
+    //     <li>
+    //       <button className={`${styles.button} ${styles.hoverEffect}`}>
+    //         <NavLink to="/admin/files">Files</NavLink>
+    //       </button>
+    //     </li>
+    //     <li>
+    //       <button className={`${styles.button} ${styles.hoverEffect}`}>
+    //         <NavLink to="/admin/settings">Navigation</NavLink>
+    //       </button>
+    //     </li>
+    //   </ul>
+    // </>
   );
 }
 
 function Settings() {
   return (
     <>
-      <span>Navigation</span>
+      <span>Settings</span>
     </>
   );
 }
@@ -63,9 +68,12 @@ export default function Sidebar({
   rootFolder: TreeItem | null;
 }) {
   const [mode, setMode] = useState<"navigation" | "settings">("navigation");
+  const [adminMode, setAdminMode] = useState<"userManagement" | "fileManagement">("fileManagement");
   const sidebarRef = useRef(null);
   const [isResizing, setIsResizing] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(268);
+  const { user } = useUser();
+  
 
   const startResizing = React.useCallback(
     (mouseDownEvent) => {
@@ -110,7 +118,7 @@ export default function Sidebar({
         <div className={styles.sidebarContent}>
           <div className={styles.contentBody}>
             <div className={styles.treeContentTop}>
-              {mode == "navigation" ? <Navigation /> : <Settings />}
+              {mode == "navigation" ? <Settings /> : <Navigation /> }
             </div>
             <div className={styles.contentBodyBottom}>
               <FileTree root={rootFolder} />
@@ -127,14 +135,24 @@ export default function Sidebar({
               }
             >
               {mode === "navigation" ? (
-                <IoFileTrayStackedOutline />
+                <IoFileTrayStackedOutline size={25}/>
 
               ) : (
                 <CiSettings size={25} />
               )}
               {mode === "navigation" ? "Navigation" : "Settings"}
             </button>
+          
 
+            {user?.role === "admin" && adminMode == "fileManagement" ? (
+              <NavLink className={styles.button} to="/admin" onClick={() => setAdminMode("userManagement")}>
+                <TbUserShield size={25} /> Admin
+              </NavLink>
+            ) : (
+              <NavLink className={styles.button} to="" onClick={() => setAdminMode("fileManagement")}>
+                <TbUser size={25} /> User
+              </NavLink>
+            )}
             <button
               type="submit"
               onClick={handleLogout}
@@ -143,7 +161,7 @@ export default function Sidebar({
               <CiLogout size={25} /> Logout
             </button>
 
-            <span className={styles.love}>Made with ❤ by team Chef</span>
+            {/* <span className={styles.love}>Made with ❤ by team Chef</span> */}
           </div>
         </div>
       </div>
