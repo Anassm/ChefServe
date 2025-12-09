@@ -51,4 +51,9 @@ public class UserService : IUserService
         return user;
     }
 
+    public async Task<int> GetUserCountAsync()
+    {
+        return await _context.Users.CountAsync();
+    }
+
 }

@@ -440,4 +440,27 @@ public class FileService : IFileService
 
         return virtualRoot;
     }
+
+    public async Task<int> GetFileCountAsync()
+    {
+        return await _context.FileItems.CountAsync(f => !f.IsFolder);
+    }
+
+    public async Task<int> GetFolderCountAsync()
+    {
+        return await _context.FileItems.CountAsync(f => f.IsFolder);
+    }
+
+    public async Task<List<(string, int)>> GetFileTypeStatisticsAsync()
+    {
+        var stats = await _context.FileItems
+            .Where(f => !f.IsFolder)
+            .GroupBy(f => f.Extension)
+            .Select(g => new { Extension = g.Key ?? "No Extension", Count = g.Count() })
+            .ToListAsync();
+
+        return stats.Select(s => (s.Extension, s.Count)).ToList();
+    }
+
+
 }
