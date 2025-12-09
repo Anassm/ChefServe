@@ -57,10 +57,10 @@
   margin: 15px;
   margin-top: 10px;
   background: #fff;
-  width: calc(100%-15px);
   height: 66vh;
   border-radius: 6px;
   border: 2px solid black;
+  overflow-y: auto;
 }
 
 .treeContentTop {

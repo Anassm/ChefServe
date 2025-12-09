@@ -7,9 +7,15 @@ import { AiOutlineFileAdd, AiOutlineFolderAdd } from "react-icons/ai";
 import Searchbar from "~/components/Searchbar/Searchbar";
 import BaseModal from "~/components/BaseModal/BaseModal";
 import TextInput from "~/components/TextInput/TextInput";
+import { refreshSidebarContext } from "~/context/SelectedFileContext";
+
 
 export default function Header() {
   const context = useContext(selectedFileContext);
+  const refreshContext = useContext(refreshSidebarContext);
+  if (!refreshContext) return null;
+  const { refresh, setRefresh } = refreshContext;
+
   if (!context) return null;
   const { selectedFile, setSelectedFile } = context;
 
@@ -47,6 +53,7 @@ export default function Header() {
       setSelectedFile(null);
 
       revalidator.revalidate();
+      setRefresh(prev => !prev);
     } catch (err) {
       console.error(err);
       alert("Failed to delete file");
@@ -85,6 +92,7 @@ export default function Header() {
       }
 
       revalidator.revalidate();
+      setRefresh(prev => !prev);
     } catch (err) {
       console.error(err);
       alert("Failed to upload file");
@@ -120,6 +128,7 @@ export default function Header() {
       setNewFolderName("");
       setIsModalOpen(false);
       revalidator.revalidate();
+      setRefresh(prev => !prev);
     } catch (err) {
       console.error(err);
       alert("Failed to create folder");
@@ -134,7 +143,7 @@ export default function Header() {
         {/* Delete file */}
         <TiDocumentDelete
           size={40}
-          onClick={!selectedFile ? () => {} : onFileDelete}
+          onClick={!selectedFile ? () => { } : onFileDelete}
           opacity={!selectedFile ? 0.5 : 1}
           style={
             !selectedFile ? { cursor: "not-allowed" } : { cursor: "pointer" }
