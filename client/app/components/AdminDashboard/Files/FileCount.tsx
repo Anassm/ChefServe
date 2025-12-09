@@ -5,10 +5,20 @@ export default function FileCount() {
     const [filecount, setFilecount] = useState<number>(0);
 
     useEffect(() => {
-        fetch("http://localhost:5175/api/admin/files/count", {
-            method: "GET",
-            credentials: "include",
-        }).then(response => response.json()).then(data => setFilecount(data.fileCount));
+        const fetchData = async () => {
+            fetch("http://localhost:5175/api/admin/files/count", {
+                method: "GET",
+                credentials: "include",
+            }).then(response => response.json()).then(data => setFilecount(data.fileCount));
+        };
+
+        fetchData();
+
+        const interval = setInterval(() => {
+            fetchData();
+        }, 5000);
+
+        return () => clearInterval(interval);
     }, []);
 
     if (!filecount) {

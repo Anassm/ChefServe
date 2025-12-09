@@ -5,10 +5,20 @@ export default function FolderCount() {
     const [foldercount, setFoldercount] = useState<number>(0);
 
     useEffect(() => {
-        fetch("http://localhost:5175/api/admin/folders/count", {
-            method: "GET",
-            credentials: "include",
-        }).then(response => response.json()).then(data => {setFoldercount(data.folderCount);});
+        const fetchData = async () => {
+            fetch("http://localhost:5175/api/admin/folders/count", {
+                method: "GET",
+                credentials: "include",
+            }).then(response => response.json()).then(data => {setFoldercount(data.folderCount);});
+        };
+
+        fetchData();
+
+        const interval = setInterval(() => {
+            fetchData();
+        }, 5000);
+
+        return () => clearInterval(interval);
 
     }, []);
 
