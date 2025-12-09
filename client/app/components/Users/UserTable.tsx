@@ -2,11 +2,35 @@ import { useState } from "react";
 import { TbUserEdit, TbUserMinus } from "react-icons/tb";
 import styles from "./UserTable.module.css";
 
-export default function UserTable({ users }: { users: any[] }) {
+export default function UserTable({ users, onUserDeleted }: { users: any[]; onUserDeleted?: () => void }) {
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
     const handleRowClick = (userId: string) => {
         setSelectedUserId(userId === selectedUserId ? null : userId);
+    }
+
+    const deleteUser = (userId: string) => {
+        console.log("Delete user with ID:", userId);
+        
+
+        fetch(`http://localhost:5175/api/admin/users/${userId}`, {
+            method: "DELETE",
+            credentials: "include",
+        }).then(response => {
+            if (response.ok) {
+                console.log("User deleted successfully");
+                onUserDeleted?.();
+            } else {
+                console.error("Failed to delete user");
+            }
+        });
+    }
+
+    const editUser = (userId: string) => {
+        console.log("Edit user with ID:", userId);
+
+        
+
     }
 
     return (
@@ -54,7 +78,7 @@ export default function UserTable({ users }: { users: any[] }) {
                             <button 
                                 className={styles.deleteButton} 
                                 title="Delete User" 
-                                onClick={() => alert("Delete user")}
+                                onClick={() => deleteUser(user.id) }
                             >
                                 <TbUserMinus size={25}/>
                             </button>
