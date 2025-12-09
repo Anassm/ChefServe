@@ -1,15 +1,17 @@
 import type { Route } from "../../../+types/root";
 import styles from "./AdminDashboard.module.css";
 import Counter from "~/components/Counter/Counter";
+import FileCount from "~/components/AdminDashboard/Files/FileCount";
+import FolderCount from "~/components/AdminDashboard/Files/FolderCount";
+import FileTypeCount from "~/components/AdminDashboard/Files/FileTypeCount";
 
 export default function Files() {
     
     return <div>
-        Admin file management
         <div className={styles.countersContainer}>
-            <Counter title="Total Files" count={1500} />
-            <Counter title="Total Folders" count={300} />
-            <Counter title="Unique File Types" count={25} />
+            <div><FileCount /></div>
+            <div><FolderCount /></div>
+            <div><FileTypeCount /></div>
         </div>
     </div>;
 

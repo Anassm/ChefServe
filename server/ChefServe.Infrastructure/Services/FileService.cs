@@ -451,6 +451,15 @@ public class FileService : IFileService
         return await _context.FileItems.CountAsync(f => f.IsFolder);
     }
 
+    public async Task<int> GetFileTypeCountAsync()
+    {
+        return await _context.FileItems
+            .Where(f => !f.IsFolder)
+            .Select(f => f.Extension)
+            .Distinct()
+            .CountAsync();
+    }
+
     public async Task<List<(string, int)>> GetFileTypeStatisticsAsync()
     {
         var stats = await _context.FileItems
@@ -461,6 +470,7 @@ public class FileService : IFileService
 
         return stats.Select(s => (s.Extension, s.Count)).ToList();
     }
+
 
 
 }

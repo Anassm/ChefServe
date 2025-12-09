@@ -64,6 +64,13 @@ public class AdminController : ControllerBase
         return Ok(new { folderCount = count });
     }
 
+    [HttpGet("filetypes/count")]
+    public async Task<IActionResult> GetFileTypeCount()
+    {
+        var count = await _fileService.GetFileTypeCountAsync();
+        return Ok(new { fileTypeCount = count });
+    }
+
     [HttpDelete("users/{userId}")]
     public async Task<IActionResult> DeleteUser(Guid userId)
     {
