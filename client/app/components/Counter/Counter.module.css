@@ -1,0 +1,26 @@
+.counterTile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    border-radius: 8px;
+    background-color: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    min-width: 150px;
+    box-shadow: 0 2px 4px rgba(211, 64, 64, 0.1);
+}
+
+.counterNumber {
+    font-size: 32px;
+    font-weight: bold;
+    color: #333;
+    margin: 8px 0;
+}
+
+.counterTitle {
+    font-size: 14px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}

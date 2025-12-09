@@ -1,9 +1,9 @@
 import type { Route } from "../../../+types/root";
 import styles from "./AdminDashboard.module.css";
-import UserTable from "../../../components/Users/UserTable";
+import UserTable from "../../../components/AdminDashboard/Users/UserTable";
 import { TbUserPlus, TbRefresh } from "react-icons/tb";
 import { useState } from "react";
-import UserFormModal from "~/components/Users/UserFormModal";
+import UserFormModal from "~/components/AdminDashboard/Users/UserFormModal";
 
 // loader function to fetch users from the backend
 export async function clientLoader({ request }: Route.LoaderArgs) {
