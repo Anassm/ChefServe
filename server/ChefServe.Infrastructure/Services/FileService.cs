@@ -521,7 +521,7 @@ public class FileService : IFileService
                 parentPath = parentPath.Replace('/', '\\');
                 parentPath = Path.Combine(UserHelper.GetRootPathForUser(ownerId), parentPath);
                 files = await _context.FileItems.Where(f => f.OwnerID.ToString().ToUpper() == ownerId.ToString().ToUpper() &&
-                    f.ParentPath.ToUpper() == parentPath.ToUpper()).OrderByDescending(f => f.IsFolder).ThenBy(f => f.Name).ToListAsync();
+                    f.ParentPath.ToUpper() == parentPath.ToUpper()).OrderByDescending(f => f.IsFolder).ThenBy(f => f.Name.ToLower()).ToListAsync();
             }
             if (files == null || !files.Any())
             {
@@ -585,6 +585,12 @@ public class FileService : IFileService
                 if (Directory.Exists(fileItem.Path))
                 {
                     Directory.Delete(fileItem.Path, true);
+
+                    var childItems = _context.FileItems
+                        .Where(f => f.Path.StartsWith(fileItem.Path + Path.DirectorySeparatorChar))
+                        .ToList();
+
+                    _context.FileItems.RemoveRange(childItems);
                     HasContentAsync(fileItem.ParentPath!, userId);
                 }
             }
@@ -593,6 +599,7 @@ public class FileService : IFileService
                 if (File.Exists(fileItem.Path))
                 {
                     File.Delete(fileItem.Path);
+                    HasContentAsync(fileItem.ParentPath!, userId);
                 }
             }
 
@@ -816,6 +823,8 @@ public class FileService : IFileService
 
                 if (!string.IsNullOrEmpty(node.parentPath) && node.parentPath.StartsWith(rootPath))
                     node.parentPath = node.parentPath.Substring(rootPath.Length).TrimStart('/', '\\');
+
+                node.children = node.children.OrderBy(c => c.name).ToList();
 
                 foreach (var child in node.children)
                     UpdateDisplayPaths(child);

@@ -206,8 +206,6 @@ public class FileController : ControllerBase
             {
                 foreach (var file in filesData)
                 {
-                    // string[] parts = file.Path.Split('/');
-                    // string result1 = string.Join("/", parts[2..]);
                     returnData.Add(new getFilesReturnDTO
                     {
                         id = file.ID,

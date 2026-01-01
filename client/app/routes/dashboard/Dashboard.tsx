@@ -67,7 +67,7 @@ export default function Dashboard() {
   }
 
   if (user.role === "admin") {
-    return <AdminDashboard />;
+    return <UserDashboard files={files} />;
   }
 
   if (user.role === "user") {
