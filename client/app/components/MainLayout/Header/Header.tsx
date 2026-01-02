@@ -142,7 +142,7 @@ export default function Header() {
       if (response.status === 409) {
         setConflictFile(file);
         setShowConflictModal(true);
-      } else if (response.status !== 200) {
+      } else if (response.status !== 201) {
         throw new Error(result.message || "Failed to upload file");
       } else {
         revalidator.revalidate();
