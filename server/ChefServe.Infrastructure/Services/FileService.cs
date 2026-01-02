@@ -846,4 +846,21 @@ public class FileService : IFileService
             };
         }
     }
+
+    public async Task<FileServiceResponseDTO> GetFileInfo(Guid fileId, Guid userId)
+    {
+        try
+        {
+            throw new NotImplementedException();
+        }
+        catch (Exception ex)
+        {
+            return new FileServiceResponseDTO
+            {
+                Success = false,
+                StatusCode = 500,
+                Message = "An error occurred while fetching file data: " + ex.Message
+            };
+        }
+    }
 }

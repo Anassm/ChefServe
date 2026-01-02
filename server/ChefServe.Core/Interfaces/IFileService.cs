@@ -3,11 +3,14 @@ using ChefServe.Core.DTOs;
 
 
 namespace ChefServe.Core.Interfaces;
+
 public interface IFileService
 {
     Task<FileServiceResponseDTO> UploadFileAsync(Guid ownerId, string fileName, Stream content, string destinationPath, FileConflictMode? conflictMode);
 
     Task<FileServiceResponseDTO> CreateFolderAsync(Guid ownerId, string folderName, string parentPath);
+
+    Task<FileServiceResponseDTO> GetFileInfo(Guid fileId, Guid userId);
 
     Task<FileServiceResponseDTO> GetFileAsync(Guid fileId, Guid userId);
 
