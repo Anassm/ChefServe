@@ -12,10 +12,15 @@ import { useUser } from "~/helper/UserContext";
 import { NavLink } from "react-router";
 import { TbUserShield } from "react-icons/tb";
 import { IoFileTrayStackedOutline } from "react-icons/io5";
+import { BsArrow90DegUp } from "react-icons/bs";
+import { useLocation, useNavigate } from "react-router";
 
 
 
 export default function Header() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isRoot = location.pathname === "/" || location.pathname === "";
   const context = useContext(selectedFileContext);
   const refreshContext = useContext(refreshSidebarContext);
   const [conflictFile, setConflictFile] = useState<File | null>(null);
@@ -23,6 +28,8 @@ export default function Header() {
   const [pendingDestinationPath, setPendingDestinationPath] = useState("");
   const [adminMode, setAdminMode] = useState<"userManagement" | "fileManagement">("fileManagement");
   const { user } = useUser();
+  const isAdminMenuOpen = adminMode === "userManagement";
+
 
   if (!refreshContext) return null;
   const { refresh, setRefresh } = refreshContext;
@@ -142,7 +149,7 @@ export default function Header() {
       if (response.status === 409) {
         setConflictFile(file);
         setShowConflictModal(true);
-      } else if (response.status !== 200) {
+      } else if (response.status !== 201) {
         throw new Error(result.message || "Failed to upload file");
       } else {
         revalidator.revalidate();
@@ -157,8 +164,6 @@ export default function Header() {
       }
     }
   }
-
-
 
   async function onCreateFolder() {
     const currentPath = decodeURIComponent(window.location.pathname) || "/";
@@ -199,31 +204,54 @@ export default function Header() {
   return (
     <header className={styles.header}>
       <div className={styles.fileActions}>
+
         {user?.role === "admin" ?
           (adminMode == "userManagement" ? (
-            <NavLink className={styles.button} to="/" onClick={() => setAdminMode("fileManagement")}>
+            <NavLink className={styles.button} to="/" onClick={() => setAdminMode("fileManagement")} style={{ marginRight: "12px" }}>
               <IoFileTrayStackedOutline size={25} />
             </NavLink>
           ) : (
-            <NavLink className={styles.button} to="/admin/users" onClick={() => setAdminMode("userManagement")}>
-              <TbUserShield size={25} /> 
+            <NavLink className={styles.button} to="/admin/users" onClick={() => setAdminMode("userManagement")} style={{ marginRight: "12px" }}>
+              <TbUserShield size={25} />
             </NavLink>
           )) : null}
 
         <Searchbar />
 
+        <BsArrow90DegUp
+          size={40}
+          style={{ cursor: adminMode === "userManagement" || isRoot ? "not-allowed" : "pointer" }}
+          opacity={adminMode === "userManagement" || isRoot ? 0.5 : 1}
+          onClick={() => {
+            if (adminMode !== "userManagement" && !isRoot) {
+              const parentPath = location.pathname.substring(0, location.pathname.lastIndexOf("/")) || "/";
+              navigate(parentPath);
+            }
+          }}
+        />
+
         {/* Create folder */}
         <AiOutlineFolderAdd
           size={40}
-          onClick={() => setIsModalOpen(true)}
-          style={{ cursor: "pointer" }}
+          onClick={() => {
+            if (adminMode !== "userManagement") {
+              setIsModalOpen(true);
+            }
+          }}
+          style={{ cursor: adminMode === "userManagement" ? "not-allowed" : "pointer" }}
+          opacity={adminMode === "userManagement" ? 0.5 : 1}
         />
 
         {/* Upload file */}
         <AiOutlineFileAdd
           size={40}
-          onClick={() => uploadRef.current?.click()}
-          style={{ cursor: "pointer" }}
+          onClick={() => {
+            if (adminMode !== "userManagement") {
+              uploadRef.current?.click();
+            }
+          }}
+          style={{ cursor: adminMode === "userManagement" ? "not-allowed" : "pointer" }}
+          opacity={adminMode === "userManagement" ? 0.5 : 1}
         />
         <input
           ref={uploadRef}
@@ -231,29 +259,26 @@ export default function Header() {
           multiple
           // directory="true"
           style={{ display: "none" }}
+          disabled={adminMode === "userManagement"}
           onChange={onUpload}
         />
 
         {/* Download file */}
         <AiOutlineDownload
           size={40}
-          onClick={!selectedFile || selectedFile.isFolder ? () => { } : () => {
+          onClick={adminMode === "userManagement" || !selectedFile || selectedFile.isFolder ? () => { } : () => {
             window.open(`http://localhost:5175/api/File/DownloadFile?fileID=${selectedFile.id}`, "_blank");
           }}
-          opacity={!selectedFile || selectedFile.isFolder ? 0.5 : 1}
-          style={
-            !selectedFile || selectedFile.isFolder ? { cursor: "not-allowed" } : { cursor: "pointer" }
-          }
+          opacity={adminMode === "userManagement" || !selectedFile || selectedFile.isFolder ? 0.5 : 1}
+          style={adminMode === "userManagement" || !selectedFile || selectedFile.isFolder ? { cursor: "not-allowed" } : { cursor: "pointer" }}
         />
 
         {/* Delete file */}
         <TiDocumentDelete
           size={40}
-          onClick={!selectedFile ? () => { } : onFileDelete}
-          opacity={!selectedFile ? 0.5 : 1}
-          style={
-            !selectedFile ? { cursor: "not-allowed" } : { cursor: "pointer" }
-          }
+          onClick={!selectedFile || adminMode === "userManagement" ? () => { } : onFileDelete}
+          opacity={!selectedFile || adminMode === "userManagement" ? 0.5 : 1}
+          style={!selectedFile || adminMode === "userManagement" ? { cursor: "not-allowed" } : { cursor: "pointer" }}
         />
       </div>
 
