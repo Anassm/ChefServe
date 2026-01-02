@@ -8,6 +8,11 @@ import Searchbar from "~/components/Searchbar/Searchbar";
 import BaseModal from "~/components/BaseModal/BaseModal";
 import TextInput from "~/components/TextInput/TextInput";
 import { refreshSidebarContext } from "~/context/SelectedFileContext";
+import { useUser } from "~/helper/UserContext";
+import { NavLink } from "react-router";
+import { TbUserShield } from "react-icons/tb";
+import { IoFileTrayStackedOutline } from "react-icons/io5";
+
 
 
 export default function Header() {
@@ -16,6 +21,9 @@ export default function Header() {
   const [conflictFile, setConflictFile] = useState<File | null>(null);
   const [showConflictModal, setShowConflictModal] = useState(false);
   const [pendingDestinationPath, setPendingDestinationPath] = useState("");
+  const [adminMode, setAdminMode] = useState<"userManagement" | "fileManagement">("fileManagement");
+  const { user } = useUser();
+
   if (!refreshContext) return null;
   const { refresh, setRefresh } = refreshContext;
 
@@ -191,6 +199,17 @@ export default function Header() {
   return (
     <header className={styles.header}>
       <div className={styles.fileActions}>
+        {user?.role === "admin" ?
+          (adminMode == "userManagement" ? (
+            <NavLink className={styles.button} to="/" onClick={() => setAdminMode("fileManagement")}>
+              <IoFileTrayStackedOutline size={25} />
+            </NavLink>
+          ) : (
+            <NavLink className={styles.button} to="/admin/users" onClick={() => setAdminMode("userManagement")}>
+              <TbUserShield size={25} /> 
+            </NavLink>
+          )) : null}
+
         <Searchbar />
 
         {/* Create folder */}
