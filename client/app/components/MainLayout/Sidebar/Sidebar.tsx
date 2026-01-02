@@ -22,35 +22,6 @@ async function handleLogout() {
 function Navigation() {
   return (
     <span>Navigation</span>
-    // <>
-    //   <ul>
-    //     <li>
-    //       <button className={`${styles.button} ${styles.hoverEffect}`}>
-    //         <NavLink to="/admin">Admin dashboard</NavLink>
-    //       </button>
-    //     </li>
-    //     <li>
-    //       <button className={`${styles.button} ${styles.hoverEffect}`}>
-    //         <NavLink to="/admin/overview">Overview</NavLink>
-    //       </button>
-    //     </li>
-    //     <li>
-    //       <button className={`${styles.button} ${styles.hoverEffect}`}>
-    //         <NavLink to="/admin/users">Users</NavLink>
-    //       </button>
-    //     </li>
-    //     <li>
-    //       <button className={`${styles.button} ${styles.hoverEffect}`}>
-    //         <NavLink to="/admin/files">Files</NavLink>
-    //       </button>
-    //     </li>
-    //     <li>
-    //       <button className={`${styles.button} ${styles.hoverEffect}`}>
-    //         <NavLink to="/admin/settings">Navigation</NavLink>
-    //       </button>
-    //     </li>
-    //   </ul>
-    // </>
   );
 }
 
@@ -68,12 +39,11 @@ export default function Sidebar({
   rootFolder: TreeItem | null;
 }) {
   const [mode, setMode] = useState<"navigation" | "settings">("navigation");
-  const [adminMode, setAdminMode] = useState<"userManagement" | "fileManagement">("fileManagement");
   const sidebarRef = useRef(null);
   const [isResizing, setIsResizing] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(268);
   const { user } = useUser();
-  
+
 
   const startResizing = React.useCallback(
     (mouseDownEvent) => {
@@ -118,10 +88,10 @@ export default function Sidebar({
         <div className={styles.sidebarContent}>
           <div className={styles.contentBody}>
             <div className={styles.treeContentTop}>
-              {mode == "navigation" ? <Settings /> : <Navigation /> }
+              {mode == "navigation" ? <Navigation /> : <Settings />}
             </div>
             <div className={styles.contentBodyBottom}>
-              <FileTree root={rootFolder} />
+              {mode === "navigation" ? <FileTree root={rootFolder} /> : null}
             </div>
           </div>
 
@@ -134,25 +104,26 @@ export default function Sidebar({
                 )
               }
             >
-              {mode === "navigation" ? (
-                <IoFileTrayStackedOutline size={25}/>
-
+              {mode === "settings" ? (
+                <IoFileTrayStackedOutline size={25} />
               ) : (
                 <CiSettings size={25} />
               )}
-              {mode === "navigation" ? "Navigation" : "Settings"}
+              {mode === "navigation" ? "Settings" : "Navigation"}
             </button>
-          
 
-            {user?.role === "admin" && adminMode == "fileManagement" ? (
-              <NavLink className={styles.button} to="/admin" onClick={() => setAdminMode("userManagement")}>
-                <TbUserShield size={25} /> Admin
-              </NavLink>
-            ) : (
-              <NavLink className={styles.button} to="" onClick={() => setAdminMode("fileManagement")}>
-                <TbUser size={25} /> User
-              </NavLink>
-            )}
+            {/* {user?.role === "admin" ?
+              (adminMode == "userManagement" ? (
+                <NavLink className={styles.button} to="/" onClick={() => setAdminMode("fileManagement")}>
+                  <IoFileTrayStackedOutline size={25} /> File Management
+                </NavLink>
+              ) : (
+                <NavLink className={styles.button} to="/admin/users" onClick={() => setAdminMode("userManagement")}>
+                  <TbUserShield size={25} /> User Management
+                </NavLink>
+              )) : null} */}
+
+
             <button
               type="submit"
               onClick={handleLogout}
@@ -161,7 +132,7 @@ export default function Sidebar({
               <CiLogout size={25} /> Logout
             </button>
 
-            {/* <span className={styles.love}>Made with ❤ by team Chef</span> */}
+            <span className={styles.love}>Made with ❤ by team Chef</span>
           </div>
         </div>
       </div>
