@@ -847,11 +847,45 @@ public class FileService : IFileService
         }
     }
 
-    public async Task<FileServiceResponseDTO> GetFileInfo(Guid fileId, Guid userId)
+    public async Task<FileServiceResponseDTO> GetFileInfoAsync(Guid userId, Guid fileId)
     {
         try
         {
-            throw new NotImplementedException();
+            Console.WriteLine("testahaha: " + fileId);
+
+            var fileData = await _context.FileItems
+                .Where(f => f.OwnerID == userId && f.ID == fileId)
+                .FirstOrDefaultAsync();
+
+            if (fileData == null)
+            {
+                return new FileServiceResponseDTO
+                {
+                    Success = false,
+                    StatusCode = 404,
+                    Message = "File not found."
+                };
+            }
+
+            FileInfo fileinfo = new FileInfo(fileData.Path);
+            return new FileServiceResponseDTO
+            {
+                Success = true,
+                StatusCode = 200,
+                Message = "File info retrieved successfully.",
+                Data = new
+                {
+                    fileData.Name,
+                    fileData.Path,
+                    fileData.ParentPath,
+                    fileData.Extension,
+                    fileData.IsFolder,
+                    fileData.CreatedAt,
+                    fileData.UpdatedAt,
+                    SizeInBytes = fileData.IsFolder ? "N/A" : fileinfo.Length.ToString(),
+                    SizeInMB = fileData.IsFolder ? "N/A" : (fileinfo.Length / (1024.0 * 1024.0)).ToString(),
+                }
+            };
         }
         catch (Exception ex)
         {

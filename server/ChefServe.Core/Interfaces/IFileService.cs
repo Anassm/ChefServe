@@ -10,7 +10,7 @@ public interface IFileService
 
     Task<FileServiceResponseDTO> CreateFolderAsync(Guid ownerId, string folderName, string parentPath);
 
-    Task<FileServiceResponseDTO> GetFileInfo(Guid fileId, Guid userId);
+    Task<FileServiceResponseDTO> GetFileInfoAsync(Guid fileId, Guid userId);
 
     Task<FileServiceResponseDTO> GetFileAsync(Guid fileId, Guid userId);
 

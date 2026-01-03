@@ -393,4 +393,28 @@ public class FileController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, new { Error = "Internal server error.", Details = ex.Message });
         }
     }
+
+    [HttpGet("GetFileInfo")]
+    public async Task<ActionResult> GetFileInfo([FromQuery] Guid fileID)
+    {
+        try
+        {
+            if (!Request.Cookies.TryGetValue("AuthToken", out var token))
+                return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing token." });
+
+            var user = await _sessionService.GetUserBySessionTokenAsync(token);
+            if (user == null)
+                return StatusCode(StatusCodes.Status401Unauthorized, new { Error = "Invalid token." });
+
+            var fileInfo = await _fileService.GetFileInfoAsync(user.ID, fileID);
+            if (fileInfo == null)
+                return StatusCode(StatusCodes.Status404NotFound, new { Error = "File info not found." });
+
+            return StatusCode(StatusCodes.Status200OK, fileInfo);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { Error = "Internal server error.", Details = ex.Message });
+        }
+    }
 }
