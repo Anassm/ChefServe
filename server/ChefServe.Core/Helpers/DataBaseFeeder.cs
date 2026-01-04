@@ -7,30 +7,54 @@ public static class DatabaseSeeder
     {
         if (!context.Users.Any(u => u.Email == "testuser@example.com"))
         {
-            var user = new User
+            var user1 = new User
             {
                 ID = Guid.NewGuid(),
                 Username = "Test User",
                 FirstName = "Test",
                 LastName = "User",
-                PasswordHash = "vervang_dit_met_een_gehasht_wachtwoord", 
+                PasswordHash = "x5Kssnmg0G7fr4KbTm6mWJYxn+rqlTwh0h/tscQNKQ8=:c+gZvTvTavIKREHwvam8xw==", // :)
                 Email = "testuser@example.com",
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                Role = "user"
             };
 
-            context.Users.Add(user);
-
-            // Voeg een standaard session toe
-            var session = new Session
+            var user2 = new User
             {
                 ID = Guid.NewGuid(),
-                Token = "VALID_TEST_TOKEN",
-                UserID = user.ID,
+                Username = "Test Admin",
+                FirstName = "Test",
+                LastName = "Admin",
+                PasswordHash = "x5Kssnmg0G7fr4KbTm6mWJYxn+rqlTwh0h/tscQNKQ8=:c+gZvTvTavIKREHwvam8xw==", // :)
+                Email = "testadmin@example.com",
                 CreatedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddYears(5)
+                Role = "admin"
             };
 
-            context.Sessions.Add(session);
+            context.Users.Add(user1);
+            context.Users.Add(user2);
+
+            // Voeg een standaard session toe
+            // var session1 = new Session
+            // {
+            //     ID = Guid.NewGuid(),
+            //     Token = "VALID_TEST_TOKEN",
+            //     UserID = user1.ID,
+            //     CreatedAt = DateTime.UtcNow,
+            //     ExpiresAt = DateTime.UtcNow.AddYears(5)
+            // };
+
+            // var session2 = new Session
+            // {
+            //     ID = Guid.NewGuid(),
+            //     Token = "VALID_TEST_TOKEN",
+            //     UserID = user2.ID,
+            //     CreatedAt = DateTime.UtcNow,
+            //     ExpiresAt = DateTime.UtcNow.AddYears(5)
+            // };
+
+            // context.Sessions.Add(session1);
+            // context.Sessions.Add(session2);
 
             context.SaveChanges();
         }
