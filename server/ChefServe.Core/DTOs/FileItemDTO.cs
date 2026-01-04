@@ -64,5 +64,6 @@ public class GetFileTreeReturnDTO
     public required string name { get; set; }
     public required string folderPath { get; set; }
     public required string parentPath { get; set; }
+    public required bool hasContent { get; set; }
     public required List<GetFileTreeReturnDTO> children { get; set; }
 }

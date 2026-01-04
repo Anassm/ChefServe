@@ -781,8 +781,11 @@ public class FileService : IFileService
                 name = f.Name,
                 folderPath = f.Path,
                 parentPath = f.ParentPath,
+                hasContent = fileItems.Any(item => item.ParentPath == f.Path && item.IsFolder),
                 children = new List<GetFileTreeReturnDTO>()
             });
+
+            bool userHasContent = lookup.Values.Any(item => item.parentPath == rootPath);
 
             var virtualRoot = new GetFileTreeReturnDTO
             {
@@ -790,6 +793,7 @@ public class FileService : IFileService
                 name = "root",
                 folderPath = rootPath,
                 parentPath = string.Empty,
+                hasContent = fileItems.Any(item => item.ParentPath == rootPath && item.IsFolder),
                 children = new List<GetFileTreeReturnDTO>()
             };
 
@@ -842,6 +846,7 @@ public class FileService : IFileService
                 name = "root",
                 folderPath = UserHelper.GetRootPathForUser(userId),
                 parentPath = string.Empty,
+                hasContent = false,
                 children = new List<GetFileTreeReturnDTO>()
             };
         }

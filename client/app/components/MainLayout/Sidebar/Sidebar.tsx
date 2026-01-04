@@ -112,18 +112,6 @@ export default function Sidebar({
               {mode === "navigation" ? "Settings" : "Navigation"}
             </button>
 
-            {/* {user?.role === "admin" ?
-              (adminMode == "userManagement" ? (
-                <NavLink className={styles.button} to="/" onClick={() => setAdminMode("fileManagement")}>
-                  <IoFileTrayStackedOutline size={25} /> File Management
-                </NavLink>
-              ) : (
-                <NavLink className={styles.button} to="/admin/users" onClick={() => setAdminMode("userManagement")}>
-                  <TbUserShield size={25} /> User Management
-                </NavLink>
-              )) : null} */}
-
-
             <button
               type="submit"
               onClick={handleLogout}
