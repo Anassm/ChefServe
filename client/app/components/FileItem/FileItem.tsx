@@ -115,10 +115,16 @@ export function FileItem({
           {fileMetaData ? (
             <>
               <span>
-                <b>Size in bytes:</b> {fileMetaData.sizeInBytes}
+                <b>Size in bytes:</b>{" "}
+                {fileMetaData.sizeInBytes === 0
+                  ? "N/A"
+                  : fileMetaData.sizeInBytes}
               </span>
               <span>
-                <b>Size in mb:</b> {fileMetaData.sizeInMB}
+                <b>Size in mb:</b>{" "}
+                {parseFloat(fileMetaData.sizeInMB.toFixed(2)) === 0
+                  ? "N/A"
+                  : fileMetaData.sizeInMB.toFixed(2)}
               </span>
               <span>
                 <b>Extension:</b>{" "}

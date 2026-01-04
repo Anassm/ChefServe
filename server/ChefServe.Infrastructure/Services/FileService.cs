@@ -882,8 +882,8 @@ public class FileService : IFileService
                     fileData.IsFolder,
                     fileData.CreatedAt,
                     fileData.UpdatedAt,
-                    SizeInBytes = fileData.IsFolder ? "N/A" : fileinfo.Length.ToString(),
-                    SizeInMB = fileData.IsFolder ? "N/A" : (fileinfo.Length / (1024.0 * 1024.0)).ToString(),
+                    SizeInBytes = fileData.IsFolder ? 0 : fileinfo.Length,
+                    SizeInMB = fileData.IsFolder ? 0 : fileinfo.Length / (1024.0 * 1024.0),
                 }
             };
         }
