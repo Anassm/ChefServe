@@ -15,37 +15,27 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     ? `http://localhost:5175/api/file/getfiles?parentPath=${fullPath}`
     : `http://localhost:5175/api/file/getfiles`;
   const url2 = `http://localhost:5175/api/file/GetFileTree`
-
-
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include'
-  });
-  console.log(response)
-
-  const response2 = await fetch(url2, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include'
-  });
-
   try {
-    const textFiles = await response.text()
-    console.log(textFiles)
-    const textTree = await response2.text();
-    const jsonFiles = textFiles ? JSON.parse(textFiles) : null;
-    console.log(jsonFiles)
-    const files: fileItem[] = jsonFiles?.returnData ?? [];
-    console.log(files)
-    const rootFolder: TreeItem | null = textTree ? JSON.parse(textTree) : null;
+    const [response, response2] = await Promise.all([
+      fetch(url, { method: "GET", headers: { "Content-Type": "application/json" }, credentials: "include" }),
+      fetch(url2, { method: "GET", headers: { "Content-Type": "application/json" }, credentials: "include" }),
+    ]);
 
-    console.log("Fetched files:", files);
-    console.log("Fetched folder tree:", rootFolder);
+    if (!response.ok) {
+      console.error("File list fetch failed:", response.status, response.statusText);
+      return [[], null];
+    }
+
+    const textFiles = await response.text();
+    const textTree = response2.ok ? await response2.text() : null;
+
+    const jsonFiles = textFiles ? JSON.parse(textFiles) : null;
+    const files: fileItem[] = jsonFiles?.returnData ?? [];
+    const rootFolder: TreeItem | null = textTree ? JSON.parse(textTree) : null;
 
     return [files, rootFolder];
   } catch (err) {
-    console.error("Failed to parse JSON");
+    console.error("clientLoader fetch error:", err);
     return [[], null];
   }
 }
@@ -67,7 +57,7 @@ export default function Dashboard() {
   }
 
   if (user.role === "admin") {
-    return <UserDashboard files={files} />;
+    return <AdminDashboard />;
   }
 
   if (user.role === "user") {
