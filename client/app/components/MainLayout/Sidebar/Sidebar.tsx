@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useRef, useState, useCallback, useEffect } from "react";
 import { CiLogout, CiSettings } from "react-icons/ci";
 import { IoFileTrayStackedOutline } from "react-icons/io5";
 import { NavLink } from "react-router";
@@ -45,7 +45,7 @@ export default function Sidebar({
   const { user } = useUser();
 
 
-  const startResizing = React.useCallback(
+  const startResizing = useCallback(
     (mouseDownEvent) => {
       setIsResizing(true);
       mouseDownEvent.preventDefault();
@@ -53,11 +53,11 @@ export default function Sidebar({
     []
   );
 
-  const stopResizing = React.useCallback(() => {
+  const stopResizing = useCallback(() => {
     setIsResizing(false);
   }, []);
 
-  const resize = React.useCallback(
+  const resize = useCallback(
     (mouseMoveEvent) => {
       if (isResizing) {
         setSidebarWidth(
@@ -69,7 +69,7 @@ export default function Sidebar({
     [isResizing]
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     window.addEventListener("mousemove", resize);
     window.addEventListener("mouseup", stopResizing);
     return () => {
