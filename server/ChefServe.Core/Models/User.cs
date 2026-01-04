@@ -16,4 +16,7 @@ public class User
     public ICollection<FileItem> FileItems { get; set; } = new List<FileItem>();
     public ICollection<SharedFileItem> SharedFileItems { get; set; } = new List<SharedFileItem>();
     public Session? Session { get; set; }
+
+    public bool IsAdmin => Role.Equals("admin", StringComparison.OrdinalIgnoreCase);
 }
+

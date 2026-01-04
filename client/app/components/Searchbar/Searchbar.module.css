@@ -1,0 +1,24 @@
+.searchbarContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-right: 15px;
+}
+
+.icon {
+    position: absolute;
+    left: 6px;
+    color: grey;
+    pointer-events: none;
+}
+
+.searchbar {
+    border: 1px solid black;
+    border-radius: 6px;
+    background: #fff;
+    padding: 5px 0 5px 30px;
+}
+
+/* .searchbar::placeholder {
+    text-indent: 30px;
+} */

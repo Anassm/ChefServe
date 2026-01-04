@@ -1,0 +1,55 @@
+/* .tree {
+    height:100px;
+} */
+.treeItem {
+    margin-left: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    cursor: pointer;
+    
+}
+
+.row:hover{
+    background-color: lightgrey;
+    width: 100%;
+}
+
+.selected {
+    background-color: lightgrey;
+    border: 1px solid red;
+}
+
+.unselected {
+    background-color: transparent;
+}
+
+.toggle {
+    width: 26px;
+    height: 26px;
+    margin-right: 8px;
+    background: none;
+    border: none;
+    line-height: 16px; 
+    vertical-align: middle; 
+}
+
+
+.icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+}
+
+
+.folderName {
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
