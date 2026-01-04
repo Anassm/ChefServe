@@ -7,6 +7,7 @@ export type TreeItem = {
     name: string,
     isFolder: boolean,
     folderPath: string | null,
+    hasContent: boolean,
     children?: TreeItem[],
 };
 
@@ -49,7 +50,7 @@ export function TreeFile({
                     style={{ paddingLeft: `${level * 16}px` }}
                 >
                     <button className={styles.toggle} onClick={(e) => { e.stopPropagation(); handleToggle(); }}>
-                        {isOpen ? 'v' : '>'}
+                        {item.hasContent ? (isOpen ? 'v' : '>') : ''}
                     </button>
                     <img
                         src={imageSource}
