@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { TbUserEdit, TbUserMinus } from "react-icons/tb";
 import styles from "./UserTable.module.css";
+import EditUserModal from "./EditUserModal";
 
 export default function UserTable({ users, onUserDeleted }: { users: any[]; onUserDeleted?: () => void }) {
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
@@ -27,14 +28,40 @@ export default function UserTable({ users, onUserDeleted }: { users: any[]; onUs
         });
     }
 
-    const editUser = (userId: string) => {
-        console.log("Edit user with ID:", userId);
+    const [isEditOpen, setIsEditOpen] = useState(false);
+    const [editingUser, setEditingUser] = useState<any | null>(null);
 
-        
+    const openEditModal = (user: any) => {
+        setEditingUser(user);
+        setIsEditOpen(true);
+    };
 
-    }
+    const handleUpdateUser = async (data: any) => {
+        try {
+            const response = await fetch("http://localhost:5175/api/admin/users", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify(data),
+            });
+            if (!response.ok) {
+                const txt = await response.text();
+                console.error("Failed to update user:", txt);
+                alert("Failed to update user");
+                return;
+            }
+            alert("User updated successfully");
+            onUserDeleted?.();
+            setIsEditOpen(false);
+            setEditingUser(null);
+        } catch (err) {
+            console.error(err);
+            alert("Error while updating user");
+        }
+    };
 
     return (
+    <>
     <table className={styles.userTable}>
         <thead>
             <tr>
@@ -72,7 +99,7 @@ export default function UserTable({ users, onUserDeleted }: { users: any[]; onUs
                             <button 
                                 className={styles.editButton}
                                 title="Edit User" 
-                                onClick={() => alert("Edit user")}
+                                onClick={() => openEditModal(user)}
                             >
                                 <TbUserEdit size={25}/>
                             </button>
@@ -90,5 +117,9 @@ export default function UserTable({ users, onUserDeleted }: { users: any[]; onUs
             
         </tbody>
     </table>
+    {isEditOpen && editingUser && (
+        <EditUserModal initialUser={editingUser} onClose={() => setIsEditOpen(false)} onSubmit={handleUpdateUser} />
+    )}
+    </>
     );
 }

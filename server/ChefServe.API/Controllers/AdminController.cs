@@ -135,9 +135,22 @@ public class AdminController : ControllerBase
     }
 
     [HttpPut("users")]
-    public async Task<IActionResult> UpdateUser([FromBody] User updatedUser)
+    public async Task<IActionResult> UpdateUser([FromBody] ChefServe.Core.DTOs.UpdateUserDTO updatedUser)
     {
-        var userToUpdate = await _userService.UpdateUserAsync(updatedUser);
+        if (updatedUser == null || updatedUser.ID == Guid.Empty)
+            return BadRequest("Missing user ID");
+
+        var existing = _userService.GetUserById(updatedUser.ID);
+        if (existing == null)
+            return NotFound("User not found.");
+
+        if (!string.IsNullOrWhiteSpace(updatedUser.Username)) existing.Username = updatedUser.Username;
+        if (!string.IsNullOrWhiteSpace(updatedUser.FirstName)) existing.FirstName = updatedUser.FirstName;
+        if (!string.IsNullOrWhiteSpace(updatedUser.LastName)) existing.LastName = updatedUser.LastName;
+        if (!string.IsNullOrWhiteSpace(updatedUser.Email)) existing.Email = updatedUser.Email;
+        if (!string.IsNullOrWhiteSpace(updatedUser.Role)) existing.Role = updatedUser.Role;
+
+        var userToUpdate = await _userService.UpdateUserAsync(existing);
         return Ok(userToUpdate);
     }
 
