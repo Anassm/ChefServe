@@ -12,7 +12,6 @@ public static class CreateFolderValidator
         if (string.IsNullOrWhiteSpace(dto.FolderName))
             return (false, "Missing folder name.");
 
-        // Optional: default ParentPath to empty string
         if (dto.ParentPath == null)
             dto.ParentPath = "";
 
@@ -33,7 +32,6 @@ public static class UploadFileValidator
         if (dto.Content == null || dto.Content.Length == 0)
             return (false, "File content is missing or empty.");
 
-        // Optional: default DestinationPath to empty string
         if (dto.DestinationPath == null)
             dto.DestinationPath = "";
 

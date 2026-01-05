@@ -16,9 +16,9 @@ public class AuthMiddleware
     public async Task InvokeAsync(HttpContext context, ISessionService sessionService)
     {
         var path = context.Request.Path.Value?.ToLower();
-        if (path != null && (path.StartsWith("/api/auth/login") || path.StartsWith("/api/auth/register")))
+        if (path != null && path.StartsWith("/api/auth/login"))
         {
-            await _next(context); // skip token check
+            await _next(context);
             return;
         }
 

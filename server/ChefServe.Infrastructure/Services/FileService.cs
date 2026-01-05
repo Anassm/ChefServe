@@ -200,12 +200,9 @@ public class FileService : IFileService
     {
         try
         {
-
-            // Ensure user directory exists
             string dirPath = UserHelper.GetRootPathForUser(ownerId);
             if (!Directory.Exists(dirPath))
                 Directory.CreateDirectory(dirPath);
-            // Process destination path
             if (destinationPath == null)
             {
                 destinationPath = string.Empty;
@@ -220,7 +217,7 @@ public class FileService : IFileService
             }
             destinationPath = destinationPath.Replace("/", "\\");
             dirPath = Path.Combine(dirPath, destinationPath);
-            // Check if destination path exists
+
             if (!Directory.Exists(dirPath))
             {
                 return new FileServiceResponseDTO
@@ -230,11 +227,11 @@ public class FileService : IFileService
                     Message = "Destination path does not exist."
                 };
             }
-            // Sanitize file name and prepare full path
+
             fileName = FileHelper.SanitizeFileName(fileName);
             string dbPath = Path.Combine(dirPath, fileName);
             string fullPath = Path.GetFullPath(dbPath);
-            // Handle file name conflicts
+
             if (File.Exists(fullPath))
             {
                 switch (conflictMode)
@@ -327,7 +324,6 @@ public class FileService : IFileService
                             dbPath = Path.Combine(dirPath, newFileName);
                             fullPath = Path.GetFullPath(dbPath);
 
-                            // Save file record with new name
                             using (var fileStream = new FileStream(
                                 fullPath,
                                 FileMode.Create,
@@ -733,12 +729,10 @@ public class FileService : IFileService
         {
             var oldPath = fileItem.Path;
 
-            // Filesystem rename
             if (fileItem.IsFolder)
             {
                 Directory.Move(oldPath, newFullPath);
 
-                // Update child paths
                 var children = await _context.FileItems
                     .Where(f => f.Path.StartsWith(oldPath + Path.DirectorySeparatorChar))
                     .ToListAsync();
@@ -754,7 +748,6 @@ public class FileService : IFileService
                 File.Move(oldPath, newFullPath);
             }
 
-            // Update main entity
             fileItem.Name = newName + extension;
             fileItem.Path = newFullPath;
             fileItem.UpdatedAt = DateTime.UtcNow;
@@ -788,7 +781,7 @@ public class FileService : IFileService
             }
             catch
             {
-                // swallow rollback failures but do not mask original error
+
             }
 
             return new FileServiceResponseDTO
