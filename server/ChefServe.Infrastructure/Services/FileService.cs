@@ -988,7 +988,7 @@ public class FileService : IFileService
             }
         }
 
-        return Math.Round((decimal)totalBytes / (1024 * 1024), 2); // Return size in MB rounded to 2 decimal places
+        return Math.Round((decimal)totalBytes / (1024 * 1024), 2); 
     }
 
     public async Task<decimal> GetUserStorageUsedAsync(Guid userId)
@@ -1009,7 +1009,7 @@ public class FileService : IFileService
             }
         }
 
-        return Math.Round((decimal)totalBytes / (1024 * 1024), 2); // Return size in MB rounded to 2 decimal places
+        return Math.Round((decimal)totalBytes / (1024 * 1024), 2); 
     }
 
     public async Task<int> GetUserFileCountAsync(Guid userId)

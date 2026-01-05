@@ -7,7 +7,6 @@ import UserFormModal from "~/components/AdminDashboard/Users/UserFormModal";
 import UserUsageTable from "~/components/AdminDashboard/Users/UserUsageTable";
 import { NavLink } from "react-router";
 
-// loader function to fetch users from the backend
 export async function clientLoader({ request }: Route.LoaderArgs) {
     const response = await fetch("http://localhost:5175/api/admin/users", {
         method: "GET",
@@ -25,13 +24,11 @@ export async function clientLoader({ request }: Route.LoaderArgs) {
     return await response.json();
 }
 
-// Fallback component while data is loading
 export function HydrateFallback() {
     return <div>Loading user data...</div>;
 }
 
 
-// Logic to handle adding a new user
 
 
 
@@ -40,7 +37,6 @@ export default function Users({ loaderData }: { loaderData?: any[] }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
 
-    // Function to refresh the user list
     const refreshUsers = async () => {
         const response = await fetch("http://localhost:5175/api/admin/users", {
             credentials: "include",
@@ -49,7 +45,6 @@ export default function Users({ loaderData }: { loaderData?: any[] }) {
         setUsers(updated);
     }
 
-    // Function to handle adding a new user
     const handleAddUser = async (data: any) => {
         const response = await fetch("http://localhost:5175/api/admin/users", {
             method: "POST",

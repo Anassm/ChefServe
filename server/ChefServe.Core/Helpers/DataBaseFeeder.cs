@@ -34,28 +34,6 @@ public static class DatabaseSeeder
             context.Users.Add(user1);
             context.Users.Add(user2);
 
-            // Voeg een standaard session toe
-            // var session1 = new Session
-            // {
-            //     ID = Guid.NewGuid(),
-            //     Token = "VALID_TEST_TOKEN",
-            //     UserID = user1.ID,
-            //     CreatedAt = DateTime.UtcNow,
-            //     ExpiresAt = DateTime.UtcNow.AddYears(5)
-            // };
-
-            // var session2 = new Session
-            // {
-            //     ID = Guid.NewGuid(),
-            //     Token = "VALID_TEST_TOKEN",
-            //     UserID = user2.ID,
-            //     CreatedAt = DateTime.UtcNow,
-            //     ExpiresAt = DateTime.UtcNow.AddYears(5)
-            // };
-
-            // context.Sessions.Add(session1);
-            // context.Sessions.Add(session2);
-
             context.SaveChanges();
         }
     }
