@@ -11,7 +11,8 @@ export default function UserTable({ users, onUserDeleted }: { users: any[]; onUs
 
     const deleteUser = (userId: string) => {
         console.log("Delete user with ID:", userId);
-        
+        const confirmed = window.confirm("Are you sure you want to delete this user? This action cannot be undone.");
+        if (!confirmed) return;
 
         fetch(`http://localhost:5175/api/admin/users/${userId}`, {
             method: "DELETE",

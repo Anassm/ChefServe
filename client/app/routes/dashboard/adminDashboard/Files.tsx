@@ -7,10 +7,34 @@ import FoldersWithContentCount from "~/components/AdminDashboard/Files/FoldersWi
 import EmptyFolderCount from "~/components/AdminDashboard/Files/EmptyFolderCount";
 import FileTypeStats from "~/components/AdminDashboard/Files/FileTypeStats";
 import TotalStorageCount from "~/components/AdminDashboard/Files/TotalStorageCount";
-import { NavLink } from "react-router";
+import { NavLink, useLoaderData } from "react-router";
+import FileTable from "~/components/AdminDashboard/Files/FileTable";
+
+export async function clientLoader({ request }: Route.LoaderArgs) {
+    const response = await fetch("http://localhost:5175/api/admin/files", {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        credentials: "include",
+    });
+    if (!response.ok) {
+        console.error("Failed to fetch files:", response.statusText);
+        return [];
+    }
+
+    return await response.json();
+}
+
+export function HydrateFallback() {
+    return <div>Loading file data...</div>;
+}
+
 
 export default function Files() {
-    
+    const loaderData = useLoaderData() as any;
+    const filesFromLoader: any[] = loaderData?.data ?? loaderData?.returnData ?? loaderData ?? [];
+
     return <div>
         <div style={{ height: "20px" }}></div>
         <div className={styles.navContainer}>
@@ -29,7 +53,15 @@ export default function Files() {
             {/* <div><EmptyFolderCount /></div> */}
             <div><TotalStorageCount /></div>
         </div>
+        <div style={{ height: "20px" }}></div>
+        <h1 className={styles.title}>File types</h1>
+        <div style={{ height: "20px" }}></div>
         <FileTypeStats />
+        <div style={{ height: "20px" }}></div>
+        <h1 className={styles.title}>All files</h1>
+        <div style={{ height: "20px" }}></div>
+        <FileTable files={filesFromLoader} />
+        <div style={{ height: "50px" }}></div>
     </div>;
 
 }

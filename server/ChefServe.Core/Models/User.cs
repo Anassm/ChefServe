@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using System.Text.Json.Serialization;
 
 namespace ChefServe.Core.Models;
 
@@ -13,8 +14,13 @@ public class User
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public string Role { get; set; } = "user";
 
+    [JsonIgnore]
     public ICollection<FileItem> FileItems { get; set; } = new List<FileItem>();
+
+    [JsonIgnore]
     public ICollection<SharedFileItem> SharedFileItems { get; set; } = new List<SharedFileItem>();
+
+    [JsonIgnore]
     public Session? Session { get; set; }
 
     public bool IsAdmin => Role.Equals("admin", StringComparison.OrdinalIgnoreCase);

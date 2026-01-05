@@ -141,4 +141,22 @@ public class AdminController : ControllerBase
         return Ok(userToUpdate);
     }
 
+    [HttpGet("files")]
+    public async Task<IActionResult> GetAllFiles()
+    {
+        var files = await _fileService.GetAllFilesAsync();
+        return Ok(files);
+    }
+
+    [HttpDelete("files/{fileId}/{ownerId}")]
+    public async Task<IActionResult> DeleteFile(Guid fileId, Guid ownerId)
+    {
+        var result = await _fileService.DeleteFileAsync(fileId, ownerId);
+        if (!result.Success)
+        {
+            return NotFound("File not found or could not be deleted.");
+        }
+
+        return NoContent();
+    }
 }

@@ -42,4 +42,6 @@ public interface IFileService
     Task<decimal> GetUserStorageUsedAsync(Guid userId);
 
     Task<int> GetUserFileCountAsync(Guid userId);
+
+    Task<FileServiceResponseDTO> GetAllFilesAsync();
 }

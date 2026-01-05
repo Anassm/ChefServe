@@ -5,6 +5,7 @@ using ChefServe.Core.Interfaces;
 using ChefServe.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
+using System.IO;
 
 
 namespace ChefServe.Infrastructure.Services;
@@ -1014,5 +1015,66 @@ public class FileService : IFileService
     public async Task<int> GetUserFileCountAsync(Guid userId)
     {
         return await _context.FileItems.CountAsync(f => !f.IsFolder && f.OwnerID == userId);
+    }
+
+    public async Task<FileServiceResponseDTO> GetAllFilesAsync()
+    {
+        Console.WriteLine("GetAllFilesAsync called.");
+        try
+        {
+            var files = await _context.FileItems.Include(f => f.Owner).ToListAsync();
+
+            var simplified = new List<object>();
+            foreach (var f in files)
+            {
+                long sizeInBytes = 0;
+                try
+                {
+                    if (!f.IsFolder && !string.IsNullOrEmpty(f.Path) && File.Exists(f.Path))
+                    {
+                        var fi = new FileInfo(f.Path);
+                        sizeInBytes = fi.Length;
+                    }
+                }
+                catch
+                {
+                    sizeInBytes = 0;
+                }
+
+                simplified.Add(new
+                {
+                    id = f.ID,
+                    name = f.Name,
+                    path = f.Path,
+                    parentPath = f.ParentPath,
+                    extension = f.Extension,
+                    summary = f.Summary,
+                    createdAt = f.CreatedAt,
+                    updatedAt = f.UpdatedAt,
+                    isFolder = f.IsFolder,
+                    hasContent = f.HasContent,
+                    ownerID = f.OwnerID,
+                    sizeInBytes = sizeInBytes,
+                    owner = f.Owner == null ? null : new { id = f.Owner.ID, username = f.Owner.Username }
+                });
+            }
+
+            return new FileServiceResponseDTO
+            {
+                Success = true,
+                StatusCode = 200,
+                Message = "All files retrieved successfully.",
+                Data = simplified
+            };
+        }
+        catch (Exception ex)
+        {
+            return new FileServiceResponseDTO
+            {
+                Success = false,
+                StatusCode = 500,
+                Message = "An error occurred while retrieving all files: " + ex.Message
+            };
+        }
     }
 }
