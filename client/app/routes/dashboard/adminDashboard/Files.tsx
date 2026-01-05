@@ -35,7 +35,7 @@ export default function Files() {
     const loaderData = useLoaderData() as any;
     const filesFromLoader: any[] = loaderData?.data ?? loaderData?.returnData ?? loaderData ?? [];
 
-    return <div>
+    return <div style={{overflowY: "auto"}}>
         <div style={{ height: "20px" }}></div>
         <div className={styles.navContainer}>
         <NavLink to="/admin" className={styles.navButton}>
@@ -49,8 +49,6 @@ export default function Files() {
             <div><FileCount /></div>
             <div><FolderCount /></div>
             <div><FileTypeCount /></div>
-            {/* <div><FoldersWithContentCount /></div> */}
-            {/* <div><EmptyFolderCount /></div> */}
             <div><TotalStorageCount /></div>
         </div>
         <div style={{ height: "20px" }}></div>

@@ -20,8 +20,6 @@ public interface IFileService
 
     Task<FileServiceResponseDTO> DeleteFileAsync(Guid fileId, Guid userId);
 
-    // Task<FileItem?> MoveFileAsync(Guid fileId, string newPath, Guid userId);
-
     Task<FileServiceResponseDTO> RenameFileAsync(Guid fileId, string newName, Guid userId);
     Task<GetFileTreeReturnDTO> GetFileTreeAsync(Guid ownerId);
 

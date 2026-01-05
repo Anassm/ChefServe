@@ -1,6 +1,5 @@
 import styles from "./Counter.module.css";
 
-// a simple tile to display a number with a title
 export default function Counter({ title, count }: { title: string; count: number }) {
     return (
         <div className={styles.counterTile}>
