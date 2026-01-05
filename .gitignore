@@ -416,3 +416,10 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# remove db-shm and db-wal files which are used by SQLite
+*.db-shm
+*.db-wal
+*.db
+server/ChefServe.Infrastructure/Data/database.db
+/Users

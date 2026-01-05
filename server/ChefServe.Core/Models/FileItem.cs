@@ -1,37 +1,19 @@
-using System.ComponentModel.DataAnnotations;
-
-namespace ChefServe.Models;
+namespace ChefServe.Core.Models;
 
 public class FileItem
 {
+    public Guid ID { get; set; } = Guid.NewGuid();
+    public required string Name { get; set; }
+    public required string Path { get; set; }
+    public required string? ParentPath { get; set; }
+    public required string? Extension { get; set; } = null;
+    public string Summary { get; set; } = string.Empty;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public bool IsFolder { get; set; } = false;
+    public bool HasContent { get; set; } = false;
+    public Guid OwnerID { get; set; }
 
-    public int Id { get; set; }
-
-    [Required]
-    [MaxLength(255)]
-    public string FileName { get; set; } = string.Empty;
-
-    [Required]
-    [MaxLength(500)]
-    public string FilePath { get; set; } = string.Empty;
-
-    [Required]
-    public string ContentType { get; set; } = string.Empty;
-
-    public long FileSize { get; set; }
-
-    public DateTime CreatedAt { get; set; }
-
-    public DateTime UpdatedAt { get; set; }
-
-    [Required]
-    public string UserId { get; set; } = string.Empty;
-
-    public int? ParentFolderId { get; set; }
-
-    public bool IsFolder { get; set; }
-
-    // Navigation properties
-    public FileItem? ParentFolder { get; set; }
-    public ICollection<FileItem> ChildItems { get; set; } = new List<FileItem>();
+    public required User Owner { get; set; }
+    public ICollection<SharedFileItem> SharedWith { get; set; } = new List<SharedFileItem>();
 }
