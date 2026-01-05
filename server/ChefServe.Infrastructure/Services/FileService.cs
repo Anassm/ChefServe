@@ -1022,7 +1022,7 @@ public class FileService : IFileService
         Console.WriteLine("GetAllFilesAsync called.");
         try
         {
-            var files = await _context.FileItems.Include(f => f.Owner).ToListAsync();
+            var files = await _context.FileItems.Include(f => f.Owner).Where(f => f.IsFolder == false).ToListAsync();
 
             var simplified = new List<object>();
             foreach (var f in files)
