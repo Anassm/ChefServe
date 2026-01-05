@@ -4,6 +4,8 @@ import UserTable from "../../../components/AdminDashboard/Users/UserTable";
 import { TbUserPlus, TbRefresh } from "react-icons/tb";
 import { useState } from "react";
 import UserFormModal from "~/components/AdminDashboard/Users/UserFormModal";
+import UserUsageTable from "~/components/AdminDashboard/Users/UserUsageTable";
+import { NavLink } from "react-router";
 
 // loader function to fetch users from the backend
 export async function clientLoader({ request }: Route.LoaderArgs) {
@@ -47,7 +49,6 @@ export default function Users({ loaderData }: { loaderData?: any[] }) {
         setUsers(updated);
     }
 
-
     // Function to handle adding a new user
     const handleAddUser = async (data: any) => {
         const response = await fetch("http://localhost:5175/api/admin/users", {
@@ -71,6 +72,12 @@ export default function Users({ loaderData }: { loaderData?: any[] }) {
     }
     return(
         <div> 
+            <div style={{ height: "20px" }}></div>
+            <div className={styles.navContainer}>
+                <NavLink to="/admin" className={styles.navButton}>
+                Go back
+                </NavLink>
+            </div>
             <div className={styles.userListHeader}>
                 <h2 className={styles.userListTitle}>User List</h2>
                 <div className={styles.buttonGroup}>
@@ -90,6 +97,21 @@ export default function Users({ loaderData }: { loaderData?: any[] }) {
                     onSubmit={handleAddUser}
                 />
             )}
+
+            <div style={{ height: "50px" }}></div>
+
+            <div className={styles.userListHeader}>
+                <h2 className={styles.userListTitle}>User usage statistics</h2>
+                <button className={styles.refreshButton} onClick={refreshUsers}>
+                    <TbRefresh size={30} style={{ marginTop: "20px" }} />
+                </button>
+            </div>
+            <UserUsageTable usageData={users.map(user => ({
+                userId: user.id,
+                username: user.username,
+                totalFiles: user.totalFiles,
+                totalStorageUsed: user.totalStorageUsed
+            }))} />
         </div>
     )
 }

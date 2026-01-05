@@ -1,0 +1,63 @@
+.fileTable {
+  width: 100%;
+  max-width: fit-content;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  margin-left: 1rem;
+  font-family: system-ui, sans-serif;
+}
+
+.fileTable th,
+.fileTable td {
+  border: 1px solid #e0c68d;
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.fileTable th {
+  background: #f4d29b;
+  color: #3b2f1e;
+}
+
+
+
+.tableRow {
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.tableRow:hover {
+  background-color: #fff4de; 
+}
+
+
+.selectedRow {
+  background-color: #ffe4b3;
+}
+
+
+.selectedRow:hover {
+  background-color: #ffd58a;
+}
+
+
+.actionButtons {
+  display: table-cell;
+  gap: 0.5rem;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.editButton,
+.deleteButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.editButton:hover,
+.deleteButton:hover {
+  transform: scale(1.1);
+  opacity: 0.8;
+}
