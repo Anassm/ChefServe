@@ -960,4 +960,14 @@ public class FileService : IFileService
 
         return stats.Select(s => (s.Extension, s.Count)).ToList();
     }
+
+    public async Task<int> GetFoldersWithContentCountAsync()
+    {
+        return await _context.FileItems.CountAsync(f => f.IsFolder && f.HasContent);
+    }
+
+    public async Task<int> GetEmptyFolderCountAsync()
+    {
+        return await _context.FileItems.CountAsync(f => f.IsFolder && !f.HasContent);
+    }
 }

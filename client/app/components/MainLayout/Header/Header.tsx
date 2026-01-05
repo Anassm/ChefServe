@@ -268,7 +268,7 @@ export default function Header() {
           ) : (
             <NavLink
               className={styles.button}
-              to="/admin/users"
+              to="/admin/"
               onClick={() => setAdminMode("userManagement")}
               style={{ marginRight: "12px" }}
             >

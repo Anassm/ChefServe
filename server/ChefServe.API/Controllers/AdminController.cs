@@ -71,6 +71,32 @@ public class AdminController : ControllerBase
         return Ok(new { fileTypeCount = count });
     }
 
+    [HttpGet("folders/with-content/count")]
+    public async Task<IActionResult> GetFoldersWithContentCount()
+    {
+        var count = await _fileService.GetFoldersWithContentCountAsync();
+        return Ok(new { foldersWithContentCount = count });
+    }
+
+    [HttpGet("folders/empty/count")]
+    public async Task<IActionResult> GetEmptyFolderCount()
+    {
+        var count = await _fileService.GetEmptyFolderCountAsync();
+        return Ok(new { emptyFolderCount = count });
+    }
+
+    [HttpGet("filetypes/stats")]
+    public async Task<IActionResult> GetFileTypeStatistics()
+    {
+        var stats = await _fileService.GetFileTypeStatisticsAsync();
+        var normalized = stats.Select(s => new
+        {
+            extension = string.IsNullOrWhiteSpace(s.Item1) ? "No Extension" : s.Item1,
+            count = s.Item2
+        });
+        return Ok(normalized);
+    }
+
     [HttpDelete("users/{userId}")]
     public async Task<IActionResult> DeleteUser(Guid userId)
     {

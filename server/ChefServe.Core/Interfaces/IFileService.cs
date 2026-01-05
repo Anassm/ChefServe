@@ -32,4 +32,8 @@ public interface IFileService
     Task<int> GetFileTypeCountAsync();
 
     Task<List<(string, int)>> GetFileTypeStatisticsAsync();
+
+    Task<int> GetFoldersWithContentCountAsync();
+
+    Task<int> GetEmptyFolderCountAsync();
 }
