@@ -341,29 +341,31 @@ export default function Header() {
         <AiOutlineDownload
           size={40}
           onClick={
-            adminMode === "userManagement" ||
-            !selectedFile ||
-            selectedFile.isFolder
+            adminMode === "userManagement" || !selectedFile
               ? () => {}
-              : () => {
-                  window.open(
-                    `http://localhost:5175/api/File/DownloadFile?fileID=${selectedFile.id}`,
-                    "_blank"
-                  );
-                }
+              : selectedFile.isFolder
+                ? () => {
+                    window.open(
+                      `http://localhost:5175/api/File/DownloadFolder?folderID=${selectedFile.id}`,
+                      "_blank"
+                    );
+                  }
+                : () => {
+                    window.open(
+                      `http://localhost:5175/api/File/DownloadFile?fileID=${selectedFile.id}`,
+                      "_blank"
+                    );
+                  }
           }
-
           opacity={
             adminMode === "userManagement" ||
-            !selectedFile ||
-            selectedFile.isFolder
+            !selectedFile
               ? 0.5
               : 1
           }
           style={
             adminMode === "userManagement" ||
-            !selectedFile ||
-            selectedFile.isFolder
+            !selectedFile
               ? { cursor: "not-allowed" }
               : { cursor: "pointer" }
           }

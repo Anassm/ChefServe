@@ -3,6 +3,9 @@ using ChefServe.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using ChefServe.API.Middleware;
 using ChefServe.API.Validators;
+using ChefServe.Core.Models;
+using System.IO;
+using System.IO.Compression;
 
 
 
@@ -210,6 +213,51 @@ public class FileController : ControllerBase
                 return StatusCode(StatusCodes.Status404NotFound, new { Error = "File not found on drive" });
 
             return File(stream, "application/octet-stream", fileData.Name, enableRangeProcessing: true);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { Error = "Internal server error.", Details = ex.Message });
+        }
+    }
+
+    [HttpGet("DownloadFolder")]
+    public async Task<ActionResult> DownloadFolder([FromQuery] Guid folderID)
+    {
+        try
+        {
+            var user = HttpContext.GetUser();
+
+            if (folderID == Guid.Empty)
+                return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing folder ID" });
+
+            var folder = await _fileService.GetFileAsync(folderID, user.ID);
+
+            if (folder.Data == null)
+                return StatusCode(StatusCodes.Status404NotFound, new { Error = "Folder not found in database" });
+            dynamic folderData = folder.Data;
+
+            if (folderData.IsFolder == false)
+                return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Provided ID is not a folder" });
+
+            string folderPath = folderData.Path;
+            if (string.IsNullOrEmpty(folderPath) || !Directory.Exists(folderPath))
+                return StatusCode(StatusCodes.Status404NotFound, new { Error = "Folder not found on drive" });
+
+            var memoryStream = new MemoryStream();
+            using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, leaveOpen: true))
+            {
+                var files = Directory.EnumerateFiles(folderPath, "*", SearchOption.AllDirectories);
+                foreach (var file in files)
+                {
+                    var relativePath = Path.GetRelativePath(folderPath, file).Replace('\\', '/');
+                    var entry = archive.CreateEntry(relativePath, CompressionLevel.Optimal);
+                    using var entryStream = entry.Open();
+                    using var fs = System.IO.File.OpenRead(file);
+                    await fs.CopyToAsync(entryStream);
+                }
+            }
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            return File(memoryStream, "application/zip", $"{folderData.Name}.zip");
         }
         catch (Exception ex)
         {
