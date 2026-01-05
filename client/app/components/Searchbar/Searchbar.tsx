@@ -27,7 +27,7 @@ export default function Searchbar() {
       <input
         className={styles.searchbar}
         type="text"
-        placeholder={`Search...`}
+        placeholder={`Search in folder...`}
         value={search}
         onChange={handleChange}
       />

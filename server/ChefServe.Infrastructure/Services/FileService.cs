@@ -140,12 +140,27 @@ public class FileService : IFileService
                 _context.FileItems.Add(fileItem);
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
+
+                HasContentAsync(fileItem.ParentPath!, ownerId);
+
+                var returnFileItem = new FileItemDTO
+                {
+                    ID = fileItem.ID,
+                    Name = fileItem.Name,
+                    Path = fileItem.Path,
+                    Extension = fileItem.Extension ?? string.Empty,
+                    IsFolder = fileItem.IsFolder,
+                    OwnerID = fileItem.OwnerID,
+                    CreatedAt = fileItem.CreatedAt,
+                    UpdatedAt = fileItem.UpdatedAt
+                };
+
                 return new FileServiceResponseDTO
                 {
                     Success = true,
                     StatusCode = 201,
                     Message = "Folder created successfully.",
-                    Data = fileItem
+                    Data = returnFileItem
                 };
             }
             catch (Exception ex)
@@ -155,7 +170,7 @@ public class FileService : IFileService
                     await transaction.RollbackAsync();
                     if (Directory.Exists(fullPath))
                     {
-                        Directory.Delete(fullPath, false);
+                        Directory.Delete(fullPath, true);
                     }
                 }
                 catch (Exception rollbackEx)
@@ -185,12 +200,9 @@ public class FileService : IFileService
     {
         try
         {
-
-            // Ensure user directory exists
             string dirPath = UserHelper.GetRootPathForUser(ownerId);
             if (!Directory.Exists(dirPath))
                 Directory.CreateDirectory(dirPath);
-            // Process destination path
             if (destinationPath == null)
             {
                 destinationPath = string.Empty;
@@ -205,7 +217,7 @@ public class FileService : IFileService
             }
             destinationPath = destinationPath.Replace("/", "\\");
             dirPath = Path.Combine(dirPath, destinationPath);
-            // Check if destination path exists
+
             if (!Directory.Exists(dirPath))
             {
                 return new FileServiceResponseDTO
@@ -215,11 +227,11 @@ public class FileService : IFileService
                     Message = "Destination path does not exist."
                 };
             }
-            // Sanitize file name and prepare full path
+
             fileName = FileHelper.SanitizeFileName(fileName);
             string dbPath = Path.Combine(dirPath, fileName);
             string fullPath = Path.GetFullPath(dbPath);
-            // Handle file name conflicts
+
             if (File.Exists(fullPath))
             {
                 switch (conflictMode)
@@ -312,7 +324,6 @@ public class FileService : IFileService
                             dbPath = Path.Combine(dirPath, newFileName);
                             fullPath = Path.GetFullPath(dbPath);
 
-                            // Save file record with new name
                             using (var fileStream = new FileStream(
                                 fullPath,
                                 FileMode.Create,
@@ -349,12 +360,25 @@ public class FileService : IFileService
                             await _context.SaveChangesAsync();
                             await transaction2.CommitAsync();
                             HasContentAsync(fileitem.ParentPath, ownerId);
+
+                            var returnFileItem = new FileItemDTO
+                            {
+                                ID = fileitem.ID,
+                                Name = fileitem.Name,
+                                Path = fileitem.Path,
+                                Extension = fileitem.Extension,
+                                IsFolder = fileitem.IsFolder,
+                                OwnerID = fileitem.OwnerID,
+                                CreatedAt = fileitem.CreatedAt,
+                                UpdatedAt = fileitem.UpdatedAt
+                            };
+
                             return new FileServiceResponseDTO
                             {
                                 Success = true,
                                 StatusCode = 201,
                                 Message = "File uploaded successfully with suffix.",
-                                Data = fileitem
+                                Data = returnFileItem
                             };
                         }
                         catch (Exception ex)
@@ -439,12 +463,25 @@ public class FileService : IFileService
                 _context.FileItems.Add(fileitem);
                 await _context.SaveChangesAsync();
                 HasContentAsync(fileitem.ParentPath, ownerId);
+
+                var returnFileItem = new FileItemDTO
+                {
+                    ID = fileitem.ID,
+                    Name = fileitem.Name,
+                    Path = fileitem.Path,
+                    Extension = fileitem.Extension,
+                    IsFolder = fileitem.IsFolder,
+                    OwnerID = fileitem.OwnerID,
+                    CreatedAt = fileitem.CreatedAt,
+                    UpdatedAt = fileitem.UpdatedAt
+                };
+
                 return new FileServiceResponseDTO
                 {
                     Success = true,
                     StatusCode = 201,
                     Message = "File uploaded successfully.",
-                    Data = fileitem
+                    Data = returnFileItem
                 };
             }
 
@@ -484,12 +521,24 @@ public class FileService : IFileService
                     Data = null
                 };
 
+            var returnFileItem = new FileItemDTO
+            {
+                ID = fileItem.ID,
+                Name = fileItem.Name,
+                Path = fileItem.Path,
+                Extension = fileItem.Extension ?? string.Empty,
+                IsFolder = fileItem.IsFolder,
+                OwnerID = fileItem.OwnerID,
+                CreatedAt = fileItem.CreatedAt,
+                UpdatedAt = fileItem.UpdatedAt
+            };
+
             return new FileServiceResponseDTO
             {
                 Success = true,
                 StatusCode = 200,
                 Message = "File retrieved successfully.",
-                Data = fileItem
+                Data = returnFileItem
             };
         }
         catch (Exception ex)
@@ -521,7 +570,7 @@ public class FileService : IFileService
                 parentPath = parentPath.Replace('/', '\\');
                 parentPath = Path.Combine(UserHelper.GetRootPathForUser(ownerId), parentPath);
                 files = await _context.FileItems.Where(f => f.OwnerID.ToString().ToUpper() == ownerId.ToString().ToUpper() &&
-                    f.ParentPath.ToUpper() == parentPath.ToUpper()).OrderByDescending(f => f.IsFolder).ThenBy(f => f.Name).ToListAsync();
+                    f.ParentPath.ToUpper() == parentPath.ToUpper()).OrderByDescending(f => f.IsFolder).ThenBy(f => f.Name.ToLower()).ToListAsync();
             }
             if (files == null || !files.Any())
             {
@@ -585,6 +634,12 @@ public class FileService : IFileService
                 if (Directory.Exists(fileItem.Path))
                 {
                     Directory.Delete(fileItem.Path, true);
+
+                    var childItems = _context.FileItems
+                        .Where(f => f.Path.StartsWith(fileItem.Path + Path.DirectorySeparatorChar))
+                        .ToList();
+
+                    _context.FileItems.RemoveRange(childItems);
                     HasContentAsync(fileItem.ParentPath!, userId);
                 }
             }
@@ -593,6 +648,7 @@ public class FileService : IFileService
                 if (File.Exists(fileItem.Path))
                 {
                     File.Delete(fileItem.Path);
+                    HasContentAsync(fileItem.ParentPath!, userId);
                 }
             }
 
@@ -616,148 +672,127 @@ public class FileService : IFileService
         }
     }
 
-    // public async Task<FileItem?> MoveFileAsync(Guid fileId, string newPath, Guid userId)
-    // {
-    //     if (fileId == Guid.Empty || userId == Guid.Empty || newPath == null || newPath.Trim() == string.Empty)
-    //         return null;
-
-    //     var fileItem = _context.FileItems.Where(f => f.ID == fileId && f.OwnerID == userId).FirstOrDefault();
-    //     if (fileItem == null)
-    //         return null;
-
-    //     newPath = newPath.Trim().TrimEnd('/', '\\').TrimStart('/', '\\');
-    //     if (newPath == null || newPath == string.Empty)
-    //         newPath = UserHelper.GetRootPathForUser(userId);
-    //     else
-    //         newPath = Path.Combine(UserHelper.GetRootPathForUser(userId), newPath);
-
-    //     string oldParentPath = fileItem.ParentPath == null ? string.Empty : fileItem.ParentPath.TrimEnd('/', '\\');
-    //     var destinationFullPath = Path.Combine(newPath, fileItem.Name);
-    //     if (fileItem.IsFolder)
-    //     {
-    //         if (Directory.Exists(destinationFullPath))
-    //         {
-    //             return null;
-    //         }
-    //         Directory.Move(fileItem.Path, destinationFullPath);
-    //         if (!Directory.Exists(destinationFullPath))
-    //         {
-    //             return null;
-    //         }
-    //         var movedItems = await _context.FileItems.Where(f => f.Path.StartsWith(fileItem.Path + Path.DirectorySeparatorChar)).ToListAsync();
-    //         foreach (var item in movedItems)
-    //         {
-    //             item.Path = item.Path.Replace(fileItem.Path, destinationFullPath);
-    //             item.ParentPath = Path.GetDirectoryName(item.Path);
-    //         }
-    //         fileItem.Path = destinationFullPath;
-    //         fileItem.ParentPath = Path.GetDirectoryName(destinationFullPath);
-    //     }
-    //     else
-    //     {
-    //         if (File.Exists(destinationFullPath))
-    //         {
-    //             return null;
-    //         }
-    //         File.Move(fileItem.Path, destinationFullPath);
-
-    //         fileItem.Path = destinationFullPath;
-    //     }
-    //     await _context.SaveChangesAsync();
-    //     HasContentAsync(oldParentPath, userId);
-    //     HasContentAsync(fileItem.ParentPath!, userId);
-    //     return fileItem;
-    // }
-
-    public async Task<FileServiceResponseDTO> RenameFileAsync(Guid fileId, string newName, Guid userId)
+    public async Task<FileServiceResponseDTO> RenameFileAsync( Guid fileId, string newName, Guid userId)
     {
+        var fileItem = await _context.FileItems
+            .FirstOrDefaultAsync(f => f.ID == fileId && f.OwnerID == userId);
+
+        if (fileItem == null)
+        {
+            return new FileServiceResponseDTO
+            {
+                Success = false,
+                StatusCode = 404,
+                Message = "File not found."
+            };
+        }
+
+        var extension = fileItem.IsFolder ? string.Empty : fileItem.Extension ?? Path.GetExtension(fileItem.Path);
+
+        var newFullPath = Path.Combine(fileItem.ParentPath, fileItem.IsFolder ? newName : newName + extension);
+
+        if (fileItem.IsFolder)
+        {
+            if (Directory.Exists(newFullPath) ||
+                await _context.FileItems.AnyAsync(f =>
+                    f.Path == newFullPath &&
+                    f.OwnerID == userId))
+            {
+                return new FileServiceResponseDTO
+                {
+                    Success = false,
+                    StatusCode = 409,
+                    Message = "A folder with the new name already exists."
+                };
+            }
+        }
+        else
+        {
+            if (File.Exists(newFullPath) ||
+                await _context.FileItems.AnyAsync(f =>
+                    f.Path == newFullPath &&
+                    f.OwnerID == userId &&
+                    !f.IsFolder))
+            {
+                return new FileServiceResponseDTO
+                {
+                    Success = false,
+                    StatusCode = 409,
+                    Message = "A file with the new name already exists."
+                };
+            }
+        }
+
+        using var transaction = await _context.Database.BeginTransactionAsync();
+
         try
         {
+            var oldPath = fileItem.Path;
 
-            if (fileId == Guid.Empty || userId == Guid.Empty || newName == null || newName.Trim() == string.Empty)
-                return new FileServiceResponseDTO
-                {
-                    Success = false,
-                    StatusCode = 400,
-                    Message = "Invalid file ID, user ID, or new name."
-                };
-
-            var fileItem = await _context.FileItems.Where(f => f.ID == fileId && f.OwnerID == userId).FirstOrDefaultAsync();
-            if (fileItem == null)
-                return new FileServiceResponseDTO
-                {
-                    Success = false,
-                    StatusCode = 404,
-                    Message = "File not found."
-                };
-
-            var newFullPath = fileItem.ParentPath + Path.DirectorySeparatorChar + newName;
             if (fileItem.IsFolder)
             {
-                if (Directory.Exists(newFullPath))
+                Directory.Move(oldPath, newFullPath);
+
+                var children = await _context.FileItems
+                    .Where(f => f.Path.StartsWith(oldPath + Path.DirectorySeparatorChar))
+                    .ToListAsync();
+
+                foreach (var child in children)
                 {
-                    return new FileServiceResponseDTO
-                    {
-                        Success = false,
-                        StatusCode = 409,
-                        Message = "A folder with the new name already exists."
-                    };
+                    child.Path = child.Path.Replace(oldPath, newFullPath);
+                    child.ParentPath = Path.GetDirectoryName(child.Path)!;
                 }
-                Directory.Move(fileItem.Path, newFullPath);
-                if (!Directory.Exists(newFullPath))
-                {
-                    return new FileServiceResponseDTO
-                    {
-                        Success = false,
-                        StatusCode = 500,
-                        Message = "Failed to rename folder."
-                    };
-                }
-                var renamedItems = await _context.FileItems.Where(f => f.Path.StartsWith(fileItem.Path + Path.DirectorySeparatorChar)).ToListAsync();
-                foreach (var item in renamedItems)
-                {
-                    item.Path = item.Path.Replace(fileItem.Path, newFullPath);
-                    item.ParentPath = Path.GetDirectoryName(item.Path);
-                }
-                fileItem.Name = newName;
-                fileItem.Path = newFullPath;
             }
             else
             {
-                if (File.Exists(newFullPath))
-                {
-                    return new FileServiceResponseDTO
-                    {
-                        Success = false,
-                        StatusCode = 409,
-                        Message = "A file with the new name already exists."
-                    };
-                }
-                File.Move(fileItem.Path, newFullPath);
-
-                fileItem.Path = newFullPath;
-                fileItem.Name = newName;
+                File.Move(oldPath, newFullPath);
             }
 
+            fileItem.Name = newName + extension;
+            fileItem.Path = newFullPath;
+            fileItem.UpdatedAt = DateTime.UtcNow;
+
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
             return new FileServiceResponseDTO
             {
                 Success = true,
                 StatusCode = 200,
                 Message = "File renamed successfully.",
-                Data = fileItem
+                Data = new FileItemDTO
+                {
+                    ID = fileItem.ID,
+                    Name = fileItem.Name,
+                    Path = fileItem.Path,
+                    Extension = extension,
+                    IsFolder = fileItem.IsFolder,
+                    OwnerID = fileItem.OwnerID,
+                    CreatedAt = fileItem.CreatedAt,
+                    UpdatedAt = fileItem.UpdatedAt
+                }
             };
         }
         catch (Exception ex)
         {
+            try
+            {
+                await transaction.RollbackAsync();
+            }
+            catch
+            {
+
+            }
+
             return new FileServiceResponseDTO
             {
                 Success = false,
                 StatusCode = 500,
-                Message = "An error occurred while renaming the file: " + ex.Message
+                Message = "An error occurred while renaming the file.",
             };
         }
     }
+
 
     public async Task<GetFileTreeReturnDTO> GetFileTreeAsync(Guid userId)
     {
@@ -774,8 +809,11 @@ public class FileService : IFileService
                 name = f.Name,
                 folderPath = f.Path,
                 parentPath = f.ParentPath,
+                hasContent = fileItems.Any(item => item.ParentPath == f.Path && item.IsFolder),
                 children = new List<GetFileTreeReturnDTO>()
             });
+
+            bool userHasContent = lookup.Values.Any(item => item.parentPath == rootPath);
 
             var virtualRoot = new GetFileTreeReturnDTO
             {
@@ -783,6 +821,7 @@ public class FileService : IFileService
                 name = "root",
                 folderPath = rootPath,
                 parentPath = string.Empty,
+                hasContent = fileItems.Any(item => item.ParentPath == rootPath && item.IsFolder),
                 children = new List<GetFileTreeReturnDTO>()
             };
 
@@ -817,6 +856,8 @@ public class FileService : IFileService
                 if (!string.IsNullOrEmpty(node.parentPath) && node.parentPath.StartsWith(rootPath))
                     node.parentPath = node.parentPath.Substring(rootPath.Length).TrimStart('/', '\\');
 
+                node.children = node.children.OrderBy(c => c.name).ToList();
+
                 foreach (var child in node.children)
                     UpdateDisplayPaths(child);
             }
@@ -833,7 +874,59 @@ public class FileService : IFileService
                 name = "root",
                 folderPath = UserHelper.GetRootPathForUser(userId),
                 parentPath = string.Empty,
+                hasContent = false,
                 children = new List<GetFileTreeReturnDTO>()
+            };
+        }
+    }
+
+    public async Task<FileServiceResponseDTO> GetFileInfoAsync(Guid userId, Guid fileId)
+    {
+        try
+        {
+            Console.WriteLine("testahaha: " + fileId);
+
+            var fileData = await _context.FileItems
+                .Where(f => f.OwnerID == userId && f.ID == fileId)
+                .FirstOrDefaultAsync();
+
+            if (fileData == null)
+            {
+                return new FileServiceResponseDTO
+                {
+                    Success = false,
+                    StatusCode = 404,
+                    Message = "File not found."
+                };
+            }
+
+            FileInfo fileinfo = new FileInfo(fileData.Path);
+            return new FileServiceResponseDTO
+            {
+                Success = true,
+                StatusCode = 200,
+                Message = "File info retrieved successfully.",
+                Data = new
+                {
+                    fileData.Name,
+                    fileData.Path,
+                    fileData.ParentPath,
+                    fileData.Extension,
+                    fileData.IsFolder,
+                    fileData.CreatedAt,
+                    fileData.UpdatedAt,
+                    SizeInBytes = fileData.IsFolder ? 0 : fileinfo.Length,
+                    SizeInMB = fileData.IsFolder ? 0 : fileinfo.Length / (1024.0 * 1024.0),
+                }
+            };
+        }
+        catch (Exception ex)
+        {
+            return new FileServiceResponseDTO
+            {
+                Success = false,
+                StatusCode = 500,
+                Message = "An error occurred while fetching file data: " + ex.Message
             };
         }
     }
@@ -867,7 +960,4 @@ public class FileService : IFileService
 
         return stats.Select(s => (s.Extension, s.Count)).ToList();
     }
-
-
-
 }

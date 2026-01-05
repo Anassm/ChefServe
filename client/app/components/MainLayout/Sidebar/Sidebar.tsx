@@ -1,11 +1,15 @@
-import React, { useRef, useState } from "react";
+import { useContext, useRef, useState, useCallback, useEffect } from "react";
 import { CiLogout, CiSettings } from "react-icons/ci";
 import { IoFileTrayStackedOutline } from "react-icons/io5";
 import { NavLink } from "react-router";
-import { Form } from "react-router";
 import { FileTree } from "~/components/FileTree/FileTree";
 import type { TreeItem } from "~/components/FileTree/FileTree";
 import styles from "./Sidebar.module.css";
+import { useUser } from "~/helper/UserContext";
+import { TbUserShield } from "react-icons/tb";
+import { TbUser } from "react-icons/tb";
+
+
 
 async function handleLogout() {
   await fetch("http://localhost:5175/api/auth/logout", {
@@ -17,42 +21,14 @@ async function handleLogout() {
 
 function Navigation() {
   return (
-    <>
-      <ul>
-        <li>
-          <button className={`${styles.button} ${styles.hoverEffect}`}>
-            <NavLink to="/admin">Admin dashboard</NavLink>
-          </button>
-        </li>
-        <li>
-          <button className={`${styles.button} ${styles.hoverEffect}`}>
-            <NavLink to="/admin/overview">Overview</NavLink>
-          </button>
-        </li>
-        <li>
-          <button className={`${styles.button} ${styles.hoverEffect}`}>
-            <NavLink to="/admin/users">Users</NavLink>
-          </button>
-        </li>
-        <li>
-          <button className={`${styles.button} ${styles.hoverEffect}`}>
-            <NavLink to="/admin/files">Files</NavLink>
-          </button>
-        </li>
-        <li>
-          <button className={`${styles.button} ${styles.hoverEffect}`}>
-            <NavLink to="/admin/settings">Navigation</NavLink>
-          </button>
-        </li>
-      </ul>
-    </>
+    <span>Navigation</span>
   );
 }
 
 function Settings() {
   return (
     <>
-      <span>Navigation</span>
+      <span>Settings</span>
     </>
   );
 }
@@ -66,8 +42,10 @@ export default function Sidebar({
   const sidebarRef = useRef(null);
   const [isResizing, setIsResizing] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(268);
+  const { user } = useUser();
 
-  const startResizing = React.useCallback(
+
+  const startResizing = useCallback(
     (mouseDownEvent) => {
       setIsResizing(true);
       mouseDownEvent.preventDefault();
@@ -75,11 +53,11 @@ export default function Sidebar({
     []
   );
 
-  const stopResizing = React.useCallback(() => {
+  const stopResizing = useCallback(() => {
     setIsResizing(false);
   }, []);
 
-  const resize = React.useCallback(
+  const resize = useCallback(
     (mouseMoveEvent) => {
       if (isResizing) {
         setSidebarWidth(
@@ -91,7 +69,7 @@ export default function Sidebar({
     [isResizing]
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     window.addEventListener("mousemove", resize);
     window.addEventListener("mouseup", stopResizing);
     return () => {
@@ -113,7 +91,7 @@ export default function Sidebar({
               {mode == "navigation" ? <Navigation /> : <Settings />}
             </div>
             <div className={styles.contentBodyBottom}>
-              <FileTree root={rootFolder} />
+              {mode === "navigation" ? <FileTree root={rootFolder} /> : null}
             </div>
           </div>
 
@@ -126,13 +104,12 @@ export default function Sidebar({
                 )
               }
             >
-              {mode === "navigation" ? (
-                <IoFileTrayStackedOutline />
-
+              {mode === "settings" ? (
+                <IoFileTrayStackedOutline size={25} />
               ) : (
                 <CiSettings size={25} />
               )}
-              {mode === "navigation" ? "Navigation" : "Settings"}
+              {mode === "navigation" ? "Settings" : "Navigation"}
             </button>
 
             <button

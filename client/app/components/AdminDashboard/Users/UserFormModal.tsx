@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import BaseModal from "~/components/BaseModal/BaseModal";
 
 import styles from './UserFormModal.module.css';
