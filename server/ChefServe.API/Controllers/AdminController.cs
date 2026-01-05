@@ -43,6 +43,34 @@ public class AdminController : ControllerBase
         return Ok(simplifiedUsers);
     }
 
+    [HttpGet("users/count")]
+    public async Task<IActionResult> GetUserCount()
+    {
+        var count = await _userService.GetUserCountAsync();
+        return Ok(new { userCount = count });
+    }
+
+    [HttpGet("files/count")]
+    public async Task<IActionResult> GetFileCount()
+    {
+        var count = await _fileService.GetFileCountAsync();
+        return Ok(new { fileCount = count });
+    }
+
+    [HttpGet("folders/count")]
+    public async Task<IActionResult> GetFolderCount()
+    {
+        var count = await _fileService.GetFolderCountAsync();
+        return Ok(new { folderCount = count });
+    }
+
+    [HttpGet("filetypes/count")]
+    public async Task<IActionResult> GetFileTypeCount()
+    {
+        var count = await _fileService.GetFileTypeCountAsync();
+        return Ok(new { fileTypeCount = count });
+    }
+
     [HttpDelete("users/{userId}")]
     public async Task<IActionResult> DeleteUser(Guid userId)
     {
@@ -68,4 +96,5 @@ public class AdminController : ControllerBase
         var userToUpdate = await _userService.UpdateUserAsync(updatedUser);
         return Ok(userToUpdate);
     }
+
 }

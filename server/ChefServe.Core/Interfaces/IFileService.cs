@@ -24,4 +24,12 @@ public interface IFileService
 
     Task<FileServiceResponseDTO> RenameFileAsync(Guid fileId, string newName, Guid userId);
     Task<GetFileTreeReturnDTO> GetFileTreeAsync(Guid ownerId);
+
+    Task<int> GetFileCountAsync();
+
+    Task<int> GetFolderCountAsync();
+
+    Task<int> GetFileTypeCountAsync();
+
+    Task<List<(string, int)>> GetFileTypeStatisticsAsync();
 }
