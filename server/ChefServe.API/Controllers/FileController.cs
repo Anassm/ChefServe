@@ -57,7 +57,6 @@ public class FileController : ControllerBase
         };
     }
 
-
     [HttpPost("UploadFile")]
     public async Task<ActionResult> UploadFile([FromForm] UploadFileFormDTO uploadFileDTO)
     {
@@ -105,6 +104,7 @@ public class FileController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, new { Error = "Internal server error.", Details = ex.Message });
         }
     }
+
     [HttpGet("GetFile")]
     public async Task<ActionResult> GetFile([FromQuery] Guid fileID)
     {
@@ -147,6 +147,7 @@ public class FileController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, new { Error = "Internal server error.", Details = ex.Message });
         }
     }
+
     [HttpGet("GetFiles")]
     public async Task<ActionResult> GetFiles([FromQuery] string? parentPath)
     {
@@ -188,6 +189,7 @@ public class FileController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, new { Error = "Internal server error.", Details = ex.Message });
         }
     }
+
     [HttpGet("DownloadFile")]
     public async Task<ActionResult> DownloadFile([FromQuery] Guid fileID)
     {
@@ -214,6 +216,67 @@ public class FileController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, new { Error = "Internal server error.", Details = ex.Message });
         }
     }
+
+    [HttpGet("ViewFile")]
+    public async Task<ActionResult> ViewFile([FromQuery] Guid fileID)
+    {
+        try
+        {
+            var user = HttpContext.GetUser();
+
+            if (fileID == Guid.Empty)
+                return StatusCode(StatusCodes.Status400BadRequest, new { Error = "Missing file ID" });
+
+            var file = await _fileService.GetFileAsync(fileID, user.ID);
+            if (file.Data == null)
+                return StatusCode(StatusCodes.Status404NotFound, new { Error = "File not found in database" });
+            dynamic fileData = file.Data;
+
+            var stream = await _fileService.DownloadFileAsync(fileID, user.ID);
+            if (stream == null)
+                return StatusCode(StatusCodes.Status404NotFound, new { Error = "File not found on drive" });
+
+            string contentType = GetContentType(fileData.Extension);
+            
+            Response.Headers.Add("Content-Disposition", $"inline; filename=\"{fileData.Name}\"");
+            
+            return File(stream, contentType, enableRangeProcessing: true);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { Error = "Internal server error.", Details = ex.Message });
+        }
+    }
+
+    private string GetContentType(string extension)
+    {
+        return extension.ToLower() switch
+        {
+            ".pdf" => "application/pdf",
+            ".txt" => "text/plain",
+            ".html" => "text/html",
+            ".htm" => "text/html",
+            ".jpg" => "image/jpeg",
+            ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".gif" => "image/gif",
+            ".webp" => "image/webp",
+            ".svg" => "image/svg+xml",
+            ".mp4" => "video/mp4",
+            ".webm" => "video/webm",
+            ".mp3" => "audio/mpeg",
+            ".wav" => "audio/wav",
+            ".json" => "application/json",
+            ".xml" => "application/xml",
+            ".csv" => "text/csv",
+            ".doc" => "application/msword",
+            ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ".xls" => "application/vnd.ms-excel",
+            ".xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            _ => "application/octet-stream",
+        };
+    }
+
     [HttpDelete("DeleteFile")]
     public async Task<ActionResult> DeleteFile([FromQuery] Guid fileID)
     {
@@ -239,6 +302,7 @@ public class FileController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, new { Error = "Internal server error.", Details = ex.Message });
         }
     }
+
     [HttpPut("RenameFile")]
     public async Task<ActionResult> RenameFile([FromBody] RenameFileBodyDTO renameFileDTO)
     {

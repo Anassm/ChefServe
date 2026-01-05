@@ -30,16 +30,50 @@ public class AdminController : ControllerBase
     {
         var users = await _userService.GetAllUsersAsync();
         Console.WriteLine("Fetched users: " + string.Join(", ", users.Select(u => u.Email)));
-        var simplifiedUsers = users.Select(u => new
+        
+        var simplifiedUsers = new List<object>();
+        foreach (var user in users)
         {
-            id = u.ID,
-            username = u.Username,
-            firstName = u.FirstName,
-            lastName = u.LastName,
-            email = u.Email,
-            role = u.Role,
-            createdAt = u.CreatedAt
-        });
+            var userFiles = await _fileService.GetFilesAsync(user.ID, null);
+            int totalFiles = 0;
+            long totalStorageUsed = 0;
+
+            if (userFiles.Data != null)
+            {
+                dynamic filesData = userFiles.Data;
+                foreach (var file in filesData)
+                {
+                    if (!file.IsFolder)
+                    {
+                        totalFiles++;
+                        // Try to get file size from the file system
+                        try
+                        {
+                            if (System.IO.File.Exists(file.Path))
+                            {
+                                var fileInfo = new System.IO.FileInfo(file.Path);
+                                totalStorageUsed += fileInfo.Length;
+                            }
+                        }
+                        catch { }
+                    }
+                }
+            }
+
+            simplifiedUsers.Add(new
+            {
+                id = user.ID,
+                username = user.Username,
+                firstName = user.FirstName,
+                lastName = user.LastName,
+                email = user.Email,
+                role = user.Role,
+                createdAt = user.CreatedAt,
+                totalFiles = totalFiles,
+                totalStorageUsed = totalStorageUsed
+            });
+        }
+        
         return Ok(simplifiedUsers);
     }
 
