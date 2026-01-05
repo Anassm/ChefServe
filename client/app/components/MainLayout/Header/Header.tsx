@@ -352,6 +352,7 @@ export default function Header() {
                   );
                 }
           }
+
           opacity={
             adminMode === "userManagement" ||
             !selectedFile ||

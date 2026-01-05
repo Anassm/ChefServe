@@ -36,4 +36,10 @@ public interface IFileService
     Task<int> GetFoldersWithContentCountAsync();
 
     Task<int> GetEmptyFolderCountAsync();
+
+    Task<decimal> GetTotalStorageUsedAsync();
+
+    Task<decimal> GetUserStorageUsedAsync(Guid userId);
+
+    Task<int> GetUserFileCountAsync(Guid userId);
 }

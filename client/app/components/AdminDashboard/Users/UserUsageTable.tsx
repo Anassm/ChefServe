@@ -18,7 +18,7 @@ export default function UserUsageTable({ usageData }: { usageData: any[] }) {
                         <td>{data.userId}</td> 
                         <td>{data.username}</td>
                         <td>{data.totalFiles}</td>
-                        <td>{(data.totalStorageUsed / (1024 * 1024)).toFixed(2)}</td>
+                        <td>{data.totalStorageUsed}</td>
                     </tr>
                 ))
             }

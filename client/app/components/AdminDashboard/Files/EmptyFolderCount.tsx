@@ -6,25 +6,22 @@ export default function EmptyFolderCount() {
 
     useEffect(() => {
         const fetchData = async () => {
-            try {
-                const response = await fetch("http://localhost:5175/api/admin/folders/empty/count", {
-                    method: "GET",
-                    credentials: "include",
-                });
-                if (!response.ok) {
-                    return;
-                }
-                const data = await response.json();
-                setCount(data.emptyFolderCount ?? 0);
-            } catch (error) {
-                console.error("Failed to fetch empty folder count", error);
-            }
+            fetch("http://localhost:5175/api/admin/folders/empty-count", {
+                method: "GET",
+                credentials: "include",
+            }).then(response => response.json()).then(data => {setCount(data.emptyFolderCount);});
         };
-
         fetchData();
-        const interval = setInterval(fetchData, 5000);
+        const interval = setInterval(() => {
+            fetchData();
+        }, 5000);
+
         return () => clearInterval(interval);
     }, []);
 
-    return <Counter title="Empty Folders" count={count || 0} />;
+    if (!count) {
+        return <Counter title="Empty Folders" count={0} />;
+    }
+
+    return <Counter title="Empty Folders" count={count} />;
 }

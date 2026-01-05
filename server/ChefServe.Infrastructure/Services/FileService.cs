@@ -970,4 +970,49 @@ public class FileService : IFileService
     {
         return await _context.FileItems.CountAsync(f => f.IsFolder && !f.HasContent);
     }
+
+    public async Task<decimal> GetTotalStorageUsedAsync()
+    {
+        var files = await _context.FileItems
+            .Where(f => !f.IsFolder)
+            .ToListAsync();
+        
+        long totalBytes = 0;
+        foreach (var file in files)
+        {
+            if (File.Exists(file.Path))
+            {
+                FileInfo fileInfo = new FileInfo(file.Path);
+                totalBytes += fileInfo.Length;
+            }
+        }
+
+        return Math.Round((decimal)totalBytes / (1024 * 1024), 2); // Return size in MB rounded to 2 decimal places
+    }
+
+    public async Task<decimal> GetUserStorageUsedAsync(Guid userId)
+    {
+        var files = await _context.FileItems
+            .Where(f => !f.IsFolder && f.OwnerID == userId)
+            .ToListAsync();
+        
+        Console.WriteLine("Files count for user " + userId + ": " + files.Count);
+        
+        long totalBytes = 0;
+        foreach (var file in files)
+        {
+            if (File.Exists(file.Path))
+            {
+                FileInfo fileInfo = new FileInfo(file.Path);
+                totalBytes += fileInfo.Length;
+            }
+        }
+
+        return Math.Round((decimal)totalBytes / (1024 * 1024), 2); // Return size in MB rounded to 2 decimal places
+    }
+
+    public async Task<int> GetUserFileCountAsync(Guid userId)
+    {
+        return await _context.FileItems.CountAsync(f => !f.IsFolder && f.OwnerID == userId);
+    }
 }

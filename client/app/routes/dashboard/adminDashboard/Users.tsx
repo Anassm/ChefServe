@@ -5,6 +5,7 @@ import { TbUserPlus, TbRefresh } from "react-icons/tb";
 import { useState } from "react";
 import UserFormModal from "~/components/AdminDashboard/Users/UserFormModal";
 import UserUsageTable from "~/components/AdminDashboard/Users/UserUsageTable";
+import { NavLink } from "react-router";
 
 // loader function to fetch users from the backend
 export async function clientLoader({ request }: Route.LoaderArgs) {
@@ -71,6 +72,12 @@ export default function Users({ loaderData }: { loaderData?: any[] }) {
     }
     return(
         <div> 
+            <div style={{ height: "20px" }}></div>
+            <div className={styles.navContainer}>
+                <NavLink to="/admin" className={styles.navButton}>
+                Go back
+                </NavLink>
+            </div>
             <div className={styles.userListHeader}>
                 <h2 className={styles.userListTitle}>User List</h2>
                 <div className={styles.buttonGroup}>

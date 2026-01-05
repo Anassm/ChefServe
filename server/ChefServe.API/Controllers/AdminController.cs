@@ -34,31 +34,8 @@ public class AdminController : ControllerBase
         var simplifiedUsers = new List<object>();
         foreach (var user in users)
         {
-            var userFiles = await _fileService.GetFilesAsync(user.ID, null);
-            int totalFiles = 0;
-            long totalStorageUsed = 0;
-
-            if (userFiles.Data != null)
-            {
-                dynamic filesData = userFiles.Data;
-                foreach (var file in filesData)
-                {
-                    if (!file.IsFolder)
-                    {
-                        totalFiles++;
-                        // Try to get file size from the file system
-                        try
-                        {
-                            if (System.IO.File.Exists(file.Path))
-                            {
-                                var fileInfo = new System.IO.FileInfo(file.Path);
-                                totalStorageUsed += fileInfo.Length;
-                            }
-                        }
-                        catch { }
-                    }
-                }
-            }
+            var totalFiles = await _fileService.GetUserFileCountAsync(user.ID);
+            var totalStorageUsed = await _fileService.GetUserStorageUsedAsync(user.ID);
 
             simplifiedUsers.Add(new
             {
@@ -129,6 +106,13 @@ public class AdminController : ControllerBase
             count = s.Item2
         });
         return Ok(normalized);
+    }
+
+    [HttpGet("storage/total-used")]
+    public async Task<IActionResult> GetTotalStorageUsedAsync()
+    {
+        var totalStorageUsed = await _fileService.GetTotalStorageUsedAsync();
+        return Ok(new { totalStorageUsed });
     }
 
     [HttpDelete("users/{userId}")]
