@@ -1,5 +1,7 @@
 namespace ChefServe.Core.Models;
 
+using System.Text.Json.Serialization;
+
 public class FileItem
 {
     public Guid ID { get; set; } = Guid.NewGuid();
@@ -14,6 +16,9 @@ public class FileItem
     public bool HasContent { get; set; } = false;
     public Guid OwnerID { get; set; }
 
+
     public required User Owner { get; set; }
+
+    [JsonIgnore]
     public ICollection<SharedFileItem> SharedWith { get; set; } = new List<SharedFileItem>();
 }

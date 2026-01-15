@@ -20,8 +20,26 @@ public interface IFileService
 
     Task<FileServiceResponseDTO> DeleteFileAsync(Guid fileId, Guid userId);
 
-    // Task<FileItem?> MoveFileAsync(Guid fileId, string newPath, Guid userId);
-
     Task<FileServiceResponseDTO> RenameFileAsync(Guid fileId, string newName, Guid userId);
     Task<GetFileTreeReturnDTO> GetFileTreeAsync(Guid ownerId);
+
+    Task<int> GetFileCountAsync();
+
+    Task<int> GetFolderCountAsync();
+
+    Task<int> GetFileTypeCountAsync();
+
+    Task<List<(string, int)>> GetFileTypeStatisticsAsync();
+
+    Task<int> GetFoldersWithContentCountAsync();
+
+    Task<int> GetEmptyFolderCountAsync();
+
+    Task<decimal> GetTotalStorageUsedAsync();
+
+    Task<decimal> GetUserStorageUsedAsync(Guid userId);
+
+    Task<int> GetUserFileCountAsync(Guid userId);
+
+    Task<FileServiceResponseDTO> GetAllFilesAsync();
 }

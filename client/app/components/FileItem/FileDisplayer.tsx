@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { useSearchParams, useNavigate, useParams } from "react-router";
 import { selectedFileContext } from "~/context/SelectedFileContext";
 import styles from "./FileDisplayer.module.css";
@@ -15,6 +15,8 @@ export default function FileDisplayer({ files }: { files: fileItem[] }) {
 
   const selectedFile = context?.selectedFile;
   const setSelectedFile = context?.setSelectedFile;
+
+  const [viewerFile, setViewerFile] = useState<{ url: string; name: string; extension: string } | null>(null);
 
   if (!files || files === undefined || files === null || files.length === 0) {
     return <div>No files to display</div>;
@@ -34,9 +36,17 @@ export default function FileDisplayer({ files }: { files: fileItem[] }) {
     }
   }
 
-  function handleOpenFile(file: fileItem) {
-    alert(`Open file: ${file.name}`);
+  async function handleOpenFile(file: fileItem) {
+    try {
+      const viewUrl = `http://localhost:5175/api/file/ViewFile?fileID=${file.id}`;
+      window.open(viewUrl, '_blank');
+    } catch (error) {
+      console.error('Error opening file:', error);
+      alert('Error opening file');
+    }
   }
+
+
 
   function handleOpenFolder(file: fileItem) {
     console.log("FILE:", file);

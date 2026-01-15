@@ -28,10 +28,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy
-            .WithOrigins("http://localhost:5173", "http://localhost:5175") // your dev frontends
+            .WithOrigins("http://localhost:5173", "http://localhost:5175")
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials(); // required for cookies
+            .AllowCredentials();
     });
 });
 
@@ -45,10 +45,8 @@ builder.WebHost.ConfigureKestrel(options =>
     options.Limits.MaxRequestBodySize = null; // ~100 MB
 });
 
-
 var app = builder.Build();
 
-// Run migrations and seed DB
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ChefServeDbContext>();
@@ -56,7 +54,6 @@ using (var scope = app.Services.CreateScope())
     DatabaseSeeder.Seed(context);
 }
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger(c =>

@@ -120,6 +120,7 @@ export default function Header() {
       setRenameData("");
       setRenameModal(false);
       setSelectedFile(null);
+      setRefresh((prev) => !prev);
       revalidator.revalidate();
     } catch (err) {
       console.error(err);
@@ -268,7 +269,7 @@ export default function Header() {
           ) : (
             <NavLink
               className={styles.button}
-              to="/admin/users"
+              to="/admin/"
               onClick={() => setAdminMode("userManagement")}
               style={{ marginRight: "12px" }}
             >
@@ -341,28 +342,25 @@ export default function Header() {
         <AiOutlineDownload
           size={40}
           onClick={
-            adminMode === "userManagement" ||
-            !selectedFile ||
-            selectedFile.isFolder
+            adminMode === "userManagement" || !selectedFile
               ? () => {}
-              : () => {
-                  window.open(
-                    `http://localhost:5175/api/File/DownloadFile?fileID=${selectedFile.id}`,
-                    "_blank"
-                  );
-                }
+              : selectedFile.isFolder
+                ? () => {
+                    window.open(
+                      `http://localhost:5175/api/File/DownloadFolder?folderID=${selectedFile.id}`,
+                      "_blank"
+                    );
+                  }
+                : () => {
+                    window.open(
+                      `http://localhost:5175/api/File/DownloadFile?fileID=${selectedFile.id}`,
+                      "_blank"
+                    );
+                  }
           }
-          opacity={
-            adminMode === "userManagement" ||
-            !selectedFile ||
-            selectedFile.isFolder
-              ? 0.5
-              : 1
-          }
+          opacity={adminMode === "userManagement" || !selectedFile ? 0.5 : 1}
           style={
-            adminMode === "userManagement" ||
-            !selectedFile ||
-            selectedFile.isFolder
+            adminMode === "userManagement" || !selectedFile
               ? { cursor: "not-allowed" }
               : { cursor: "pointer" }
           }

@@ -1,0 +1,25 @@
+.usageTable {
+  width: calc(100% - 1rem);
+  border-collapse: collapse;
+  margin-top: 1rem;
+  margin-left: 1rem;
+  font-family: system-ui, sans-serif;
+}
+
+.usageTable th,
+.usageTable td {
+  border: 1px solid #e0c68d;
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.usageTable th {
+  background: #f4d29b;
+  color: #3b2f1e;
+}
+
+.tableRow {
+  cursor: default;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+

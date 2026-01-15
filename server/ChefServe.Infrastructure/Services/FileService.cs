@@ -5,6 +5,7 @@ using ChefServe.Core.Interfaces;
 using ChefServe.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
+using System.IO;
 
 
 namespace ChefServe.Infrastructure.Services;
@@ -927,6 +928,152 @@ public class FileService : IFileService
                 Success = false,
                 StatusCode = 500,
                 Message = "An error occurred while fetching file data: " + ex.Message
+            };
+        }
+    }
+
+    public async Task<int> GetFileCountAsync()
+    {
+        return await _context.FileItems.CountAsync(f => !f.IsFolder);
+    }
+
+    public async Task<int> GetFolderCountAsync()
+    {
+        return await _context.FileItems.CountAsync(f => f.IsFolder);
+    }
+
+    public async Task<int> GetFileTypeCountAsync()
+    {
+        return await _context.FileItems
+            .Where(f => !f.IsFolder)
+            .Select(f => f.Extension)
+            .Distinct()
+            .CountAsync();
+    }
+
+    public async Task<List<(string, int)>> GetFileTypeStatisticsAsync()
+    {
+        var stats = await _context.FileItems
+            .Where(f => !f.IsFolder)
+            .GroupBy(f => f.Extension)
+            .Select(g => new { Extension = g.Key ?? "No Extension", Count = g.Count() })
+            .ToListAsync();
+
+        return stats.Select(s => (s.Extension, s.Count)).ToList();
+    }
+
+    public async Task<int> GetFoldersWithContentCountAsync()
+    {
+        return await _context.FileItems.CountAsync(f => f.IsFolder && f.HasContent);
+    }
+
+    public async Task<int> GetEmptyFolderCountAsync()
+    {
+        return await _context.FileItems.CountAsync(f => f.IsFolder && !f.HasContent);
+    }
+
+    public async Task<decimal> GetTotalStorageUsedAsync()
+    {
+        var files = await _context.FileItems
+            .Where(f => !f.IsFolder)
+            .ToListAsync();
+        
+        long totalBytes = 0;
+        foreach (var file in files)
+        {
+            if (File.Exists(file.Path))
+            {
+                FileInfo fileInfo = new FileInfo(file.Path);
+                totalBytes += fileInfo.Length;
+            }
+        }
+
+        return Math.Round((decimal)totalBytes / (1024 * 1024), 2); 
+    }
+
+    public async Task<decimal> GetUserStorageUsedAsync(Guid userId)
+    {
+        var files = await _context.FileItems
+            .Where(f => !f.IsFolder && f.OwnerID == userId)
+            .ToListAsync();
+        
+        Console.WriteLine("Files count for user " + userId + ": " + files.Count);
+        
+        long totalBytes = 0;
+        foreach (var file in files)
+        {
+            if (File.Exists(file.Path))
+            {
+                FileInfo fileInfo = new FileInfo(file.Path);
+                totalBytes += fileInfo.Length;
+            }
+        }
+
+        return Math.Round((decimal)totalBytes / (1024 * 1024), 2); 
+    }
+
+    public async Task<int> GetUserFileCountAsync(Guid userId)
+    {
+        return await _context.FileItems.CountAsync(f => !f.IsFolder && f.OwnerID == userId);
+    }
+
+    public async Task<FileServiceResponseDTO> GetAllFilesAsync()
+    {
+        Console.WriteLine("GetAllFilesAsync called.");
+        try
+        {
+            var files = await _context.FileItems.Include(f => f.Owner).Where(f => f.IsFolder == false).ToListAsync();
+
+            var simplified = new List<object>();
+            foreach (var f in files)
+            {
+                long sizeInBytes = 0;
+                try
+                {
+                    if (!f.IsFolder && !string.IsNullOrEmpty(f.Path) && File.Exists(f.Path))
+                    {
+                        var fi = new FileInfo(f.Path);
+                        sizeInBytes = fi.Length;
+                    }
+                }
+                catch
+                {
+                    sizeInBytes = 0;
+                }
+
+                simplified.Add(new
+                {
+                    id = f.ID,
+                    name = f.Name,
+                    path = f.Path,
+                    parentPath = f.ParentPath,
+                    extension = f.Extension,
+                    summary = f.Summary,
+                    createdAt = f.CreatedAt,
+                    updatedAt = f.UpdatedAt,
+                    isFolder = f.IsFolder,
+                    hasContent = f.HasContent,
+                    ownerID = f.OwnerID,
+                    sizeInBytes = sizeInBytes,
+                    owner = f.Owner == null ? null : new { id = f.Owner.ID, username = f.Owner.Username }
+                });
+            }
+
+            return new FileServiceResponseDTO
+            {
+                Success = true,
+                StatusCode = 200,
+                Message = "All files retrieved successfully.",
+                Data = simplified
+            };
+        }
+        catch (Exception ex)
+        {
+            return new FileServiceResponseDTO
+            {
+                Success = false,
+                StatusCode = 500,
+                Message = "An error occurred while retrieving all files: " + ex.Message
             };
         }
     }
