@@ -120,6 +120,7 @@ export default function Header() {
       setRenameData("");
       setRenameModal(false);
       setSelectedFile(null);
+      setRefresh((prev) => !prev);
       revalidator.revalidate();
     } catch (err) {
       console.error(err);
@@ -357,15 +358,9 @@ export default function Header() {
                     );
                   }
           }
-          opacity={
-            adminMode === "userManagement" ||
-            !selectedFile
-              ? 0.5
-              : 1
-          }
+          opacity={adminMode === "userManagement" || !selectedFile ? 0.5 : 1}
           style={
-            adminMode === "userManagement" ||
-            !selectedFile
+            adminMode === "userManagement" || !selectedFile
               ? { cursor: "not-allowed" }
               : { cursor: "pointer" }
           }
