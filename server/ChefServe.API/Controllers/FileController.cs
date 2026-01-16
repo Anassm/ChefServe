@@ -94,7 +94,7 @@ public class FileController : ControllerBase
             return result.StatusCode switch
             {
                 201 => StatusCode(StatusCodes.Status201Created, new { result.Success, result.Message, returnData }),
-                204 => StatusCode(StatusCodes.Status204NoContent, new { result.Success, result.Message }),
+                204 => StatusCode(StatusCodes.Status204NoContent),
                 400 => StatusCode(StatusCodes.Status400BadRequest, new { result.Success, result.Message }),
                 404 => StatusCode(StatusCodes.Status404NotFound, new { result.Success, result.Message }),
                 409 => StatusCode(StatusCodes.Status409Conflict, new { result.Success, result.Message }),
@@ -182,7 +182,7 @@ public class FileController : ControllerBase
             return result.StatusCode switch
             {
                 200 => StatusCode(StatusCodes.Status200OK, new { result.Success, result.Message, returnData }),
-                204 => StatusCode(StatusCodes.Status204NoContent, new { result.Success, result.Message }),
+                204 => StatusCode(StatusCodes.Status204NoContent),
                 500 => StatusCode(StatusCodes.Status500InternalServerError, new { result.Success, result.Message }),
                 _ => StatusCode(StatusCodes.Status501NotImplemented, new { result.Success, Message = "Not implemented status code." })
             };

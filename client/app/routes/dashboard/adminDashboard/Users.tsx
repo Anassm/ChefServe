@@ -58,6 +58,8 @@ export default function Users({ loaderData }: { loaderData?: any[] }) {
             console.error("Failed to add user:", response.statusText);
             return;
         }
+        setIsModalOpen(false);
+        refreshUsers();
         return await response.json();
     }
 
